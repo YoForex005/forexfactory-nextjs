@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasAdminAccess } from "@/lib/auth-utils";
 import { uploadToR2, generateFileKey } from "@/lib/r2";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

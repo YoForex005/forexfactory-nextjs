@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasAdminAccess } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
     for (const blog of blogs) {
       const seo = blog.seoMeta[0]; // Assuming 1:1 or 1:many, take first
       const issues = [];
-      
+
       if (!seo?.seoTitle && !blog.title) issues.push("Missing meta title");
       if (!seo?.seoDescription) issues.push("Missing meta description");
       if (!seo?.seoKeywords && !blog.tags) issues.push("Missing keywords");

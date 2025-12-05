@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasAdminAccess } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 // Get all blog posts (for admin)
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -90,14 +91,14 @@ export async function PUT(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { 
+    const {
       id, title, content, excerpt, featuredImage, author, tags, status,
-      seoSlug, metaTitle, metaDescription, canonicalUrl 
+      seoSlug, metaTitle, metaDescription, canonicalUrl
     } = body;
 
     if (!id) {
@@ -162,7 +163,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasAdminAccess } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import fs from "fs/promises";
 import path from "path";
@@ -66,7 +67,7 @@ async function generateSitemapXml() {
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -88,7 +89,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

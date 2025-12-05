@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasAdminAccess } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 export async function PUT(
@@ -8,7 +9,7 @@ export async function PUT(
 ) {
   try {
     const session = await auth();
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -18,15 +19,15 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { 
-      type, 
-      metaTitle, 
-      metaDescription, 
-      keywords, 
-      canonicalUrl, 
-      ogTitle, 
-      ogDescription, 
-      ogImage 
+    const {
+      type,
+      metaTitle,
+      metaDescription,
+      keywords,
+      canonicalUrl,
+      ogTitle,
+      ogDescription,
+      ogImage
     } = body;
 
     if (type === "blog") {

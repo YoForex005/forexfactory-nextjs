@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Plus, Edit, Trash2, FolderOpen, X } from "lucide-react";
 
 interface Category {
@@ -110,16 +109,14 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <AdminLayout user={{ name: "Admin", role: "Administrator" }}>
-        <div className="flex h-screen items-center justify-center">
-          <div className="text-zinc-400">Loading categories...</div>
-        </div>
-      </AdminLayout>
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-zinc-400">Loading categories...</div>
+      </div>
     );
   }
 
   return (
-    <AdminLayout user={{ name: "Admin", role: "Administrator" }}>
+    <>
       <div className="p-6 lg:p-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
@@ -148,11 +145,10 @@ export default function CategoriesPage() {
                   <FolderOpen className="h-6 w-6 text-brand" />
                 </div>
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    category.status === "active"
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${category.status === "active"
                       ? "bg-emerald-500/10 text-emerald-400"
                       : "bg-zinc-500/10 text-zinc-400"
-                  }`}
+                    }`}
                 >
                   {category.status}
                 </span>
@@ -273,6 +269,6 @@ export default function CategoriesPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

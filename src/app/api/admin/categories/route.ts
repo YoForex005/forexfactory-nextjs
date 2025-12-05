@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasAdminAccess } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 // Get all categories
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, category }, { status: 201 });
   } catch (error: any) {
     console.error("Error creating category:", error);
-    
+
     if (error.code === "P2002") {
       return NextResponse.json(
         { error: "Category name already exists" },
@@ -80,7 +81,7 @@ export async function PUT(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -118,7 +119,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!hasAdminAccess(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

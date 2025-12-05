@@ -1,18 +1,19 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-// Initialize R2 client
+// Initialize R2 client using Cloudflare R2
 const r2Client = new S3Client({
   region: "auto",
-  endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
+  endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || "",
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
   },
 });
 
-const BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME || "";
-const PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL || "";
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || "forexfactory";
+// Public URL base - automatically uses localhost in dev, production URL when deployed
+const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 /**
  * Generate a presigned URL for uploading a file
@@ -56,13 +57,14 @@ export async function deleteFromR2(key: string): Promise<void> {
 }
 
 /**
- * Generate a unique file key
+ * Generate a unique file key matching the expected format
+ * Example output: uploads/img_690db8c71f9fb1.87759979.png
  */
 export function generateFileKey(originalName: string, folder: string = "uploads"): string {
-  const timestamp = Date.now();
-  const randomString = Math.random().toString(36).substring(2, 15);
+  const timestamp = Date.now().toString(16);
+  const randomPart = Math.random().toString().substring(2, 10);
   const extension = originalName.split(".").pop();
-  return `${folder}/${timestamp}-${randomString}.${extension}`;
+  return `${folder}/img_${timestamp}.${randomPart}.${extension}`;
 }
 
 /**
@@ -71,3 +73,4 @@ export function generateFileKey(originalName: string, folder: string = "uploads"
 export function getPublicUrl(key: string): string {
   return `${PUBLIC_URL}/${key}`;
 }
+
