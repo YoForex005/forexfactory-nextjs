@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { Mail, MessageSquare, Send, CheckCircle2 } from "lucide-react";
 
 export default function ContactPage() {
@@ -45,7 +46,7 @@ export default function ContactPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <main className="flex-1 bg-surface-100">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
@@ -69,7 +70,7 @@ export default function ContactPage() {
               <div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
                   <h2 className="mb-6 text-2xl font-bold text-white">Send us a Message</h2>
-                  
+
                   {status === "success" ? (
                     <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-6 text-center">
                       <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />
@@ -226,6 +227,7 @@ export default function ContactPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

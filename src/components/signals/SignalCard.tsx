@@ -13,9 +13,26 @@ export function SignalCard({ signal }: SignalCardProps) {
     day: 'numeric',
     year: 'numeric'
   });
-  
+
+  // Helper to handle multiple levels of escaped HTML from database
+  const createMarkup = (htmlContent: string) => {
+    let decoded = htmlContent;
+    for (let i = 0; i < 3; i++) {
+      const current = decoded
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+
+      if (current === decoded) break;
+      decoded = current;
+    }
+    return { __html: decoded };
+  };
+
   return (
-    <Link 
+    <Link
       href={`/signals/${signal.uuid}`}
       className="group flex flex-col rounded-2xl border border-white/10 bg-white/5 p-6 transition-all hover:border-brand/50 hover:bg-white/10 hover:shadow-xl hover:shadow-brand/5"
     >
@@ -37,10 +54,11 @@ export function SignalCard({ signal }: SignalCardProps) {
       <h3 className="mb-2 text-lg font-bold text-white group-hover:text-brand transition-colors line-clamp-2">
         {signal.title}
       </h3>
-      
-      <p className="mb-4 flex-1 text-sm text-zinc-400 line-clamp-3">
-        {signal.description}
-      </p>
+
+      <div
+        className="mb-4 flex-1 text-sm text-zinc-400 line-clamp-3"
+        dangerouslySetInnerHTML={createMarkup(signal.description)}
+      />
 
       <div className="mt-auto space-y-3">
         <div className="flex items-center gap-2 text-xs text-zinc-500">

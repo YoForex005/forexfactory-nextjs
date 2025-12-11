@@ -44,6 +44,8 @@ model Blog {
   comments      Comment[]
   seoMeta       SeoMeta[]
 
+  @@unique([seoSlug])
+  @@index([status, createdAt])
   @@map("blogs")
 }
 

@@ -6,6 +6,15 @@ import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
+import { cache } from "react";
+
+// Memoized blog fetch - runs only ONCE per request even if called multiple times
+const getBlog = cache(async (slug: string) => {
+  return prisma.blog.findFirst({
+    where: { seoSlug: slug },
+    include: { seoMeta: true }
+  });
+});
 
 interface BlogDetailProps {
   params: Promise<{
@@ -15,10 +24,7 @@ interface BlogDetailProps {
 
 export async function generateMetadata({ params }: BlogDetailProps): Promise<Metadata> {
   const { slug } = await params;
-  const blog = await prisma.blog.findFirst({
-    where: { seoSlug: slug },
-    include: { seoMeta: true }
-  });
+  const blog = await getBlog(slug);
 
   if (!blog) {
     return {};
@@ -55,10 +61,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
 
 export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const { slug } = await params;
-  const blog = await prisma.blog.findFirst({
-    where: { seoSlug: slug },
-    include: { seoMeta: true }
-  });
+  const blog = await getBlog(slug);
 
   if (!blog) {
     notFound();
@@ -78,7 +81,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -88,7 +91,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         {/* Hero / Header */}
         <div className="relative h-[400px] w-full overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100">
           <div className="absolute inset-0 bg-gradient-to-t from-surface-100 via-surface-100/50 to-transparent" />
-          
+
           <div className="absolute bottom-0 left-0 w-full p-4">
             <div className="container mx-auto">
               <Link href="/blog" className="mb-4 inline-flex items-center text-sm text-zinc-400 hover:text-brand">
@@ -116,7 +119,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         {/* Content */}
         <article className="container mx-auto px-4 py-12">
           <div className="mx-auto max-w-3xl">
-            <div 
+            <div
               className="prose prose-invert prose-lg max-w-none prose-a:text-brand prose-headings:text-white prose-strong:text-white text-zinc-300"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />

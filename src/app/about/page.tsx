@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { CheckCircle2, Users, TrendingUp, Award, Target, Heart } from "lucide-react";
 import { SITE_NAME } from "@/lib/seo";
 
@@ -17,7 +18,7 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <main className="flex-1 bg-surface-100">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
@@ -27,7 +28,7 @@ export default function AboutPage() {
                 About Forex Factory
               </h1>
               <p className="text-xl text-zinc-300">
-                Empowering traders worldwide with free Expert Advisors, real-time signals, 
+                Empowering traders worldwide with free Expert Advisors, real-time signals,
                 and comprehensive Forex education since 2020.
               </p>
             </div>
@@ -44,11 +45,11 @@ export default function AboutPage() {
                 </div>
                 <h2 className="mb-4 text-3xl font-bold text-white">Our Mission</h2>
                 <p className="mb-4 text-lg text-zinc-300">
-                  To democratize Forex trading by providing free access to professional-grade 
+                  To democratize Forex trading by providing free access to professional-grade
                   Expert Advisors, trading signals, and educational resources.
                 </p>
                 <p className="text-zinc-400">
-                  We believe that everyone should have access to the tools and knowledge needed 
+                  We believe that everyone should have access to the tools and knowledge needed
                   to succeed in Forex trading, regardless of their budget or experience level.
                 </p>
               </div>
@@ -59,11 +60,11 @@ export default function AboutPage() {
                 </div>
                 <h2 className="mb-4 text-3xl font-bold text-white">Our Vision</h2>
                 <p className="mb-4 text-lg text-zinc-300">
-                  To become the world's most trusted platform for Forex traders, offering 
+                  To become the world's most trusted platform for Forex traders, offering
                   cutting-edge automation tools and fostering a thriving community.
                 </p>
                 <p className="text-zinc-400">
-                  We envision a future where algorithmic trading is accessible to all, 
+                  We envision a future where algorithmic trading is accessible to all,
                   and traders can leverage technology to achieve consistent profitability.
                 </p>
               </div>
@@ -99,7 +100,7 @@ export default function AboutPage() {
         <section className="py-20">
           <div className="container mx-auto px-4">
             <h2 className="mb-12 text-center text-4xl font-bold text-white">Our Core Values</h2>
-            
+
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
@@ -107,7 +108,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Quality First</h3>
                 <p className="text-zinc-400">
-                  Every Expert Advisor is thoroughly tested with real backtest results 
+                  Every Expert Advisor is thoroughly tested with real backtest results
                   and forward testing data to ensure reliability and performance.
                 </p>
               </div>
@@ -118,7 +119,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Community Driven</h3>
                 <p className="text-zinc-400">
-                  We listen to our community and continuously improve based on trader 
+                  We listen to our community and continuously improve based on trader
                   feedback, suggestions, and real-world trading experiences.
                 </p>
               </div>
@@ -129,7 +130,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Innovation</h3>
                 <p className="text-zinc-400">
-                  We stay ahead of market trends by constantly developing new strategies, 
+                  We stay ahead of market trends by constantly developing new strategies,
                   optimizing algorithms, and adopting cutting-edge trading technologies.
                 </p>
               </div>
@@ -140,7 +141,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Transparency</h3>
                 <p className="text-zinc-400">
-                  We provide complete transparency with detailed performance metrics, 
+                  We provide complete transparency with detailed performance metrics,
                   backtest results, and honest assessments of each trading system.
                 </p>
               </div>
@@ -151,7 +152,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Free Access</h3>
                 <p className="text-zinc-400">
-                  We believe in making professional trading tools accessible to everyone. 
+                  We believe in making professional trading tools accessible to everyone.
                   All our Expert Advisors and resources are 100% free, forever.
                 </p>
               </div>
@@ -162,7 +163,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Education</h3>
                 <p className="text-zinc-400">
-                  We empower traders through comprehensive tutorials, strategy guides, 
+                  We empower traders through comprehensive tutorials, strategy guides,
                   and market analysis to help them understand and succeed in Forex trading.
                 </p>
               </div>
@@ -177,25 +178,25 @@ export default function AboutPage() {
               <h2 className="mb-8 text-4xl font-bold text-white">Our Story</h2>
               <div className="space-y-6 text-lg text-zinc-300">
                 <p>
-                  Forex Factory was founded in 2020 by a team of experienced Forex traders 
-                  and software developers who were frustrated with the high costs and limited 
+                  Forex Factory was founded in 2020 by a team of experienced Forex traders
+                  and software developers who were frustrated with the high costs and limited
                   access to quality Expert Advisors.
                 </p>
                 <p>
-                  We started with a simple mission: create a platform where traders could 
-                  access professional-grade trading tools without breaking the bank. What 
-                  began as a small collection of 10 Expert Advisors has grown into a 
+                  We started with a simple mission: create a platform where traders could
+                  access professional-grade trading tools without breaking the bank. What
+                  began as a small collection of 10 Expert Advisors has grown into a
                   comprehensive library of 500+ tested and verified trading systems.
                 </p>
                 <p>
-                  Today, Forex Factory serves over 50,000 active traders worldwide, with 
-                  more than 1 million downloads and counting. Our community continues to 
-                  grow as we add new Expert Advisors, improve existing ones, and provide 
+                  Today, Forex Factory serves over 50,000 active traders worldwide, with
+                  more than 1 million downloads and counting. Our community continues to
+                  grow as we add new Expert Advisors, improve existing ones, and provide
                   valuable educational content.
                 </p>
                 <p>
-                  We're proud to have helped thousands of traders automate their strategies, 
-                  improve their results, and achieve their financial goals through algorithmic 
+                  We're proud to have helped thousands of traders automate their strategies,
+                  improve their results, and achieve their financial goals through algorithmic
                   trading.
                 </p>
               </div>
@@ -231,6 +232,7 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

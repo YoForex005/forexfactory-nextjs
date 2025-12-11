@@ -64,16 +64,32 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
     year: 'numeric'
   });
 
+  // Helper to handle multiple levels of escaped HTML
+  const decodeHtml = (html: string) => {
+    let decoded = html;
+    for (let i = 0; i < 3; i++) {
+      const current = decoded
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+      if (current === decoded) break;
+      decoded = current;
+    }
+    return { __html: decoded };
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
       <Navbar />
-      
+
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="border-b border-white/5 bg-surface-50 py-4">
           <div className="container mx-auto px-4">
-            <Link 
-              href="/signals" 
+            <Link
+              href="/signals"
               className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-brand"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -110,9 +126,10 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
                   </div>
                 </div>
 
-                <p className="text-lg text-zinc-300">
-                  {signal.description}
-                </p>
+                <div
+                  className="text-lg text-zinc-300 prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={decodeHtml(signal.description)}
+                />
               </div>
 
               {/* Right: Download Card */}
@@ -160,11 +177,14 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
           <div className="mx-auto max-w-4xl">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
               <h2 className="mb-6 text-2xl font-bold text-white">About This Signal</h2>
-              
+
               <div className="space-y-6 text-zinc-300">
                 <div>
                   <h3 className="mb-2 font-semibold text-white">Description</h3>
-                  <p className="leading-relaxed">{signal.description}</p>
+                  <div
+                    className="leading-relaxed prose prose-invert max-w-none"
+                    dangerouslySetInnerHTML={decodeHtml(signal.description)}
+                  />
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">

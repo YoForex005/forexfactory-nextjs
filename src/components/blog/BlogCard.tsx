@@ -8,7 +8,7 @@ interface BlogCardProps {
 
 export function BlogCard({ blog }: BlogCardProps) {
   return (
-    <Link 
+    <Link
       href={`/blog/${blog.seoSlug}`}
       className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all hover:border-brand/50 hover:bg-white/10 hover:shadow-2xl hover:shadow-brand/10"
     >
@@ -21,7 +21,7 @@ export function BlogCard({ blog }: BlogCardProps) {
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
       </div>
-      
+
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex items-center gap-3 text-xs font-medium text-zinc-400">
           <span className="rounded-full bg-brand/10 px-2 py-1 text-brand">
@@ -31,15 +31,15 @@ export function BlogCard({ blog }: BlogCardProps) {
           <span>•</span>
           <span>{blog.views || 0} views</span>
         </div>
-        
+
         <h3 className="mb-2 text-xl font-bold leading-tight text-white transition-colors group-hover:text-brand">
           {blog.title}
         </h3>
-        
+
         <p className="mb-4 line-clamp-2 text-sm text-zinc-400">
-          {blog.content?.replace(/<[^>]*>/g, '').substring(0, 150) || 'No preview available'}...
+          Click to read this article about trading strategies and insights.
         </p>
-        
+
         <div className="mt-auto flex items-center gap-2 text-sm font-medium text-brand">
           Read Article <span className="transition-transform group-hover:translate-x-1">→</span>
         </div>

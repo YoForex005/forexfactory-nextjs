@@ -25,8 +25,9 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white">
           <span className="text-brand">Forex</span>Factory
         </Link>
-        
+
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <Link href="/" className="hover:text-brand transition-colors">Home</Link>
           <Link href="/blog" className="hover:text-brand transition-colors">Blog</Link>
           <Link href="/downloads" className="hover:text-brand transition-colors">Downloads</Link>
           <Link href="/signals" className="hover:text-brand transition-colors">Signals</Link>

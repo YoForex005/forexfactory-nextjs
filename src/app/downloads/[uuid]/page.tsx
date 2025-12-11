@@ -91,19 +91,35 @@ export default async function DownloadDetailPage({ params }: PageProps) {
       signal.platform === "Both"
         ? "MetaTrader 4 & MetaTrader 5"
         : signal.platform
-        ? `MetaTrader ${signal.platform}`
-        : "MetaTrader",
+          ? `MetaTrader ${signal.platform}`
+          : "MetaTrader",
     softwareVersion: signal.version ?? "1.0",
     downloadUrl: signal.filePath,
     fileSize: fileSizeMb ?? undefined,
     datePublished: signal.createdAt.toISOString(),
     aggregateRating: rating
       ? {
-          ratingValue: Number(rating),
-          reviewCount: Math.max(downloadCount, 1),
-        }
+        ratingValue: Number(rating),
+        reviewCount: Math.max(downloadCount, 1),
+      }
       : undefined,
   });
+
+  // Helper to handle multiple levels of escaped HTML
+  const decodeHtml = (html: string) => {
+    let decoded = html;
+    for (let i = 0; i < 3; i++) {
+      const current = decoded
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+      if (current === decoded) break;
+      decoded = current;
+    }
+    return { __html: decoded };
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
@@ -119,7 +135,10 @@ export default async function DownloadDetailPage({ params }: PageProps) {
               <div>
                 <p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand/70">Expert Advisor</p>
                 <h1 className="text-4xl font-bold text-white md:text-5xl">{signal.title}</h1>
-                <p className="mt-4 text-lg text-zinc-400">{signal.description}</p>
+                <div
+                  className="mt-4 text-lg text-zinc-400 prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={decodeHtml(signal.description)}
+                />
                 <div className="mt-6 flex flex-wrap gap-3">
                   {signal.platform && (
                     <span className="rounded-full border border-white/10 px-4 py-1 text-sm text-white">

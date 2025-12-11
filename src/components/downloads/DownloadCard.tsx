@@ -8,9 +8,27 @@ interface DownloadCardProps {
 
 export function DownloadCard({ signal }: DownloadCardProps) {
   const fileSizeMB = (signal.sizeBytes / (1024 * 1024)).toFixed(2);
-  
+
+  // Helper to handle multiple levels of escaped HTML from database
+  const createMarkup = (htmlContent: string) => {
+    let decoded = htmlContent;
+    // Decode up to 3 times to handle triple-escaped content
+    for (let i = 0; i < 3; i++) {
+      const current = decoded
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+
+      if (current === decoded) break; // Stop if no changes
+      decoded = current;
+    }
+    return { __html: decoded };
+  };
+
   return (
-    <Link 
+    <Link
       href={`/downloads/${signal.uuid}`}
       className="group flex flex-col rounded-2xl border border-white/10 bg-white/5 p-6 transition-all hover:border-brand/50 hover:bg-white/10 hover:shadow-xl hover:shadow-brand/5"
     >
@@ -26,10 +44,11 @@ export function DownloadCard({ signal }: DownloadCardProps) {
       <h3 className="mb-2 text-lg font-bold text-white group-hover:text-brand transition-colors">
         {signal.title}
       </h3>
-      
-      <p className="mb-4 flex-1 text-sm text-zinc-400 line-clamp-2">
-        {signal.description}
-      </p>
+
+      <div
+        className="mb-4 flex-1 text-sm text-zinc-400 line-clamp-2"
+        dangerouslySetInnerHTML={createMarkup(signal.description)}
+      />
 
       <div className="mt-auto space-y-4">
         <div className="flex items-center gap-2 text-xs text-zinc-500">
