@@ -32,6 +32,7 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ content, onChange, placeholder = "Start writing..." }: RichTextEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Underline,
@@ -86,45 +87,40 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         {/* Text Formatting */}
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("bold") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("bold") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Bold"
         >
           <Bold className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("italic") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("italic") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Italic"
         >
           <Italic className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("underline") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("underline") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Underline"
         >
           <UnderlineIcon className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("strike") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("strike") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Strikethrough"
         >
           <Strikethrough className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleCode().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("code") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("code") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Code"
         >
           <Code className="h-4 w-4" />
@@ -135,27 +131,24 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         {/* Headings */}
         <button
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("heading", { level: 1 }) ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("heading", { level: 1 }) ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Heading 1"
         >
           <Heading1 className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("heading", { level: 2 }) ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("heading", { level: 2 }) ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("heading", { level: 3 }) ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("heading", { level: 3 }) ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Heading 3"
         >
           <Heading3 className="h-4 w-4" />
@@ -166,27 +159,24 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         {/* Lists */}
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("bulletList") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("bulletList") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Bullet List"
         >
           <List className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("orderedList") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("orderedList") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Numbered List"
         >
           <ListOrdered className="h-4 w-4" />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("blockquote") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("blockquote") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Quote"
         >
           <Quote className="h-4 w-4" />
@@ -197,9 +187,8 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         {/* Media */}
         <button
           onClick={addLink}
-          className={`rounded p-2 transition-colors hover:bg-white/10 ${
-            editor.isActive("link") ? "bg-brand text-white" : "text-zinc-400"
-          }`}
+          className={`rounded p-2 transition-colors hover:bg-white/10 ${editor.isActive("link") ? "bg-brand text-white" : "text-zinc-400"
+            }`}
           title="Add Link"
         >
           <LinkIcon className="h-4 w-4" />

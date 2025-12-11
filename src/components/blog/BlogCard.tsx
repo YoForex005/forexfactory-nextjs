@@ -7,9 +7,13 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ blog }: BlogCardProps) {
+  // Ensure we have a valid slug - fallback to id if seoSlug is missing
+  const slug = blog.seoSlug || blog.id.toString();
+  const articleUrl = `/blog/${slug}`;
+
   return (
     <Link
-      href={`/blog/${blog.seoSlug}`}
+      href={articleUrl}
       className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all hover:border-brand/50 hover:bg-white/10 hover:shadow-2xl hover:shadow-brand/10"
     >
       <div className="aspect-video relative w-full overflow-hidden bg-gradient-to-br from-brand/20 to-purple-500/20">

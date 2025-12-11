@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
+    if (!session || (session.user?.role !== "admin" && session.user?.role !== "editor")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -18,16 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Validate file size (max 50MB)
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { error: "File size exceeds 50MB limit" },
-        { status: 400 }
-      );
-    }
-
-    // Convert file to buffer
+    // Convert file to Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -37,21 +28,19 @@ export async function POST(request: NextRequest) {
     // Upload to R2
     const url = await uploadToR2(key, buffer, file.type);
 
-    return NextResponse.json(
-      {
-        success: true,
-        url,
-        key,
-        filename: file.name,
-        size: file.size,
-        type: file.type,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      url,
+      key,
+      message: "File uploaded successfully to R2"
+    });
+
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { error: "Failed to upload file" },
+      {
+        error: "Failed to upload file",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }

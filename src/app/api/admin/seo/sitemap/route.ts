@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const SITEMAP_PATH = path.join(process.cwd(), "public", "sitemap.xml");
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://forexfactory.cc";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 async function generateSitemapXml() {
   const blogs = await prisma.blog.findMany({
