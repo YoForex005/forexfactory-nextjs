@@ -9,293 +9,288 @@ import { BlogSection } from "@/components/blog/BlogSection";
 export const revalidate = 300;
 
 export default async function Home() {
-  const [
-    popularBlogs,
-    latestBlogs,
-    mt4Blogs,
-    mt5Blogs,
-    indicatorMT4Blogs,
-    indicatorMT5Blogs,
-    beginnerGuideBlogs,
-    indicatorMT4OnlyBlogs,
-    sourceCodeMQ4Blogs,
-    sourceCodeMQ5Blogs,
-    flexyMarketsBlogs,
-    eaMT4MT5Blogs,
-    courseBlogs,
-    indicatorMT4MT5Blogs,
-    copyTradingBlogs,
-    indicatorMQ4Blogs,
-    propFirmPassingBlogs
-  ] = await Promise.all([
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { views: "desc" },
-      where: { status: "published" },
-    }),
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: { status: "published" },
-    }),
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "MT4" } },
-          { tags: { contains: "MT4" } }
-        ]
-      },
-    }),
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "MT5" } },
-          { tags: { contains: "MT5" } }
-        ]
-      },
-    }),
-    // Indicator MT4 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        AND: [
-          {
-            OR: [
-              { title: { contains: "Indicator" } },
-              { tags: { contains: "Indicator" } }
-            ]
-          },
-          {
-            OR: [
-              { title: { contains: "MT4" } },
-              { tags: { contains: "MT4" } }
-            ]
-          }
-        ]
-      },
-    }),
-    // Indicator MT5 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        AND: [
-          {
-            OR: [
-              { title: { contains: "Indicator" } },
-              { tags: { contains: "Indicator" } }
-            ]
-          },
-          {
-            OR: [
-              { title: { contains: "MT5" } },
-              { tags: { contains: "MT5" } }
-            ]
-          }
-        ]
-      },
-    }),
-    // Beginner Guides Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "Beginner" } },
-          { title: { contains: "Guide" } },
-          { tags: { contains: "Beginner" } },
-          { tags: { contains: "Guide" } }
-        ]
-      },
-    }),
-    // Indicator MT4 Articles (without MT5)
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        AND: [
-          {
-            OR: [
-              { title: { contains: "Indicator" } },
-              { tags: { contains: "Indicator" } }
-            ]
-          },
-          {
-            OR: [
-              { title: { contains: "MT4" } },
-              { tags: { contains: "MT4" } }
-            ]
-          }
-        ]
-      },
-    }),
-    // Source Code MQ4 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        AND: [
-          {
-            OR: [
-              { title: { contains: "Source Code" } },
-              { title: { contains: "Source" } },
-              { tags: { contains: "Source Code" } },
-              { tags: { contains: "Source" } }
-            ]
-          },
-          {
-            OR: [
-              { title: { contains: "MQ4" } },
-              { tags: { contains: "MQ4" } }
-            ]
-          }
-        ]
-      },
-    }),
-    // Source Code MQ5 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        AND: [
-          {
-            OR: [
-              { title: { contains: "Source Code" } },
-              { title: { contains: "Source" } },
-              { tags: { contains: "Source Code" } },
-              { tags: { contains: "Source" } }
-            ]
-          },
-          {
-            OR: [
-              { title: { contains: "MQ5" } },
-              { tags: { contains: "MQ5" } }
-            ]
-          }
-        ]
-      },
-    }),
-    // Flexy Markets Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "Flexy" } },
-          { title: { contains: "Flexy Markets" } },
-          { tags: { contains: "Flexy" } },
-          { tags: { contains: "Flexy Markets" } }
-        ]
-      },
-    }),
-    // EA - MT4/MT5 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "EA" } },
-          { title: { contains: "Expert Advisor" } },
-          { tags: { contains: "EA" } },
-          { tags: { contains: "Expert Advisor" } }
-        ]
-      },
-    }),
-    // Course Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "Course" } },
-          { title: { contains: "Training" } },
-          { tags: { contains: "Course" } },
-          { tags: { contains: "Training" } }
-        ]
-      },
-    }),
-    // Indicator - MT4/MT5 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "Indicator" } },
-          { tags: { contains: "Indicator" } }
-        ]
-      },
-    }),
-    // Copy Trading Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "Copy Trading" } },
-          { title: { contains: "Copy" } },
-          { tags: { contains: "Copy Trading" } },
-          { tags: { contains: "Copy" } }
-        ]
-      },
-    }),
-    // Indicator - MQ4 Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        AND: [
-          {
-            OR: [
-              { title: { contains: "Indicator" } },
-              { tags: { contains: "Indicator" } }
-            ]
-          },
-          {
-            OR: [
-              { title: { contains: "MQ4" } },
-              { tags: { contains: "MQ4" } }
-            ]
-          }
-        ]
-      },
-    }),
-    // PropFirm Passing Articles
-    prisma.blog.findMany({
-      take: 3,
-      orderBy: { createdAt: "desc" },
-      where: {
-        status: "published",
-        OR: [
-          { title: { contains: "PropFirm" } },
-          { title: { contains: "Prop Firm" } },
-          { title: { contains: "Passing" } },
-          { tags: { contains: "PropFirm" } },
-          { tags: { contains: "Prop Firm" } },
-          { tags: { contains: "Passing" } }
-        ]
-      },
-    }),
-  ]);
+  const popularBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { views: "desc" },
+    where: { status: "published" },
+  });
 
+  const latestBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: { status: "published" },
+  });
+
+  const mt4Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "MT4" } },
+        { tags: { contains: "MT4" } }
+      ]
+    },
+  });
+
+  const mt5Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "MT5" } },
+        { tags: { contains: "MT5" } }
+      ]
+    },
+  });
+
+  // Indicator MT4 Articles
+  const indicatorMT4Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      AND: [
+        {
+          OR: [
+            { title: { contains: "Indicator" } },
+            { tags: { contains: "Indicator" } }
+          ]
+        },
+        {
+          OR: [
+            { title: { contains: "MT4" } },
+            { tags: { contains: "MT4" } }
+          ]
+        }
+      ]
+    },
+  });
+
+  // Indicator MT5 Articles
+  const indicatorMT5Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      AND: [
+        {
+          OR: [
+            { title: { contains: "Indicator" } },
+            { tags: { contains: "Indicator" } }
+          ]
+        },
+        {
+          OR: [
+            { title: { contains: "MT5" } },
+            { tags: { contains: "MT5" } }
+          ]
+        }
+      ]
+    },
+  });
+
+  // Beginner Guides Articles
+  const beginnerGuideBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "Beginner" } },
+        { title: { contains: "Guide" } },
+        { tags: { contains: "Beginner" } },
+        { tags: { contains: "Guide" } }
+      ]
+    },
+  });
+
+  // Indicator MT4 Articles (without MT5)
+  const indicatorMT4OnlyBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      AND: [
+        {
+          OR: [
+            { title: { contains: "Indicator" } },
+            { tags: { contains: "Indicator" } }
+          ]
+        },
+        {
+          OR: [
+            { title: { contains: "MT4" } },
+            { tags: { contains: "MT4" } }
+          ]
+        }
+      ]
+    },
+  });
+
+  // Source Code MQ4 Articles
+  const sourceCodeMQ4Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      AND: [
+        {
+          OR: [
+            { title: { contains: "Source Code" } },
+            { title: { contains: "Source" } },
+            { tags: { contains: "Source Code" } },
+            { tags: { contains: "Source" } }
+          ]
+        },
+        {
+          OR: [
+            { title: { contains: "MQ4" } },
+            { tags: { contains: "MQ4" } }
+          ]
+        }
+      ]
+    },
+  });
+
+  // Source Code MQ5 Articles
+  const sourceCodeMQ5Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      AND: [
+        {
+          OR: [
+            { title: { contains: "Source Code" } },
+            { title: { contains: "Source" } },
+            { tags: { contains: "Source Code" } },
+            { tags: { contains: "Source" } }
+          ]
+        },
+        {
+          OR: [
+            { title: { contains: "MQ5" } },
+            { tags: { contains: "MQ5" } }
+          ]
+        }
+      ]
+    },
+  });
+
+  // Flexy Markets Articles
+  const flexyMarketsBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "Flexy" } },
+        { title: { contains: "Flexy Markets" } },
+        { tags: { contains: "Flexy" } },
+        { tags: { contains: "Flexy Markets" } }
+      ]
+    },
+  });
+
+  // EA - MT4/MT5 Articles
+  const eaMT4MT5Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "EA" } },
+        { title: { contains: "Expert Advisor" } },
+        { tags: { contains: "EA" } },
+        { tags: { contains: "Expert Advisor" } }
+      ]
+    },
+  });
+
+  // Course Articles
+  const courseBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "Course" } },
+        { title: { contains: "Training" } },
+        { tags: { contains: "Course" } },
+        { tags: { contains: "Training" } }
+      ]
+    },
+  });
+
+  // Indicator - MT4/MT5 Articles
+  const indicatorMT4MT5Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "Indicator" } },
+        { tags: { contains: "Indicator" } }
+      ]
+    },
+  });
+
+  // Copy Trading Articles
+  const copyTradingBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "Copy Trading" } },
+        { title: { contains: "Copy" } },
+        { tags: { contains: "Copy Trading" } },
+        { tags: { contains: "Copy" } }
+      ]
+    },
+  });
+
+  // Indicator - MQ4 Articles
+  const indicatorMQ4Blogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      AND: [
+        {
+          OR: [
+            { title: { contains: "Indicator" } },
+            { tags: { contains: "Indicator" } }
+          ]
+        },
+        {
+          OR: [
+            { title: { contains: "MQ4" } },
+            { tags: { contains: "MQ4" } }
+          ]
+        }
+      ]
+    },
+  });
+
+  // PropFirm Passing Articles
+  const propFirmPassingBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    where: {
+      status: "published",
+      OR: [
+        { title: { contains: "PropFirm" } },
+        { title: { contains: "Prop Firm" } },
+        { title: { contains: "Passing" } },
+        { tags: { contains: "PropFirm" } },
+        { tags: { contains: "Prop Firm" } },
+        { tags: { contains: "Passing" } }
+      ]
+    },
+  });
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -9,9 +9,42 @@ import { Metadata } from "next";
 import { cache } from "react";
 import Image from "next/image";
 
+function getSafeImageUrl(src?: string | null): string | null {
+  if (!src) return null;
+  const value = src.trim();
+  if (!value) return null;
+
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value;
+  }
+
+  if (value.startsWith("/")) {
+    return value;
+  }
+
+  if (value.startsWith("blog-images/")) {
+    const base = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+    if (base) {
+      return `${base.replace(/\/$/, "")}/${value}`;
+    }
+    return `/${value}`;
+  }
+
+  if (value.startsWith("admin/") || value.startsWith("media/")) {
+    return `/${value}`;
+  }
+
+  const base = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+  if (base) {
+    return `${base.replace(/\/$/, "")}/${value}`;
+  }
+
+  return null;
+}
+
 // Memoized blog fetch - runs only ONCE per request even if called multiple times
 const getBlog = cache(async (slug: string) => {
-  return prisma.blog.findFirst({
+  let blog = await prisma.blog.findFirst({
     where: { seoSlug: slug },
     include: {
       seoMeta: true,
@@ -22,6 +55,23 @@ const getBlog = cache(async (slug: string) => {
       }
     }
   });
+
+  if (!blog && /^\d+$/.test(slug)) {
+    const id = parseInt(slug, 10);
+    blog = await prisma.blog.findFirst({
+      where: { id },
+      include: {
+        seoMeta: true,
+        categories: {
+          include: {
+            category: true
+          }
+        }
+      }
+    });
+  }
+
+  return blog;
 });
 
 const getRelatedBlogs = cache(async (categoryId: number, currentBlogId: number) => {
@@ -61,7 +111,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
   const seo = blog.seoMeta[0];
   const title = seo?.seoTitle || blog.title;
   const description = seo?.seoDescription || blog.content.substring(0, 160);
-  const image = seo?.ogImage || blog.featuredImage || DEFAULT_OG_IMAGE;
+  const image = getSafeImageUrl(seo?.ogImage || blog.featuredImage) || DEFAULT_OG_IMAGE;
 
   return {
     title,
@@ -105,7 +155,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
     datePublished: blog.createdAt.toISOString(),
     dateModified: blog.createdAt.toISOString(),
     author: blog.author,
-    image: blog.featuredImage,
+    image: getSafeImageUrl(blog.featuredImage) || DEFAULT_OG_IMAGE,
     url: `${SITE_URL}/blog/${blog.seoSlug}`
   });
 
@@ -123,9 +173,9 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         <div className="relative flex min-h-[60vh] w-full items-center justify-center overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
-            {blog.featuredImage ? (
+            {getSafeImageUrl(blog.featuredImage) ? (
               <Image
-                src={blog.featuredImage}
+                src={getSafeImageUrl(blog.featuredImage)!}
                 alt={blog.title}
                 fill
                 className="object-cover opacity-40 blur-sm transition-transform duration-700 hover:scale-105"
@@ -257,9 +307,9 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 >
                   {/* Card Image */}
                   <div className="relative aspect-video w-full overflow-hidden bg-surface-200">
-                    {related.featuredImage ? (
+                    {getSafeImageUrl(related.featuredImage) ? (
                       <Image
-                        src={related.featuredImage}
+                        src={getSafeImageUrl(related.featuredImage)!}
                         alt={related.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
