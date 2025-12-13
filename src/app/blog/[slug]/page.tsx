@@ -8,6 +8,9 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { cache } from "react";
 import Image from "next/image";
+import { ProgressBar } from "@/components/blog/ProgressBar";
+import { TableOfContents } from "@/components/blog/TableOfContents";
+import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Bookmark, Share2 } from "lucide-react";
 
 function getSafeImageUrl(src?: string | null): string | null {
   if (!src) return null;
@@ -22,10 +25,11 @@ function getSafeImageUrl(src?: string | null): string | null {
     return value;
   }
 
+  const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
+
   if (value.startsWith("blog-images/")) {
-    const base = process.env.CLOUDFLARE_R2_PUBLIC_URL;
-    if (base) {
-      return `${base.replace(/\/$/, "")}/${value}`;
+    if (r2PublicUrl) {
+      return `${r2PublicUrl}/${value}`;
     }
     return `/${value}`;
   }
@@ -34,15 +38,35 @@ function getSafeImageUrl(src?: string | null): string | null {
     return `/${value}`;
   }
 
-  const base = process.env.CLOUDFLARE_R2_PUBLIC_URL;
-  if (base) {
-    return `${base.replace(/\/$/, "")}/${value}`;
+  if (r2PublicUrl) {
+    return `${r2PublicUrl}/${value}`;
   }
 
   return null;
 }
 
-// Memoized blog fetch - runs only ONCE per request even if called multiple times
+function calculateReadTime(content: string): number {
+  const wordsPerMinute = 200;
+  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
+}
+
+function processContent(content: string) {
+  const headings: { id: string; text: string; level: number }[] = [];
+
+  const contentWithIds = content.replace(/<h([2-3])([^>]*)>(.*?)<\/h\1>/g, (match, levelStr, attrs, innerText) => {
+    const level = parseInt(levelStr);
+    const plainText = innerText.replace(/<[^>]*>/g, "").trim();
+    const id = plainText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+
+    headings.push({ id, text: plainText, level });
+
+    return `<h${level} id="${id}"${attrs}>${innerText}</h${level}>`;
+  });
+
+  return { contentWithIds, headings };
+}
+
 const getBlog = cache(async (slug: string) => {
   let blog = await prisma.blog.findFirst({
     where: { seoSlug: slug },
@@ -77,7 +101,7 @@ const getBlog = cache(async (slug: string) => {
 const getRelatedBlogs = cache(async (categoryId: number, currentBlogId: number) => {
   return prisma.blog.findMany({
     where: {
-      categoryId: categoryId, // Using the direct categoryId for simplicity/relevance
+      categoryId: categoryId,
       id: { not: currentBlogId },
       status: "published"
     },
@@ -145,22 +169,24 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
     return notFound();
   }
 
-  // Fetch related blogs
   const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
+  const { contentWithIds, headings } = processContent(blog.content);
+  const readTime = calculateReadTime(blog.content);
+  const imageUrl = getSafeImageUrl(blog.featuredImage);
 
-  // JSON-LD Schema
   const jsonLd = generateArticleSchema({
     title: blog.title,
     description: blog.seoMeta[0]?.seoDescription || blog.content.substring(0, 160),
     datePublished: blog.createdAt.toISOString(),
     dateModified: blog.createdAt.toISOString(),
     author: blog.author,
-    image: getSafeImageUrl(blog.featuredImage) || DEFAULT_OG_IMAGE,
+    image: imageUrl || DEFAULT_OG_IMAGE,
     url: `${SITE_URL}/blog/${blog.seoSlug}`
   });
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface-50 font-sans selection:bg-brand/30 selection:text-brand-light">
+    <div className="min-h-screen bg-[#0a0a0f]">
+      <ProgressBar />
       <Navbar />
 
       <script
@@ -168,179 +194,261 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="flex-1 pb-24">
-        {/* Full-width Hero Section with Parallax-like feel */}
-        <div className="relative flex min-h-[60vh] w-full items-center justify-center overflow-hidden">
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0">
-            {getSafeImageUrl(blog.featuredImage) ? (
-              <Image
-                src={getSafeImageUrl(blog.featuredImage)!}
-                alt={blog.title}
-                fill
-                className="object-cover opacity-40 blur-sm transition-transform duration-700 hover:scale-105"
-                priority
-              />
-            ) : (
-              <div className="h-full w-full bg-surface-200" />
-            )}
-            {/* Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-surface-50 via-surface-50/80 to-surface-100/30" />
-            <div className="absolute inset-0 bg-gradient-to-b from-surface-50/50 via-transparent to-transparent" />
-          </div>
+      {/* Breadcrumb */}
+      <div className="border-b border-white/5 bg-[#0d0d14]">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center gap-2 text-sm text-zinc-500">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <ChevronRight className="h-3 w-3" />
+            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-zinc-300 truncate max-w-[200px]">{blog.title}</span>
+          </nav>
+        </div>
+      </div>
 
-          {/* Hero Content */}
-          <div className="relative z-10 container mx-auto px-4 pt-20 text-center">
-            <Link
-              href="/blog"
-              className="group mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-300 backdrop-blur-md transition-all hover:bg-white/10 hover:text-white"
-            >
-              <svg className="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Blog
-            </Link>
+      <main className="pb-20">
+        {/* Hero Section */}
+        <div className="relative">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-brand/5 via-transparent to-transparent pointer-events-none" />
 
-            <h1 className="mx-auto mb-6 max-w-4xl text-4xl font-bold leading-tight tracking-tight text-white md:text-5xl lg:text-7xl drop-shadow-xl">
-              {blog.title}
-            </h1>
-
-            {/* Meta Info Pill */}
-            <div className="mx-auto flex w-fit max-w-3xl flex-wrap items-center justify-center gap-4 rounded-2xl border border-white/5 bg-white/5 px-6 py-3 backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand ring-2 ring-brand/20">
-                  {blog.author.charAt(0).toUpperCase()}
+          <div className="container mx-auto px-4 pt-12 pb-8">
+            <div className="max-w-4xl mx-auto text-center">
+              {/* Category Badge */}
+              {blog.categories && blog.categories.length > 0 && (
+                <div className="inline-flex items-center gap-2 mb-6">
+                  {blog.categories.slice(0, 2).map((cat) => (
+                    <span
+                      key={cat.categoryId}
+                      className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 rounded-md border border-brand/20"
+                    >
+                      {cat.category.name}
+                    </span>
+                  ))}
                 </div>
-                <span className="font-medium text-zinc-200">{blog.author}</span>
-              </div>
-              <span className="text-zinc-600">•</span>
-              <div className="flex items-center gap-2 text-zinc-400">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>{format(new Date(blog.createdAt), "MMMM d, yyyy")}</span>
-              </div>
-              {blog.views !== null && (
-                <>
-                  <span className="text-zinc-600">•</span>
-                  <div className="flex items-center gap-2 text-zinc-400">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span>{blog.views.toLocaleString()} views</span>
-                  </div>
-                </>
               )}
-            </div>
-          </div>
-        </div>
 
-        {/* Main Content Area */}
-        <div className="container mx-auto px-4">
-          <div className="relative mx-auto -mt-20 max-w-4xl rounded-3xl border border-white/5 bg-surface-100/80 p-6 md:p-12 shadow-2xl backdrop-blur-3xl ring-1 ring-white/10">
+              {/* Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+                {blog.title}
+              </h1>
 
-            {/* Tags Header */}
-            {blog.tags && (
-              <div className="mb-10 flex flex-wrap gap-2">
-                {blog.tags.split(',').map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/search?q=${tag.trim()}`}
-                    className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand transition-colors hover:bg-brand/20"
-                  >
-                    #{tag.trim()}
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {/* Actual Post Content */}
-            <article
-              className="prose prose-lg prose-invert max-w-none 
-                prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-white 
-                prose-h1:text-4xl prose-h2:mt-12 prose-h2:border-b prose-h2:border-white/5 prose-h2:pb-4 prose-h2:text-2xl 
-                prose-p:text-zinc-300 prose-p:leading-relaxed 
-                prose-a:text-brand prose-a:no-underline prose-a:transition-colors prose-a:hover:text-brand-light 
-                prose-blockquote:border-l-brand prose-blockquote:bg-surface-200/50 prose-blockquote:px-6 prose-blockquote:py-2 prose-blockquote:not-italic prose-blockquote:text-zinc-200
-                prose-img:rounded-2xl prose-img:shadow-lg prose-img:ring-1 prose-img:ring-white/10
-                prose-code:rounded-md prose-code:bg-surface-300 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-brand-light prose-code:before:content-none prose-code:after:content-none
-                prose-strong:text-white prose-ul:list-disc prose-ul:text-zinc-300 prose-li:marker:text-brand"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
-            />
-
-            {/* Share / Interaction Footer within card */}
-            <div className="mt-16 border-t border-white/10 pt-8">
-              <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-                <div className="text-zinc-400">
-                  Did you find this article helpful?
-                </div>
-                <div className="flex gap-3">
-                  {/* Share Buttons (Placeholders) */}
-                  <button className="flex items-center gap-2 rounded-lg bg-surface-200 px-4 py-2 text-sm font-medium text-white transition-hover hover:bg-surface-300">
-                    Share on Twitter
-                  </button>
-                  <button className="flex items-center gap-2 rounded-lg bg-surface-200 px-4 py-2 text-sm font-medium text-white transition-hover hover:bg-surface-300">
-                    Copy Link
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Related Posts Section */}
-        {relatedBlogs.length > 0 && (
-          <div className="container mx-auto px-4 mt-24 max-w-6xl">
-            <div className="mb-10 flex items-center gap-4">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10"></div>
-              <h2 className="text-2xl font-bold text-white">Related Articles</h2>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10"></div>
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {relatedBlogs.map((related) => (
-                <Link
-                  href={`/blog/${related.seoSlug}`}
-                  key={related.seoSlug}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-surface-100 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand/10 hover:border-brand/20"
-                >
-                  {/* Card Image */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-surface-200">
-                    {getSafeImageUrl(related.featuredImage) ? (
-                      <Image
-                        src={getSafeImageUrl(related.featuredImage)!}
-                        alt={related.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-zinc-600">
-                        <span className="text-4xl opacity-20">Image</span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-100 via-transparent to-transparent opacity-80" />
+              {/* Author & Meta */}
+              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-zinc-400">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                    {blog.author.charAt(0).toUpperCase()}
                   </div>
+                  <div className="text-left">
+                    <p className="text-white font-medium">{blog.author}</p>
+                    <p className="text-xs text-zinc-500">Author</p>
+                  </div>
+                </div>
 
-                  {/* Card Content */}
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="mb-3 text-lg font-bold leading-snug text-white transition-colors group-hover:text-brand line-clamp-2">
-                      {related.title}
-                    </h3>
+                <span className="w-px h-6 bg-white/10 hidden sm:block" />
 
-                    <div className="mt-auto flex items-center justify-between text-xs text-zinc-400">
-                      <div className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-surface-300" /> {/* Placeholder avatar */}
-                        <span>{related.author}</span>
-                      </div>
-                      <span>{format(new Date(related.createdAt), "MMM d, yyyy")}</span>
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4 text-zinc-500" />
+                  <span>{format(new Date(blog.createdAt), "MMM d, yyyy")}</span>
+                </div>
+
+                <span className="w-px h-6 bg-white/10 hidden sm:block" />
+
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-zinc-500" />
+                  <span>{readTime} min read</span>
+                </div>
+
+                {blog.views !== null && (
+                  <>
+                    <span className="w-px h-6 bg-white/10 hidden sm:block" />
+                    <div className="flex items-center gap-1.5">
+                      <Eye className="h-4 w-4 text-zinc-500" />
+                      <span>{blog.views.toLocaleString()} views</span>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-all">
+                  <Bookmark className="h-4 w-4" />
+                  Save
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-all">
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Featured Image */}
+        {imageUrl && (
+          <div className="container mx-auto px-4 mb-12">
+            <div className="max-w-5xl mx-auto">
+              <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl bg-zinc-900">
+                <Image
+                  src={imageUrl}
+                  alt={blog.title}
+                  fill
+                  sizes="(max-width: 1280px) 100vw, 1280px"
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
           </div>
         )}
+
+        {/* Content Layout */}
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-[1fr_260px]">
+
+            {/* Article Content */}
+            <article className="min-w-0">
+              <div
+                className="prose prose-lg prose-invert max-w-none
+                  prose-headings:font-bold prose-headings:text-white prose-headings:scroll-mt-24
+                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+                  prose-p:text-zinc-300 prose-p:leading-7
+                  prose-a:text-brand prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-white prose-strong:font-semibold
+                  prose-blockquote:border-l-2 prose-blockquote:border-brand prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-zinc-400
+                  prose-ul:text-zinc-300 prose-ol:text-zinc-300
+                  prose-li:marker:text-brand
+                  prose-code:text-brand prose-code:bg-brand/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+                  prose-pre:bg-[#0d0d14] prose-pre:border prose-pre:border-white/5 prose-pre:rounded-xl
+                  prose-img:rounded-xl prose-img:shadow-xl"
+                dangerouslySetInnerHTML={{ __html: contentWithIds }}
+              />
+
+              {/* Tags */}
+              {blog.tags && (
+                <div className="mt-12 pt-8 border-t border-white/10">
+                  <p className="text-xs uppercase tracking-wider text-zinc-500 mb-4">Topics</p>
+                  <div className="flex flex-wrap gap-2">
+                    {blog.tags.split(',').map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/search?q=${tag.trim()}`}
+                        className="px-3 py-1.5 text-sm text-zinc-400 bg-white/5 hover:bg-brand hover:text-white rounded-lg border border-white/10 transition-all"
+                      >
+                        {tag.trim()}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Author Card */}
+              <div className="mt-12 p-6 bg-[#0d0d14] rounded-2xl border border-white/5">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center text-white font-bold text-xl shrink-0">
+                    {blog.author.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white mb-1">Written by {blog.author}</p>
+                    <p className="text-sm text-zinc-400 leading-relaxed">
+                      Forex trading expert sharing insights on algorithmic trading, Expert Advisors, and MetaTrader development.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* Sidebar */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-24 space-y-6">
+                <TableOfContents headings={headings} />
+
+                {/* Quick Links */}
+                <div className="p-5 bg-[#0d0d14] rounded-xl border border-white/5">
+                  <p className="text-xs uppercase tracking-wider text-zinc-500 mb-4">Quick Links</p>
+                  <div className="space-y-2">
+                    <Link href="/downloads" className="block text-sm text-zinc-400 hover:text-brand transition-colors">
+                      → Download EAs
+                    </Link>
+                    <Link href="/signals" className="block text-sm text-zinc-400 hover:text-brand transition-colors">
+                      → Trading Signals
+                    </Link>
+                    <Link href="/blog" className="block text-sm text-zinc-400 hover:text-brand transition-colors">
+                      → More Articles
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        {/* Related Posts */}
+        {relatedBlogs.length > 0 && (
+          <div className="mt-20 py-16 bg-[#0d0d14] border-t border-white/5">
+            <div className="container mx-auto px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl font-bold text-white">Related Articles</h2>
+                  <Link href="/blog" className="text-sm text-brand hover:underline">
+                    View all →
+                  </Link>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {relatedBlogs.map((related) => (
+                    <Link
+                      href={`/blog/${related.seoSlug}`}
+                      key={related.seoSlug}
+                      className="group block bg-[#0a0a0f] rounded-xl border border-white/5 overflow-hidden hover:border-brand/30 transition-all"
+                    >
+                      <div className="relative aspect-[16/10] bg-zinc-900">
+                        {getSafeImageUrl(related.featuredImage) ? (
+                          <Image
+                            src={getSafeImageUrl(related.featuredImage)!}
+                            alt={related.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center">
+                            <span className="text-zinc-700 text-4xl">📄</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <h3 className="font-semibold text-white group-hover:text-brand transition-colors line-clamp-2 mb-3">
+                          {related.title}
+                        </h3>
+                        <div className="flex items-center justify-between text-xs text-zinc-500">
+                          <span>{related.author}</span>
+                          <span>{format(new Date(related.createdAt), "MMM d, yyyy")}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Back to Top */}
+        <div className="container mx-auto px-4 mt-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-brand transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to all articles
+            </Link>
+          </div>
+        </div>
       </main>
 
       <Footer />

@@ -13,7 +13,8 @@ body {
 }
 
 .glass-panel {
-  @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_40px_120px_rgba(10,132,255,0.25)];
+  @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl;
+  box-shadow: 0 40px 120px rgba(10, 132, 255, 0.25);
 }
 
 .gradient-text {
@@ -38,10 +39,38 @@ body {
   inset: 0;
   border-radius: 1.5rem;
   padding: 1px;
-  background: linear-gradient(120deg, rgba(10,132,255,0.5), transparent, rgba(88,101,242,0.5));
+  background: linear-gradient(120deg, rgba(10, 132, 255, 0.5), transparent, rgba(88, 101, 242, 0.5));
   -webkit-mask:
     linear-gradient(#000, #000) content-box,
     linear-gradient(#000, #000);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
+}
+
+/* TinyMCE Content Styles */
+.prose img {
+  @apply rounded-xl border border-white/10 shadow-lg;
+}
+
+.prose .aligncenter {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prose .alignleft {
+  float: left;
+  margin-right: 1.5em;
+  margin-bottom: 1em;
+}
+
+.prose .alignright {
+  float: right;
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.prose iframe {
+  @apply rounded-xl border border-white/10 w-full;
+  aspect-ratio: 16/9;
 }
