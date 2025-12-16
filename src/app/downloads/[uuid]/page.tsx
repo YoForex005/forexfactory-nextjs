@@ -17,7 +17,7 @@ interface PageProps {
 }
 
 async function getSignal(uuid: string) {
-  return prisma.signal.findUnique({
+  return prisma.signal.findFirst({
     where: { uuid },
   });
 }

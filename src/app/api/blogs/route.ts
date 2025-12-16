@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { insertBlogSchema } from "@shared/schema";
 import { z } from "zod";
+
+// Inline Zod schema for blog validation (compatible with Prisma)
+const insertBlogSchema = z.object({
+  title: z.string().min(1, "Title is required").max(500),
+  seoSlug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens"),
+  content: z.string().min(1, "Content is required"),
+  author: z.string().min(1, "Author is required"),
+  featuredImage: z.string().min(1, "Featured image is required"),
+  tags: z.string(),
+  categoryId: z.number().positive(),
+  downloadLink: z.string().optional(),
+  status: z.enum(['published', 'draft']).optional()
+});
 
 export async function GET(req: Request) {
   try {
@@ -9,7 +21,7 @@ export async function GET(req: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
-    
+
     const [blogs, total] = await Promise.all([
       prisma.blog.findMany({
         skip,
@@ -37,12 +49,10 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    // Validate input using shared Zod schema
-    // Note: We might need to adapt the schema validation if fields slightly differ
-    // or use a looser validation for the API route if needed.
+
+    // Validate input using Zod schema
     const validatedData = insertBlogSchema.parse(body);
-    
+
     // Create blog post
     const blog = await prisma.blog.create({
       data: {
@@ -55,12 +65,8 @@ export async function POST(req: Request) {
         categoryId: validatedData.categoryId,
         status: validatedData.status || 'draft',
         downloadLink: validatedData.downloadLink,
-        // Initialize SEO meta if provided in separate relation logic (omitted for simplicity here)
       },
     });
-
-    // If SEO meta is included in body, we would create it here too.
-    // For now, just return the blog.
 
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {
@@ -77,3 +83,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

@@ -1,0 +1,40 @@
+﻿   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     ┬╖ optimizePackageImports
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 7.1s
+   Running TypeScript ...
+node.exe : Failed to compile.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\Yofor\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSp 
+   ecified: (Failed to compile.:St  
+  ring) [], RemoteException
+    + FullyQualifiedErrorId : Nativ 
+   eCommandError
+ 
+
+./shared/schema.ts:1:21
+Type error: Cannot find module 
+'drizzle-orm' or its corresponding 
+type declarations.
+
+[0m[31m[1m>[22m[39m[90m 1 
+|[39m [36mimport[39m { sql } 
+[36mfrom[39m 
+[32m"drizzle-orm"[39m[33m;[39m
+ [90m   |[39m                     
+[31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m { 
+ [90m 3 |[39m   
+mysqlTable[33m,[39m 
+ [90m 4 |[39m   
+varchar[33m,[39m [0m
+Next.js build worker exited with 
+code: 1 and signal: null

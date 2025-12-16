@@ -1,0 +1,56 @@
+﻿   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     ┬╖ optimizePackageImports
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 7.7s
+   Running TypeScript ...
+node.exe : Failed to compile.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\Yofor\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSp 
+   ecified: (Failed to compile.:St  
+  ring) [], RemoteException
+    + FullyQualifiedErrorId : Nativ 
+   eCommandError
+ 
+
+./src/app/downloads/[uuid]/page.tsx:
+21:5
+Type error: Type '{ uuid: string; 
+}' is not assignable to type 
+'SignalWhereUniqueInput'.
+  Type '{ uuid: string; }' is not 
+assignable to type '{ id: number; } 
+& { id?: number | undefined; AND?: 
+SignalWhereInput | 
+SignalWhereInput[] | undefined; 
+OR?: SignalWhereInput[] | 
+undefined; ... 7 more ...; 
+createdAt?: string | ... 2 more ... 
+| undefined; }'.
+    Property 'id' is missing in 
+type '{ uuid: string; }' but 
+required in type '{ id: number; }'.
+
+[0m [90m 19 |[39m 
+[36masync[39m [36mfunction[39m 
+getSignal(uuid[33m:[39m string) {
+ [90m 20 |[39m   [36mreturn[39m 
+prisma[33m.[39msignal[33m.[39mfi
+ndUnique({
+[31m[1m>[22m[39m[90m 21 |[39m 
+    where[33m:[39m { uuid 
+}[33m,[39m
+ [90m    |[39m     
+[31m[1m^[22m[39m
+ [90m 22 |[39m   })[33m;[39m
+ [90m 23 |[39m }
+ [90m 24 |[39m[0m
+Next.js build worker exited with 
+code: 1 and signal: null

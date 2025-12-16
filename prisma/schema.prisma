@@ -43,6 +43,8 @@ model Blog {
   categories    BlogCategory[]
   comments      Comment[]
   seoMeta       SeoMeta[]
+  savedBy       SavedArticle[]
+  recentViews   RecentBlog[]
 
   @@unique([seoSlug])
   @@index([status, createdAt])
@@ -176,10 +178,61 @@ model User {
   countryCode String?   @default("+91") @map("country_code") @db.VarChar(10)
   country     String?   @default("IN") @db.VarChar(50)
 
-  posts       Post[]
-  media       Media[]
+  posts         Post[]
+  media         Media[]
+  downloads     UserDownload[]
+  savedArticles SavedArticle[]
+  recentBlogs   RecentBlog[]
 
   @@map("users")
+}
+
+// User download history tracking
+model UserDownload {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  blogId    Int?     @map("blog_id")
+  signalId  Int?     @map("signal_id")
+  title     String   @db.VarChar(500)
+  type      String   @db.VarChar(50) // EA, Indicator, Tool, etc.
+  fileSize  String?  @map("file_size") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_downloads")
+}
+
+// Saved/Bookmarked articles
+model SavedArticle {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  blogId    Int      @map("blog_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@index([userId])
+  @@map("saved_articles")
+}
+
+// Recently visited blogs tracking
+model RecentBlog {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  blogId    Int      @map("blog_id")
+  visitedAt DateTime @default(now()) @map("visited_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@index([userId])
+  @@index([visitedAt])
+  @@map("recent_blogs")
 }
 
 // Enums

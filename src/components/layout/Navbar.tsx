@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, X, Home, BookOpen, Download, BarChart2, Info, Mail, LogIn, ArrowRight } from "lucide-react";
+import { Search, Menu, X, Home, BookOpen, Download, BarChart2, Info, Mail, ArrowRight, User, LogOut } from "lucide-react";
+import { isLoggedIn, getUser, logout } from "@/lib/auth-client";
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
@@ -20,9 +21,24 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
-  // Close sidebar when route changes
+  // Check auth status on mount and route change
   useEffect(() => {
+    const checkAuth = () => {
+      const loggedIn = isLoggedIn();
+      setIsAuthenticated(loggedIn);
+      if (loggedIn) {
+        const user = getUser();
+        setUserName(user?.name || user?.email || null);
+      } else {
+        setUserName(null);
+      }
+    };
+    checkAuth();
+
+    // Re-check on route change
     setIsSidebarOpen(false);
   }, [pathname]);
 
@@ -47,6 +63,13 @@ export function Navbar() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsAuthenticated(false);
+    setUserName(null);
+    router.refresh();
+  };
+
   return (
     <>
       <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-surface-50/80 backdrop-blur-xl">
@@ -69,15 +92,14 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`hover:text-brand transition-colors ${pathname === link.href ? "text-brand" : ""
-                  }`}
+                className={`hover:text-brand transition-colors ${pathname === link.href ? "text-brand" : ""}`}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Search Button */}
             <button
               onClick={() => setShowSearch(!showSearch)}
@@ -87,12 +109,42 @@ export function Navbar() {
               <Search className="h-5 w-5" />
             </button>
 
-            <Link href="/admin/login" className="hidden sm:block text-sm font-medium text-zinc-400 hover:text-white">
-              Login
-            </Link>
-            <Link href="/signals" className="hidden sm:flex rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark transition-colors">
-              Get Started
-            </Link>
+            {/* Auth Buttons - Desktop */}
+            {isAuthenticated ? (
+              <div className="hidden sm:flex items-center gap-3">
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium text-brand hover:underline"
+                >
+                  Dashboard
+                </Link>
+                <div className="flex items-center gap-2 text-sm text-zinc-300">
+                  <User className="h-4 w-4" />
+                  <span className="max-w-[100px] truncate">{userName?.split(" ")[0] || "User"}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -118,15 +170,13 @@ export function Navbar() {
 
       {/* Mobile Sidebar Overlay */}
       <div
-        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         onClick={() => setIsSidebarOpen(false)}
       />
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-surface-50 border-r border-white/10 transform transition-transform duration-300 ease-in-out md:hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 left-0 z-50 h-full w-72 bg-surface-50 border-r border-white/10 transform transition-transform duration-300 ease-in-out md:hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
@@ -152,8 +202,8 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive
-                    ? "bg-brand/10 text-brand border border-brand/20"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                  ? "bg-brand/10 text-brand border border-brand/20"
+                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
                   }`}
               >
                 <Icon className="h-5 w-5" />
@@ -165,23 +215,45 @@ export function Navbar() {
 
         {/* Sidebar Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
-          <Link
-            href="/admin/login"
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
-          >
-            <LogIn className="h-4 w-4" />
-            Login
-          </Link>
-          <Link
-            href="/signals"
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-full bg-brand text-sm font-medium text-white hover:bg-brand-dark transition-colors"
-          >
-            Get Started
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+              >
+                Dashboard
+              </Link>
+              <div className="flex items-center gap-2 px-2 py-2 text-sm text-zinc-300">
+                <User className="h-4 w-4" />
+                <span className="truncate">{userName || "User"}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+              >
+                Sign Up
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </>
+          )}
         </div>
       </aside>
     </>
   );
 }
-

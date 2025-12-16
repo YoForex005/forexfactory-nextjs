@@ -11,6 +11,9 @@ import Image from "next/image";
 import { ProgressBar } from "@/components/blog/ProgressBar";
 import { TableOfContents } from "@/components/blog/TableOfContents";
 import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Bookmark, Share2 } from "lucide-react";
+import { DownloadBox } from "@/components/blog/DownloadBox";
+import { SaveButton } from "@/components/blog/SaveButton";
+import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
 
 function getSafeImageUrl(src?: string | null): string | null {
   if (!src) return null;
@@ -188,6 +191,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
     <div className="min-h-screen bg-[#0a0a0f]">
       <ProgressBar />
       <Navbar />
+      <BlogVisitTracker blogId={blog.id} />
 
       <script
         type="application/ld+json"
@@ -273,10 +277,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
 
               {/* Action Buttons */}
               <div className="mt-6 flex items-center justify-center gap-3">
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-all">
-                  <Bookmark className="h-4 w-4" />
-                  Save
-                </button>
+                <SaveButton blogId={blog.id} />
                 <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-all">
                   <Share2 className="h-4 w-4" />
                   Share
@@ -326,6 +327,11 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                   prose-img:rounded-xl prose-img:shadow-xl"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
+
+              {/* Download Box - Shows when blog has a download link */}
+              {blog.downloadLink && (
+                <DownloadBox downloadLink={blog.downloadLink} />
+              )}
 
               {/* Tags */}
               {blog.tags && (
