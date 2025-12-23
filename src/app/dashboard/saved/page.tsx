@@ -39,6 +39,7 @@ export default function SavedArticlesPage() {
         try {
             const res = await fetch("/api/user/saved", {
                 headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
             });
 
             if (res.ok) {

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 function getUserIdFromToken(authHeader: string | null): number | null {
     if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
     try {

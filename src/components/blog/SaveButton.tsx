@@ -29,6 +29,7 @@ export function SaveButton({ blogId }: SaveButtonProps) {
         try {
             const res = await fetch("/api/user/saved", {
                 headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
             });
             if (res.ok) {
                 const data = await res.json();

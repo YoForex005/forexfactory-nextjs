@@ -75,6 +75,7 @@ export default function DashboardPage() {
             // Fetch profile and stats
             const profileRes = await fetch("/api/user/profile", {
                 headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
             });
 
             if (profileRes.ok) {
@@ -88,6 +89,7 @@ export default function DashboardPage() {
             // Fetch recent downloads
             const downloadsRes = await fetch("/api/user/downloads", {
                 headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
             });
 
             if (downloadsRes.ok) {
@@ -98,6 +100,7 @@ export default function DashboardPage() {
             // Fetch recent blogs
             const recentBlogsRes = await fetch("/api/user/recent-blogs?limit=5", {
                 headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
             });
 
             if (recentBlogsRes.ok) {
