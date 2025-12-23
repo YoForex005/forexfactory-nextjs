@@ -4,7 +4,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SITE_NAME } from "@/lib/seo";
 import { Metadata } from "next";
-import { Blog } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: `Trading Blog & Insights | ${SITE_NAME}`,
@@ -20,13 +19,13 @@ export const metadata: Metadata = {
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function BlogPage() {
-  let blogs: any[] = [];
+  let allContent: any[] = [];
 
   try {
-    blogs = await prisma.blog.findMany({
+    // Fetch from Blog model only
+    allContent = await prisma.blog.findMany({
       where: { status: "published" },
       orderBy: { createdAt: "desc" },
-      take: 20,
       select: {
         id: true,
         title: true,
@@ -37,7 +36,7 @@ export default async function BlogPage() {
       },
     });
   } catch (error) {
-    console.error("Failed to fetch blogs:", error);
+    console.error("Failed to fetch content:", error);
   }
 
   return (
@@ -59,10 +58,10 @@ export default async function BlogPage() {
 
         {/* Blog Grid */}
         <div className="container mx-auto px-4 py-16">
-          {blogs.length > 0 ? (
+          {allContent.length > 0 ? (
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {blogs.map((blog) => (
-                <BlogCard key={blog.id} blog={blog} />
+              {allContent.map((item) => (
+                <BlogCard key={item.id} blog={item} />
               ))}
             </div>
           ) : (

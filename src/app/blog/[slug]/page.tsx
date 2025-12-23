@@ -14,6 +14,7 @@ import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Bookmark, Share2 } from 
 import { DownloadBox } from "@/components/blog/DownloadBox";
 import { SaveButton } from "@/components/blog/SaveButton";
 import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
+import { AIBlogMeta } from "@/components/blog/AIBlogMeta";
 
 function getSafeImageUrl(src?: string | null): string | null {
   if (!src) return null;
@@ -71,30 +72,59 @@ function processContent(content: string) {
 }
 
 const getBlog = cache(async (slug: string) => {
-  let blog = await prisma.blog.findFirst({
-    where: { seoSlug: slug },
-    include: {
-      seoMeta: true,
-      categories: {
-        include: {
-          category: true
-        }
+  const blogSelect = {
+    id: true,
+    title: true,
+    seoSlug: true,
+    status: true,
+    views: true,
+    createdAt: true,
+    content: true,
+    author: true,
+    featuredImage: true,
+    tags: true,
+    categoryId: true,
+    downloadLink: true,
+    // AI Generation Metadata
+    isAiGenerated: true,
+    primaryKeyword: true,
+    secondaryKeywords: true,
+    targetAudience: true,
+    searchIntent: true,
+    contentType: true,
+    personaType: true,
+    customPersona: true,
+    tone: true,
+    style: true,
+    pov: true,
+    emojiUsage: true,
+    humanizationLevel: true,
+    lsiKeywords: true,
+    faqSchema: true,
+    ctaText: true,
+    metaTitle: true,
+    metaDescription: true,
+    // Relations
+    seoMeta: true,
+    categories: {
+      include: {
+        category: true
       }
     }
+  } as const;
+
+  // Try to find by seoSlug first
+  let blog = await prisma.blog.findFirst({
+    where: { seoSlug: slug },
+    select: blogSelect
   });
 
+  // If not found by slug, try by id (for numeric slugs)
   if (!blog && /^\d+$/.test(slug)) {
     const id = parseInt(slug, 10);
     blog = await prisma.blog.findFirst({
       where: { id },
-      include: {
-        seoMeta: true,
-        categories: {
-          include: {
-            category: true
-          }
-        }
-      }
+      select: blogSelect
     });
   }
 
@@ -290,14 +320,14 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         {/* Featured Image */}
         {imageUrl && (
           <div className="container mx-auto px-4 mb-12">
-            <div className="max-w-5xl mx-auto">
-              <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl bg-zinc-900">
+            <div className="max-w-4xl mx-auto">
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-900/50 border border-white/10">
                 <Image
                   src={imageUrl}
                   alt={blog.title}
                   fill
-                  sizes="(max-width: 1280px) 100vw, 1280px"
-                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 896px"
+                  className="object-contain"
                   priority
                 />
               </div>
@@ -332,6 +362,20 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
               {blog.downloadLink && (
                 <DownloadBox downloadLink={blog.downloadLink} />
               )}
+
+              {/* AI Blog Metadata - Shows for AI-generated content */}
+              <AIBlogMeta
+                isAiGenerated={blog.isAiGenerated}
+                primaryKeyword={blog.primaryKeyword}
+                searchIntent={blog.searchIntent}
+                contentType={blog.contentType}
+                personaType={blog.personaType}
+                targetAudience={blog.targetAudience}
+                lsiKeywords={blog.lsiKeywords}
+                faqSchema={blog.faqSchema}
+                tone={blog.tone}
+                style={blog.style}
+              />
 
               {/* Tags */}
               {blog.tags && (

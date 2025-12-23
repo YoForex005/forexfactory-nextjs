@@ -74,3 +74,224 @@ body {
   @apply rounded-xl border border-white/10 w-full;
   aspect-ratio: 16/9;
 }
+
+/* Blog Content - Enhanced Dark Theme Styling */
+/* Force all text to be readable on dark background */
+.prose,
+.prose * {
+  color: inherit;
+}
+
+.prose p,
+.prose li,
+.prose span,
+.prose div {
+  color: #d4d4d8 !important;
+  /* zinc-300 */
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6,
+.prose strong,
+.prose b {
+  color: #ffffff !important;
+}
+
+/* Key Takeaways, Notes, and Info Boxes */
+.prose div[style*="background"],
+.prose div[class*="box"],
+.prose div[class*="note"],
+.prose div[class*="info"],
+.prose div[class*="takeaway"],
+.prose div[class*="key"],
+.prose div[class*="highlight"],
+.prose div[class*="callout"],
+.prose div[class*="alert"],
+.prose div[class*="tip"],
+.prose div[class*="warning"],
+.prose section,
+.prose aside {
+  @apply !bg-gradient-to-br !from-brand/10 !to-purple-500/10 !border !border-brand/30 !rounded-xl !p-6 !my-6;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.prose div[style*="background"] *,
+.prose div[class*="box"] *,
+.prose div[class*="note"] *,
+.prose div[class*="takeaway"] *,
+.prose section *,
+.prose aside * {
+  color: #e4e4e7 !important;
+  /* zinc-200 */
+}
+
+.prose div[style*="background"] strong,
+.prose div[class*="box"] strong,
+.prose div[class*="takeaway"] strong,
+.prose div[class*="box"] b {
+  color: #fbbf24 !important;
+  /* amber-400 for emphasis */
+}
+
+.prose div[style*="background"] h1,
+.prose div[style*="background"] h2,
+.prose div[style*="background"] h3,
+.prose div[class*="box"] h1,
+.prose div[class*="box"] h2,
+.prose div[class*="box"] h3,
+.prose div[class*="takeaway"] h1,
+.prose div[class*="takeaway"] h2,
+.prose div[class*="takeaway"] h3 {
+  @apply !text-brand !font-bold !mb-4;
+}
+
+/* Override any inline background colors */
+.prose [style*="background-color"],
+.prose [style*="background:"] {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.1)) !important;
+  @apply !rounded-xl !p-6 !my-6 !border !border-brand/20;
+}
+
+/* Tables */
+.prose table {
+  @apply !w-full !border-collapse !my-8 !rounded-xl !overflow-hidden;
+}
+
+.prose table thead {
+  @apply !bg-brand/20;
+}
+
+.prose table th {
+  @apply !text-white !font-semibold !py-3 !px-4 !text-left !border-b !border-brand/30;
+}
+
+.prose table td {
+  @apply !text-zinc-300 !py-3 !px-4 !border-b !border-white/10;
+}
+
+.prose table tbody tr {
+  @apply !bg-white/5 !transition-colors;
+}
+
+.prose table tbody tr:hover {
+  @apply !bg-white/10;
+}
+
+.prose table tbody tr:nth-child(even) {
+  @apply !bg-white/[0.02];
+}
+
+/* Blockquotes */
+.prose blockquote {
+  @apply !border-l-4 !border-brand !bg-brand/5 !px-6 !py-4 !my-6 !rounded-r-xl !not-italic;
+}
+
+.prose blockquote p {
+  @apply !text-zinc-200 !m-0;
+}
+
+/* Lists with better visibility */
+.prose ul {
+  @apply !list-disc !pl-6 !space-y-2;
+}
+
+.prose ol {
+  @apply !list-decimal !pl-6 !space-y-2;
+}
+
+.prose li {
+  @apply !text-zinc-300;
+}
+
+.prose li::marker {
+  @apply !text-brand;
+}
+
+/* Nested lists */
+.prose li ul,
+.prose li ol {
+  @apply !mt-2 !mb-0;
+}
+
+/* Links */
+.prose a {
+  @apply !text-brand !transition-colors !underline-offset-2;
+}
+
+.prose a:hover {
+  @apply !text-brand/80;
+}
+
+/* Code blocks */
+.prose code {
+  @apply !bg-brand/10 !text-brand !px-2 !py-1 !rounded !text-sm !font-mono;
+}
+
+.prose pre {
+  @apply !bg-[#0d0d14] !border !border-white/10 !rounded-xl !p-4 !overflow-x-auto;
+}
+
+.prose pre code {
+  @apply !bg-transparent !p-0 !text-zinc-300;
+}
+
+/* Horizontal rules */
+.prose hr {
+  @apply !border-white/10 !my-8;
+}
+
+/* Definition lists */
+.prose dt {
+  @apply !text-white !font-semibold !mt-4;
+}
+
+.prose dd {
+  @apply !text-zinc-300 !ml-4 !mt-1;
+}
+
+/* Fix any remaining elements with inline color styles */
+.prose [style*="color:"] {
+  color: inherit !important;
+}
+
+.prose [style*="color: rgb(55, 65, 81)"],
+.prose [style*="color: rgb(75, 85, 99)"],
+.prose [style*="color: rgb(107, 114, 128)"],
+.prose [style*="color:#374151"],
+.prose [style*="color:#4b5563"],
+.prose [style*="color:#6b7280"],
+.prose [style*="color: gray"],
+.prose [style*="color: grey"],
+.prose [style*="color: black"],
+.prose [style*="color:#000"],
+.prose [style*="color: #000"] {
+  color: #d4d4d8 !important;
+}
+
+/* Custom Scrollbar Styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}

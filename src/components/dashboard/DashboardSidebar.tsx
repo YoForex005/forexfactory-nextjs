@@ -10,7 +10,8 @@ import {
     Settings,
     LogOut,
     ChevronRight,
-    X
+    X,
+    Home
 } from "lucide-react";
 import { logout } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -71,7 +72,7 @@ export function DashboardSidebar({ userName, userEmail, isOpen, onClose }: Dashb
                 {/* User Info */}
                 <div className="p-4 border-b border-white/10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-brand/20 flex items-center justify-center text-brand font-bold">
+                        <div className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-brand/20 flex items-center justify-center text-brand font-bold text-lg leading-none">
                             {userName?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -92,8 +93,8 @@ export function DashboardSidebar({ userName, userEmail, isOpen, onClose }: Dashb
                                 href={link.href}
                                 onClick={onClose} // Close sidebar on mobile nav click
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group ${isActive
-                                        ? "bg-brand/10 text-brand border border-brand/20"
-                                        : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                                    ? "bg-brand/10 text-brand border border-brand/20"
+                                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
                                     }`}
                             >
                                 <Icon className="h-5 w-5" />
@@ -104,14 +105,21 @@ export function DashboardSidebar({ userName, userEmail, isOpen, onClose }: Dashb
                     })}
                 </nav>
 
-                {/* Logout */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+                {/* Back to Site & Logout */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-1">
+                    <Link
+                        href="/"
+                        className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                    >
+                        <Home className="h-5 w-5" />
+                        Back to Site
+                    </Link>
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
                     >
                         <LogOut className="h-5 w-5" />
-                        Log out
+                        Sign Out
                     </button>
                 </div>
             </aside>

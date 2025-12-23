@@ -133,91 +133,73 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             {/* Welcome Header */}
-            <div className="bg-gradient-to-r from-brand/20 via-brand/10 to-transparent rounded-2xl border border-brand/20 p-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">
-                            Welcome back, {userName}! 👋
-                        </h1>
-                        <p className="text-zinc-400">{currentTime}</p>
-                    </div>
-                    <div>
-                        <Link
-                            href="/blog"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg font-medium hover:bg-brand/90 transition-colors w-full md:w-auto justify-center"
-                        >
-                            Explore Content
-                            <ArrowRight className="h-4 w-4" />
-                        </Link>
-                    </div>
-                </div>
+            <div className="mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                    Welcome back, {userName}! 👋
+                </h1>
+                <p className="text-zinc-400 mt-1">Here's what's happening with your account today.</p>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Stats Grid - 3 columns */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatsCard
                     title="Total Downloads"
                     value={stats.downloads}
                     icon={Download}
-                    description="All time"
+                    description=""
                 />
                 <StatsCard
                     title="Saved Articles"
                     value={stats.savedArticles}
                     icon={Bookmark}
-                    description="Bookmarked"
+                    description=""
                 />
                 <StatsCard
-                    title="Member Since"
-                    value={memberSince}
-                    icon={Calendar}
-                    description="Active member"
-                />
-                <StatsCard
-                    title="Last Active"
-                    value="Today"
-                    icon={Clock}
-                    description="Recent activity"
+                    title="Recently Viewed"
+                    value={recentBlogs.length}
+                    icon={Eye}
+                    description=""
                 />
             </div>
 
-            {/* Two Column Layout */}
+            {/* Two Column Layout - Recent Downloads & Recently Viewed side by side */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recent Downloads */}
-                <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-6">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-6 flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                             <FileDown className="h-5 w-5 text-brand" />
                             Recent Downloads
                         </h2>
-                        <Link href="/dashboard/downloads" className="text-sm text-brand hover:underline">
-                            View all
+                        <Link href="/dashboard/downloads" className="text-sm text-brand hover:underline flex items-center gap-1">
+                            View all <ArrowRight className="h-3 w-3" />
                         </Link>
                     </div>
 
-                    <div className="space-y-4">
+                    {/* Scrollable content */}
+                    <div className="flex-1 overflow-y-auto max-h-[280px] space-y-3 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20">
                         {recentDownloads.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
-                                        <Download className="h-5 w-5 text-brand" />
+                            <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center shrink-0">
+                                        <Download className="h-4 w-4 text-brand" />
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-white">{item.title}</p>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-white truncate">{item.title}</p>
                                         <p className="text-xs text-zinc-500">{item.type}</p>
                                     </div>
                                 </div>
-                                <p className="text-xs text-zinc-500">{formatTimeAgo(item.createdAt)}</p>
+                                <p className="text-xs text-zinc-500 shrink-0 ml-2">{formatTimeAgo(item.createdAt)}</p>
                             </div>
                         ))}
                     </div>
 
                     {recentDownloads.length === 0 && (
-                        <div className="text-center py-8 text-zinc-500">
-                            <Download className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                            <p>No downloads yet</p>
+                        <div className="text-center py-12 text-zinc-500">
+                            <Download className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                            <p className="text-sm">No downloads yet</p>
                             <Link href="/downloads" className="text-brand text-sm hover:underline mt-2 inline-block">
                                 Browse downloads
                             </Link>
@@ -225,82 +207,72 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                {/* Quick Actions */}
-                <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-6">
-                    <div className="flex items-center justify-between mb-6">
+                {/* Recently Viewed */}
+                <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-6 flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                            <BookOpen className="h-5 w-5 text-brand" />
-                            Quick Actions
+                            <Eye className="h-5 w-5 text-brand" />
+                            Recently Viewed
                         </h2>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <Link href="/downloads" className="flex flex-col items-center gap-3 p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                            <Download className="h-8 w-8 text-brand" />
-                            <span className="text-sm text-zinc-300">Browse EAs</span>
-                        </Link>
-                        <Link href="/blog" className="flex flex-col items-center gap-3 p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                            <BookOpen className="h-8 w-8 text-brand" />
-                            <span className="text-sm text-zinc-300">Read Articles</span>
-                        </Link>
-                        <Link href="/dashboard/saved" className="flex flex-col items-center gap-3 p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                            <Bookmark className="h-8 w-8 text-brand" />
-                            <span className="text-sm text-zinc-300">Saved Items</span>
-                        </Link>
-                        <Link href="/dashboard/profile" className="flex flex-col items-center gap-3 p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                            <Calendar className="h-8 w-8 text-brand" />
-                            <span className="text-sm text-zinc-300">My Profile</span>
+                        <Link href="/blog" className="text-sm text-brand hover:underline flex items-center gap-1">
+                            Browse more <ArrowRight className="h-3 w-3" />
                         </Link>
                     </div>
-                </div>
-            </div>
 
-            {/* Recent Blogs Section */}
-            <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                        <Eye className="h-5 w-5 text-brand" />
-                        Recently Viewed Blogs
-                    </h2>
-                    <Link href="/blog" className="text-sm text-brand hover:underline">
-                        Browse all
-                    </Link>
-                </div>
-
-                <div className="space-y-3">
-                    {recentBlogs.map((item) => (
-                        <Link
-                            key={item.id}
-                            href={`/blog/${item.blog.seoSlug}`}
-                            className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group"
-                        >
-                            <div className="flex items-center gap-4 min-w-0">
-                                <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center shrink-0">
-                                    <BookOpen className="h-5 w-5 text-brand" />
-                                </div>
-                                <div className="min-w-0">
+                    {/* Scrollable content */}
+                    <div className="flex-1 overflow-y-auto max-h-[280px] space-y-3 pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20">
+                        {recentBlogs.map((item) => (
+                            <Link
+                                key={item.id}
+                                href={`/blog/${item.blog.seoSlug}`}
+                                className="flex items-start gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group"
+                            >
+                                <div className="w-2 h-2 rounded-full bg-brand mt-2 shrink-0" />
+                                <div className="min-w-0 flex-1">
                                     <p className="text-sm font-medium text-white truncate group-hover:text-brand transition-colors">
                                         {item.blog.title}
                                     </p>
-                                    <p className="text-xs text-zinc-500">by {item.blog.author}</p>
+                                    <p className="text-xs text-zinc-500">Viewed {formatTimeAgo(item.visitedAt)}</p>
                                 </div>
-                            </div>
-                            <p className="text-xs text-zinc-500 shrink-0 ml-4">
-                                {formatTimeAgo(item.visitedAt)}
-                            </p>
-                        </Link>
-                    ))}
-                </div>
-
-                {recentBlogs.length === 0 && (
-                    <div className="text-center py-8 text-zinc-500">
-                        <Eye className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p>No recently viewed blogs</p>
-                        <Link href="/blog" className="text-brand text-sm hover:underline mt-2 inline-block">
-                            Start reading
-                        </Link>
+                            </Link>
+                        ))}
                     </div>
-                )}
+
+                    {recentBlogs.length === 0 && (
+                        <div className="text-center py-12 text-zinc-500">
+                            <Eye className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                            <p className="text-sm">No recently viewed blogs</p>
+                            <Link href="/blog" className="text-brand text-sm hover:underline mt-2 inline-block">
+                                Start reading
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Quick Actions - Horizontal buttons at bottom */}
+            <div className="bg-[#0d0d14] rounded-xl border border-white/10 p-6">
+                <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+                <div className="flex flex-wrap gap-3">
+                    <Link
+                        href="/downloads"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
+                    >
+                        Browse EAs
+                    </Link>
+                    <Link
+                        href="/dashboard/saved"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors"
+                    >
+                        View Saved
+                    </Link>
+                    <Link
+                        href="/dashboard/profile"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors"
+                    >
+                        Edit Profile
+                    </Link>
+                </div>
             </div>
         </div>
     );
