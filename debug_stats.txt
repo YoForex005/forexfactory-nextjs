@@ -1,0 +1,162 @@
+
+----------------------------------------
+Time: 2025-12-24T08:03:44.158Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:03:44.373Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:11:24.285Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:11:24.297Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:12:13.196Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:12:13.227Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:14:55.826Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T08:14:56.104Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T11:03:13.718Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T11:03:20.219Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T11:31:35.705Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-24T11:31:42.053Z
+User ID: 1
+User Found: false
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-26T07:14:00.977Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-26T07:14:07.534Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-26T07:14:23.151Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-26T07:14:30.188Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-26T07:14:36.741Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-26T07:14:42.979Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------

@@ -24,46 +24,41 @@ model Admin {
 }
 
 model Blog {
-  id            Int            @id @default(autoincrement())
-  title         String         @db.VarChar(500)
-  seoSlug       String         @unique @map("seo_slug") @db.VarChar(500)
-  status        BlogStatus
-  views         Int?           @default(0)
-  createdAt     DateTime       @default(now()) @map("created_at")
-  content       String
-  author        String         @db.VarChar(255)
-  featuredImage String         @map("featured_image")
-  tags          String
-  categoryId    Int            @map("category_id")
-  downloadLink  String?        @map("download_link")
-
-  // SEO Meta (for AI-generated posts)
-  metaTitle       String?      @map("meta_title") @db.VarChar(255)
-  metaDescription String?      @map("meta_description") @db.VarChar(500)
-
-  // AI Generation Metadata
-  isAiGenerated     Boolean    @default(false) @map("is_ai_generated")
-  primaryKeyword    String?    @map("primary_keyword") @db.VarChar(255)
-  secondaryKeywords String?    @map("secondary_keywords") // JSON array
-  targetAudience    String?    @map("target_audience") @db.VarChar(500)
-  searchIntent      String?    @map("search_intent") @db.VarChar(50) // Informational, Transactional, Commercial, Navigational
-  contentType       String?    @map("content_type") @db.VarChar(50) // Blog Post, Pillar Page, Listicle, Case Study, News Update
-  personaType       String?    @map("persona_type") @db.VarChar(50) // Rogue Academic, Wall Street Veteran, Friendly Coder, Custom
-  customPersona     String?    @map("custom_persona")
-  tone              String?    @db.VarChar(100)
-  style             String?    @db.VarChar(100)
-  pov               String?    @db.VarChar(50) // Point of view
-  emojiUsage        String?    @map("emoji_usage") @db.VarChar(20) // Yes, No, Minimal
-  humanizationLevel Int?       @map("humanization_level") // 0-100
-  lsiKeywords       String?    @map("lsi_keywords") // JSON array of LSI keywords used
-  faqSchema         String?    @map("faq_schema") // JSON array of {question, answer}
-  ctaText           String?    @map("cta_text") @db.VarChar(500)
-
-  categories    BlogCategory[]
-  comments      Comment[]
-  seoMeta       SeoMeta[]
-  savedBy       SavedArticle[]
-  recentViews   RecentBlog[]
+  id                Int            @id @default(autoincrement())
+  title             String         @db.VarChar(500)
+  seoSlug           String         @unique @map("seo_slug") @db.VarChar(500)
+  status            BlogStatus
+  views             Int?           @default(0)
+  createdAt         DateTime       @default(now()) @map("created_at")
+  content           String
+  author            String         @db.VarChar(255)
+  featuredImage     String         @map("featured_image")
+  tags              String
+  categoryId        Int            @map("category_id")
+  downloadLink      String?        @map("download_link")
+  contentType       String?        @map("content_type") @db.Text
+  faqSchema         String?        @map("faq_schema") @db.Text
+  isAiGenerated     Boolean        @default(false) @map("is_ai_generated")
+  lsiKeywords       String?        @map("lsi_keywords") @db.Text
+  metaDescription   String?        @map("meta_description") @db.VarChar(1000)
+  metaTitle         String?        @map("meta_title") @db.VarChar(500)
+  personaType       String?        @map("persona_type") @db.VarChar(255)
+  primaryKeyword    String?        @map("primary_keyword") @db.VarChar(255)
+  searchIntent      String?        @map("search_intent") @db.VarChar(255)
+  ctaText           String?        @map("cta_text") @db.VarChar(500)
+  customPersona     String?        @map("custom_persona") @db.Text
+  emojiUsage        String?        @map("emoji_usage") @db.VarChar(50)
+  humanizationLevel Int?           @map("humanization_level")
+  pov               String?        @db.VarChar(255)
+  secondaryKeywords String?        @map("secondary_keywords") @db.Text
+  style             String?        @db.VarChar(255)
+  targetAudience    String?        @map("target_audience") @db.VarChar(1000)
+  tone              String?        @db.VarChar(255)
+  categories        BlogCategory[]
+  comments          Comment[]
+  seoMeta           SeoMeta[]
+  savedBy           SavedArticle[]
+  recentViews       RecentBlog[]
 
   @@index([status, createdAt])
   @@index([isAiGenerated])
@@ -124,8 +119,6 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-
-
 model SeoMeta {
   id             Int         @id @default(autoincrement())
   postId         Int         @map("post_id")
@@ -169,7 +162,6 @@ model User {
   name          String?        @db.VarChar(255)
   countryCode   String?        @default("+91") @map("country_code") @db.VarChar(10)
   country       String?        @default("IN") @db.VarChar(50)
-
   media         Media[]
   downloads     UserDownload[]
   savedArticles SavedArticle[]
@@ -235,7 +227,6 @@ model SeoTemplate {
 
 model SeoAutomation {
   id          Int       @id @default(autoincrement())
-  blogId      Int?      @map("blog_id")
   taskType    String    @db.VarChar(50)
   status      String    @default("pending") @db.VarChar(20)
   input       String?
@@ -243,6 +234,7 @@ model SeoAutomation {
   error       String?
   processedAt DateTime? @map("processed_at")
   createdAt   DateTime  @default(now()) @map("created_at")
+  blogId      Int?      @map("blog_id")
 
   @@index([blogId], map: "blog_id_idx")
   @@index([status], map: "status_idx")
@@ -251,7 +243,6 @@ model SeoAutomation {
 
 model IndexingLog {
   id        Int      @id @default(autoincrement())
-  blogId    Int?     @map("blog_id")
   url       String   @db.VarChar(500)
   service   String   @db.VarChar(50)
   action    String   @db.VarChar(50)
@@ -259,13 +250,12 @@ model IndexingLog {
   response  String?
   error     String?
   createdAt DateTime @default(now()) @map("created_at")
+  blogId    Int?     @map("blog_id")
 
   @@index([blogId], map: "indexing_blog_id_idx")
   @@index([service, status], map: "service_status_idx")
   @@map("indexing_logs")
 }
-
-
 
 model NewsletterSubscription {
   id               Int       @id @default(autoincrement())
@@ -317,8 +307,6 @@ enum CategoryStatus {
   active
   inactive
 }
-
-
 
 enum MetaRobots {
   index_follow     @map("index, follow")

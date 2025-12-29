@@ -80,6 +80,7 @@ export default function DashboardPage() {
 
             if (profileRes.ok) {
                 const data = await profileRes.json();
+                console.log("CLIENT DEBUG: Dashboard profile data:", data);
                 setStats(data.stats);
                 if (data.user.createdAt) {
                     setMemberSince(format(new Date(data.user.createdAt), "MMM yyyy"));

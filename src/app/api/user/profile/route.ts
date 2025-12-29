@@ -1,5 +1,8 @@
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import * as fs from 'fs';
+import * as path from 'path';
 
 export const dynamic = "force-dynamic";
 
@@ -17,42 +20,91 @@ function getUserIdFromToken(authHeader: string | null): number | null {
 }
 
 export async function GET(req: Request) {
+    console.log("API: Profile GET request received");
     try {
         const userId = getUserIdFromToken(req.headers.get("authorization"));
+        console.log("API: Extracted userId:", userId);
+
         if (!userId) {
+            console.log("API: No userId, returning 401");
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const debugPath = path.join(process.cwd(), 'debug_stats.txt');
+
+        // Sequential queries for debugging
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            include: {
-                _count: {
-                    select: {
-                        downloads: true,
-                        savedArticles: true,
-                    }
-                }
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                country: true,
+                createdAt: true,
             }
         });
+        console.log("API: User found:", user ? "yes" : "no");
 
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        const downloadsCount = await prisma.userDownload.count({
+            where: { userId }
+        });
+        console.log("API: Downloads count:", downloadsCount);
+
+        const savedArticlesCount = await prisma.savedArticle.count({
+            where: { userId }
+        });
+        console.log("API: SavedArticles count (via count()):", savedArticlesCount);
+
+        // Verification query
+        const savedArticlesList = await prisma.savedArticle.findMany({
+            where: { userId },
+            select: { id: true }
+        });
+        console.log("API: SavedArticles actual length:", savedArticlesList.length);
+
+        const log = `
+----------------------------------------
+Time: ${new Date().toISOString()}
+User ID: ${userId}
+User Found: ${!!user}
+Downloads Count: ${downloadsCount}
+Saved Count (via count): ${savedArticlesCount}
+Saved Count (via findMany): ${savedArticlesList.length}
+----------------------------------------
+`;
+        try {
+            fs.appendFileSync(debugPath, log);
+        } catch (e) {
+            console.error("Failed to write to debug file", e);
         }
 
-        return NextResponse.json({
-            user: {
+        // If user not found, still return stats with fallback user data
+        const responseData = {
+            user: user ? {
                 id: user.id,
                 email: user.email,
                 name: user.name,
                 phone: user.phone,
                 country: user.country,
                 createdAt: user.createdAt,
+            } : {
+                id: userId,
+                email: "unknown",
+                name: "User",
+                phone: null,
+                country: null,
+                createdAt: new Date(),
             },
             stats: {
-                downloads: user._count.downloads,
-                savedArticles: user._count.savedArticles,
+                downloads: downloadsCount,
+                savedArticles: savedArticlesCount,
             }
-        });
+        };
+
+        console.log("API: Sending response:", JSON.stringify(responseData));
+
+        return NextResponse.json(responseData);
     } catch (error) {
         console.error("Profile fetch error:", error);
         return NextResponse.json({ error: "Internal Error" }, { status: 500 });
