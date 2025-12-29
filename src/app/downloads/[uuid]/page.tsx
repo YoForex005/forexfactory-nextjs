@@ -22,10 +22,11 @@ async function getSignal(uuid: string) {
   });
 }
 
-async function getSuggestedSignals(id: number) {
+async function getSuggestedSignals(id: number, platform?: string) {
   return prisma.signal.findMany({
     where: {
       id: { not: id },
+      ...(platform && { platform }),
     },
     orderBy: { createdAt: "desc" },
     take: 3,
