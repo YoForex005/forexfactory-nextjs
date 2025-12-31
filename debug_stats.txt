@@ -160,3 +160,39 @@ Downloads Count: 0
 Saved Count (via count): 3
 Saved Count (via findMany): 3
 ----------------------------------------
+
+----------------------------------------
+Time: 2025-12-29T08:05:20.992Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-29T08:30:27.813Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-29T12:46:05.436Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2025-12-30T08:14:42.442Z
+User ID: 1
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
