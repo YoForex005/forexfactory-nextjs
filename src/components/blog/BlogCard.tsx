@@ -76,6 +76,14 @@ export function BlogCard({ blog }: BlogCardProps) {
           <span className="rounded-full bg-brand/10 px-2 py-1 text-brand">
             Article
           </span>
+          {blog.author && (
+            <>
+              <span className="flex items-center gap-1">
+                <span className="text-zinc-500">By</span> {blog.author}
+              </span>
+              <span>•</span>
+            </>
+          )}
           <span>{format(new Date(blog.createdAt), "MMM d, yyyy")}</span>
           <span>•</span>
           <span>{blog.views || 0} views</span>
