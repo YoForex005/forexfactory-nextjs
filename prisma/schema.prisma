@@ -148,35 +148,20 @@ model Signal {
   sizeBytes     Int      @map("size_bytes")
   createdAt     DateTime @default(now()) @map("created_at")
   
-  // New fields for extended metadata
+  // Consolidated fields for metadata
   platform      String?   @db.VarChar(50)
-  strategy      String?   @db.VarChar(50)
+  strategy      String?   @db.VarChar(100)
   version       String?   @db.VarChar(20)
-  winRate       Decimal?  @db.Decimal(5, 2)
-  profitFactor  Decimal?  @db.Decimal(5, 2)
-  maxDrawdown   Decimal?  @db.Decimal(5, 2)
-  rating        Decimal?  @db.Decimal(3, 2)
-  downloadCount Int?      @default(0) @map("download_count")
-  isPremium     Boolean?  @default(false) @map("is_premium")
-  price         Decimal?  @db.Decimal(10, 2)
+  winRate       Float?    @map("win_rate")
+  profitFactor  Float?    @map("profit_factor")
+  maxDrawdown   Float?    @map("max_drawdown")
+  rating        Float?
+  downloadCount Int       @default(0) @map("download_count")
+  isPremium     Boolean   @default(false) @map("is_premium")
+  price         Float?
   features      String?   @db.Text
   requirements  String?   @db.Text
-  compatibility String?   @db.Text
-
-  // Added fields to match usage in page.tsx
-  platform      String?  @db.VarChar(50)
-  strategy      String?  @db.VarChar(100)
-  winRate       Float?   @map("win_rate")
-  profitFactor  Float?   @map("profit_factor")
-  maxDrawdown   Float?   @map("max_drawdown")
-  rating        Float?
-  downloadCount Int      @default(0) @map("download_count")
-  isPremium     Boolean  @default(false) @map("is_premium")
-  price         Float?
-  features      String?  @db.Text
-  requirements  String?  @db.Text
-  compatibility String?  @db.VarChar(255)
-  version       String?  @db.VarChar(20)
+  compatibility String?   @db.VarChar(255)
 
   @@index([createdAt], map: "created_at_idx")
   @@map("signals")

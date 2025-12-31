@@ -252,7 +252,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
               {/* Category Badge */}
               {blog.categories && blog.categories.length > 0 && (
                 <div className="inline-flex items-center gap-2 mb-6">
-                  {blog.categories.slice(0, 2).map((cat) => (
+                  {blog.categories.slice(0, 2).map((cat: any) => (
                     <span
                       key={cat.categoryId}
                       className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 rounded-md border border-brand/20"
@@ -380,7 +380,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 <div className="mt-12 pt-8 border-t border-white/10">
                   <p className="text-xs uppercase tracking-wider text-zinc-500 mb-4">Topics</p>
                   <div className="flex flex-wrap gap-2">
-                    {blog.tags.split(',').map((tag) => (
+                    {blog.tags.split(',').map((tag: string) => (
                       <Link
                         key={tag}
                         href={`/search?q=${tag.trim()}`}
@@ -447,7 +447,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {relatedBlogs.map((related) => (
+                  {relatedBlogs.map((related: any) => (
                     <Link
                       href={`/blog/${related.seoSlug}`}
                       key={related.seoSlug}

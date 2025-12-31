@@ -108,7 +108,7 @@ export default async function DownloadsPage() {
           </div>
           {latestSignals.length > 0 ? (
             <div className="grid gap-6 lg:grid-cols-3">
-              {latestSignals.map((signal) => (
+              {latestSignals.map((signal: any) => (
                 <DownloadCard key={signal.id} signal={signal} />
               ))}
             </div>
