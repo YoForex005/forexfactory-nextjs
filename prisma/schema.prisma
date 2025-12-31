@@ -316,6 +316,7 @@ enum AdminRole {
 enum BlogStatus {
   published
   draft
+  scheduled
 }
 
 enum CategoryStatus {
