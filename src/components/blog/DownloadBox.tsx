@@ -6,7 +6,7 @@ import { Download, X, LogIn, UserPlus } from "lucide-react";
 import { isLoggedIn, getUser } from "@/lib/auth-client";
 
 interface DownloadBoxProps {
-    downloadLink: string;
+    downloadLink?: string | null;  // Made optional - button shows even without link
 }
 
 export function DownloadBox({ downloadLink }: DownloadBoxProps) {
@@ -42,7 +42,12 @@ export function DownloadBox({ downloadLink }: DownloadBoxProps) {
             }
 
             // User is logged in, allow download
-            window.open(downloadLink, "_blank");
+            if (downloadLink) {
+                window.open(downloadLink, "_blank");
+            } else {
+                // No specific download link - redirect to signals/downloads page
+                window.location.href = "/signals";
+            }
         } else {
             // Show login modal
             setShowModal(true);

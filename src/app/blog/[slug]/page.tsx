@@ -358,10 +358,8 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
 
-              {/* Download Box - Shows when blog has a download link */}
-              {blog.downloadLink && (
-                <DownloadBox downloadLink={blog.downloadLink} />
-              )}
+              {/* Download Box - Always visible at end of blog */}
+              <DownloadBox downloadLink={blog.downloadLink} />
 
               {/* AI Blog Metadata - Shows for AI-generated content */}
               <AIBlogMeta

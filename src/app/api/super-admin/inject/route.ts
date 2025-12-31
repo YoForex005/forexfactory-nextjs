@@ -29,11 +29,29 @@ export async function POST(request: Request) {
             emoji_usage,
             humanization_level,
             cta,
-            post_status
+            post_status,
+            download_link,  // Bot/EA download link provided by super admin
+            featured_image,  // Optional featured image URL
+            author  // Optional author name from super admin
         } = body;
 
-        // Defaults for required fields not provided by AI
-        const defaultAuthor = "Super Admin";
+
+        // Random American names pool for when no author is provided
+        const americanNames = [
+            "James Wilson", "Michael Johnson", "Robert Smith", "David Brown",
+            "William Davis", "Richard Miller", "Joseph Anderson", "Thomas Taylor",
+            "Christopher Moore", "Daniel Jackson", "Matthew White", "Anthony Harris",
+            "Mark Thompson", "Steven Garcia", "Paul Martinez", "Andrew Robinson",
+            "Joshua Clark", "Kenneth Lewis", "Kevin Walker", "Brian Hall",
+            "Sarah Mitchell", "Emily Carter", "Jessica Turner", "Ashley Phillips",
+            "Amanda Evans", "Jennifer Collins", "Elizabeth Stewart", "Stephanie Morris",
+            "Nicole Rogers", "Melissa Reed", "Michelle Cooper", "Laura Bailey"
+        ];
+
+        // Pick a random author name if none provided
+        const getRandomAuthor = () => americanNames[Math.floor(Math.random() * americanNames.length)];
+        const blogAuthor = author && author.trim() ? author.trim() : getRandomAuthor();
+
         const defaultImage = "/images/blog/default.jpg";
 
         // Fetch a default category (fallback to 1 if none found, though 1 might not exist)
@@ -64,10 +82,11 @@ export async function POST(request: Request) {
                 seoSlug: slug,
                 status: status,
                 content: body_html || "<p>No content generated.</p>",
-                author: defaultAuthor,
-                featuredImage: defaultImage,
+                author: blogAuthor,
+                featuredImage: featured_image || defaultImage,
                 tags: Array.isArray(secondary_keywords) ? secondary_keywords.join(",") : "AI, Forex",
                 categoryId: categoryId,
+                downloadLink: download_link || null,  // Bot/EA download link for download button
 
                 // Mapped fields
                 metaTitle: meta_title,
