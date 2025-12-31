@@ -33,6 +33,7 @@ export default async function BlogPage() {
         featuredImage: true,
         createdAt: true,
         views: true,
+        author: true,
       },
     });
   } catch (error) {
