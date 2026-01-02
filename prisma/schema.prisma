@@ -32,7 +32,7 @@ model Blog {
   createdAt         DateTime       @default(now()) @map("created_at")
   content           String
   author            String         @db.VarChar(255)
-  featuredImage     String         @map("featured_image")
+  featuredImage     String[]       @map("featured_image")
   tags              String
   categoryId        Int            @map("category_id")
   downloadLink      String?        @map("download_link")

@@ -8,7 +8,7 @@ const insertBlogSchema = z.object({
   seoSlug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens"),
   content: z.string().min(1, "Content is required"),
   author: z.string().min(1, "Author is required"),
-  featuredImage: z.string().min(1, "Featured image is required"),
+  featuredImage: z.array(z.string()).min(1, "At least one featured image is required"),
   tags: z.string(),
   categoryId: z.number().positive(),
   downloadLink: z.string().optional(),

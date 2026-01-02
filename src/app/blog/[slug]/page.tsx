@@ -39,53 +39,24 @@ function resolveUrl(value: string): string | null {
   return null;
 }
 
-function getSafeImageUrl(src?: string | null): string | null {
+function getSafeImageUrl(images?: string[] | null): string | null {
+  if (!images || images.length === 0) return null;
+  const src = images[0];
   if (!src) return null;
-  const value = src.trim();
-  if (!value) return null;
-
-  // Try parsing as JSON array
-  try {
-    if (value.startsWith("[") && value.endsWith("]")) {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return resolveUrl(parsed[0]);
-      }
-      return null;
-    }
-  } catch (e) {
-    // Not a JSON array, treat as single string
-  }
-
-  return resolveUrl(value);
+  return resolveUrl(src);
 }
 
-function getSafeImageUrls(src?: string | null): string[] {
-  if (!src) return [];
-  const value = src.trim();
-  if (!value) return [];
-
+function getSafeImageUrls(images?: string[] | null): string[] {
+  if (!images || images.length === 0) return [];
   const urls: string[] = [];
 
-  try {
-    if (value.startsWith("[") && value.endsWith("]")) {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) {
-        parsed.forEach(p => {
-          if (typeof p === 'string') {
-            const resolved = resolveUrl(p);
-            if (resolved) urls.push(resolved);
-          }
-        });
-        return urls;
-      }
+  images.forEach(src => {
+    if (src) {
+      const resolved = resolveUrl(src);
+      if (resolved) urls.push(resolved);
     }
-  } catch (e) {
-    // Not JSON
-  }
+  });
 
-  const resolved = resolveUrl(value);
-  if (resolved) urls.push(resolved);
   return urls;
 }
 
@@ -208,7 +179,9 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
   const seo = blog.seoMeta[0];
   const title = seo?.seoTitle || blog.title;
   const description = seo?.seoDescription || blog.content.substring(0, 160);
-  const image = getSafeImageUrl(seo?.ogImage || blog.featuredImage) || DEFAULT_OG_IMAGE;
+  const ogImage = seo?.ogImage ? resolveUrl(seo.ogImage) : null;
+  const featuredImage = getSafeImageUrl(blog.featuredImage);
+  const image = ogImage || featuredImage || DEFAULT_OG_IMAGE;
 
   return {
     title,

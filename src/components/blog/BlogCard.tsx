@@ -7,23 +7,12 @@ interface BlogCardProps {
   blog: any;
 }
 
-function getSafeImageUrl(src?: string | null): string | null {
+function getSafeImageUrl(images?: string[] | null): string | null {
+  if (!images || images.length === 0) return null;
+  const src = images[0];
   if (!src) return null;
   const value = src.trim();
   if (!value) return null;
-
-  // Try parsing as JSON array
-  try {
-    if (value.startsWith("[") && value.endsWith("]")) {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return getSafeImageUrl(parsed[0]); // Recursively resolve the first image
-      }
-      return null;
-    }
-  } catch (e) {
-    // Not a JSON array, treat as single string
-  }
 
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value;
