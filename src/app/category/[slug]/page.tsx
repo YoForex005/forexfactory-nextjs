@@ -11,10 +11,10 @@ interface CategoryPageProps {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  
+
   // Find category by name (slug)
   const category = await prisma.category.findFirst({
-    where: { 
+    where: {
       name: {
         equals: decodeURIComponent(slug).replace(/-/g, " "),
       },
@@ -40,10 +40,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  
+
   // Find category by name
   const category = await prisma.category.findFirst({
-    where: { 
+    where: {
       name: {
         equals: decodeURIComponent(slug).replace(/-/g, " "),
       },
@@ -65,13 +65,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   // Filter published blogs
   const blogs = blogCategories
-    .map(bc => bc.blog)
-    .filter(blog => blog.status === "published");
+    .map((bc: any) => bc.blog)
+    .filter((blog: any) => blog.status === "published");
 
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <main className="flex-1 bg-surface-100">
         {/* Header */}
         <section className="border-b border-white/10 bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">

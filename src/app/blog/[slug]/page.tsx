@@ -16,26 +16,16 @@ import { SaveButton } from "@/components/blog/SaveButton";
 import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
 import { AIBlogMeta } from "@/components/blog/AIBlogMeta";
 
-function getSafeImageUrl(src?: string | null): string | null {
-  if (!src) return null;
-  const value = src.trim();
-  if (!value) return null;
+import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
 
-  if (value.startsWith("http://") || value.startsWith("https://")) {
-    return value;
-  }
-
-  if (value.startsWith("/")) {
-    return value;
-  }
-
+function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
 
+  if (value.startsWith("http://") || value.startsWith("https://")) return value;
+  if (value.startsWith("/")) return value;
+
   if (value.startsWith("blog-images/")) {
-    if (r2PublicUrl) {
-      return `${r2PublicUrl}/${value}`;
-    }
-    return `/${value}`;
+    return r2PublicUrl ? `${r2PublicUrl}/${value}` : `/${value}`;
   }
 
   if (value.startsWith("admin/") || value.startsWith("media/")) {
@@ -47,6 +37,56 @@ function getSafeImageUrl(src?: string | null): string | null {
   }
 
   return null;
+}
+
+function getSafeImageUrl(src?: string | null): string | null {
+  if (!src) return null;
+  const value = src.trim();
+  if (!value) return null;
+
+  // Try parsing as JSON array
+  try {
+    if (value.startsWith("[") && value.endsWith("]")) {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return resolveUrl(parsed[0]);
+      }
+      return null;
+    }
+  } catch (e) {
+    // Not a JSON array, treat as single string
+  }
+
+  return resolveUrl(value);
+}
+
+function getSafeImageUrls(src?: string | null): string[] {
+  if (!src) return [];
+  const value = src.trim();
+  if (!value) return [];
+
+  const urls: string[] = [];
+
+  try {
+    if (value.startsWith("[") && value.endsWith("]")) {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        parsed.forEach(p => {
+          if (typeof p === 'string') {
+            const resolved = resolveUrl(p);
+            if (resolved) urls.push(resolved);
+          }
+        });
+        return urls;
+      }
+    }
+  } catch (e) {
+    // Not JSON
+  }
+
+  const resolved = resolveUrl(value);
+  if (resolved) urls.push(resolved);
+  return urls;
 }
 
 function calculateReadTime(content: string): number {
@@ -206,6 +246,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const { contentWithIds, headings } = processContent(blog.content);
   const readTime = calculateReadTime(blog.content);
   const imageUrl = getSafeImageUrl(blog.featuredImage);
+  const imageUrls = getSafeImageUrls(blog.featuredImage);
 
   const jsonLd = generateArticleSchema({
     title: blog.title,
@@ -252,7 +293,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
               {/* Category Badge */}
               {blog.categories && blog.categories.length > 0 && (
                 <div className="inline-flex items-center gap-2 mb-6">
-                  {blog.categories.slice(0, 2).map((cat) => (
+                  {blog.categories.slice(0, 2).map((cat: any) => (
                     <span
                       key={cat.categoryId}
                       className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 rounded-md border border-brand/20"
@@ -317,23 +358,12 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
           </div>
         </div>
 
-        {/* Featured Image */}
-        {imageUrl && (
-          <div className="container mx-auto px-4 mb-12">
-            <div className="max-w-4xl mx-auto">
-              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-900/50 border border-white/10">
-                <Image
-                  src={imageUrl}
-                  alt={blog.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 896px"
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
+        {/* Featured Image Slideshow */}
+        <div className="container mx-auto px-4 mb-12">
+          <div className="max-w-4xl mx-auto">
+            <BlogHeroSlideshow images={imageUrls} title={blog.title} />
           </div>
-        )}
+        </div>
 
         {/* Content Layout */}
         <div className="container mx-auto px-4">
@@ -380,7 +410,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 <div className="mt-12 pt-8 border-t border-white/10">
                   <p className="text-xs uppercase tracking-wider text-zinc-500 mb-4">Topics</p>
                   <div className="flex flex-wrap gap-2">
-                    {blog.tags.split(',').map((tag) => (
+                    {blog.tags.split(',').map((tag: string) => (
                       <Link
                         key={tag}
                         href={`/search?q=${tag.trim()}`}
@@ -447,7 +477,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {relatedBlogs.map((related) => (
+                  {relatedBlogs.map((related: any) => (
                     <Link
                       href={`/blog/${related.seoSlug}`}
                       key={related.seoSlug}
@@ -455,12 +485,14 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                     >
                       <div className="relative aspect-[16/10] bg-zinc-900">
                         {getSafeImageUrl(related.featuredImage) ? (
-                          <Image
+
+                          // Using standard img tag to support any domain without next.config.js restrictions
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
                             src={getSafeImageUrl(related.featuredImage)!}
                             alt={related.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { Blog } from "@prisma/client";
-import Image from "next/image";
+// import Image from "next/image";
 
 interface BlogCardProps {
   blog: any;
@@ -11,6 +11,19 @@ function getSafeImageUrl(src?: string | null): string | null {
   if (!src) return null;
   const value = src.trim();
   if (!value) return null;
+
+  // Try parsing as JSON array
+  try {
+    if (value.startsWith("[") && value.endsWith("]")) {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return getSafeImageUrl(parsed[0]); // Recursively resolve the first image
+      }
+      return null;
+    }
+  } catch (e) {
+    // Not a JSON array, treat as single string
+  }
 
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value;
@@ -53,12 +66,13 @@ export function BlogCard({ blog }: BlogCardProps) {
     >
       <div className="aspect-video relative w-full overflow-hidden bg-gradient-to-br from-brand/20 to-purple-500/20">
         {imageUrl ? (
-          <Image
+          // Using standard img tag to support any domain without next.config.js restrictions
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={imageUrl}
             alt={blog.title}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
           />
         ) : (
           <div className="flex h-full items-center justify-center">

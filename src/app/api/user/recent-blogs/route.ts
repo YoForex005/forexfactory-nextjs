@@ -87,7 +87,7 @@ export async function POST(req: Request) {
         if (allRecent.length > 0) {
             await prisma.recentBlog.deleteMany({
                 where: {
-                    id: { in: allRecent.map(r => r.id) }
+                    id: { in: allRecent.map((r: { id: number }) => r.id) }
                 }
             });
         }

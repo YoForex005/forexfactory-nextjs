@@ -78,9 +78,9 @@ export default async function DownloadDetailPage({ params }: PageProps) {
   const drawdown = signal.maxDrawdown ? Number(signal.maxDrawdown).toFixed(1) : null;
   const downloadCount = signal.downloadCount ?? 0;
   const priceLabel = signal.isPremium ? `$${Number(signal.price ?? 0).toFixed(2)}` : "Free Download";
-  const featureList = signal.features?.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean) ?? [];
+  const featureList = signal.features?.split(/\r?\n|,/).map((item: string) => item.trim()).filter(Boolean) ?? [];
   const requirements = signal.requirements?.split(/\r?\n/).filter(Boolean) ?? [];
-  const compatibility = signal.compatibility?.split(/,|\/|•/).map((item) => item.trim()).filter(Boolean) ?? [];
+  const compatibility = signal.compatibility?.split(/,|\/|•/).map((item: string) => item.trim()).filter(Boolean) ?? [];
   const fileSizeMb = signal.sizeBytes ? `${(signal.sizeBytes / (1024 * 1024)).toFixed(2)} MB` : null;
 
   const schema = generateSoftwareApplicationSchema({
@@ -234,7 +234,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
                 <div className="mt-6">
                   <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">Setup Requirements</p>
                   <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-zinc-400">
-                    {requirements.map((item) => (
+                    {requirements.map((item: string) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
@@ -246,7 +246,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
               <div className="rounded-3xl border border-white/5 bg-white/5 p-8">
                 <h2 className="text-2xl font-semibold text-white">Key Features</h2>
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  {featureList.map((feature) => (
+                  {featureList.map((feature: string) => (
                     <div key={feature} className="rounded-2xl border border-white/5 bg-surface-50/70 p-5 text-sm text-zinc-300">
                       <p>{feature}</p>
                     </div>
@@ -274,7 +274,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
               <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
                 <h3 className="text-lg font-semibold text-white">More like this</h3>
                 <div className="mt-4 space-y-4">
-                  {suggestedSignals.map((item) => (
+                  {suggestedSignals.map((item: any) => (
                     <Link
                       key={item.id}
                       href={`/downloads/${item.uuid}`}
