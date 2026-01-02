@@ -92,7 +92,7 @@ const getBlog = cache(async (slug: string) => {
     createdAt: true,
     content: true,
     author: true,
-    featuredImage: true,
+    featuredImages: true,
     tags: true,
     categoryId: true,
     downloadLink: true,
@@ -154,7 +154,7 @@ const getRelatedBlogs = cache(async (categoryId: number, currentBlogId: number) 
     select: {
       title: true,
       seoSlug: true,
-      featuredImage: true,
+      featuredImages: true,
       createdAt: true,
       author: true,
       views: true
@@ -180,7 +180,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
   const title = seo?.seoTitle || blog.title;
   const description = seo?.seoDescription || blog.content.substring(0, 160);
   const ogImage = seo?.ogImage ? resolveUrl(seo.ogImage) : null;
-  const featuredImage = getSafeImageUrl(blog.featuredImage);
+  const featuredImage = getSafeImageUrl(blog.featuredImages);
   const image = ogImage || featuredImage || DEFAULT_OG_IMAGE;
 
   return {
@@ -218,8 +218,8 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
   const { contentWithIds, headings } = processContent(blog.content);
   const readTime = calculateReadTime(blog.content);
-  const imageUrl = getSafeImageUrl(blog.featuredImage);
-  const imageUrls = getSafeImageUrls(blog.featuredImage);
+  const imageUrl = getSafeImageUrl(blog.featuredImages);
+  const imageUrls = getSafeImageUrls(blog.featuredImages);
 
   const jsonLd = generateArticleSchema({
     title: blog.title,
@@ -457,12 +457,12 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                       className="group block bg-[#0a0a0f] rounded-xl border border-white/5 overflow-hidden hover:border-brand/30 transition-all"
                     >
                       <div className="relative aspect-[16/10] bg-zinc-900">
-                        {getSafeImageUrl(related.featuredImage) ? (
+                        {getSafeImageUrl(related.featuredImages) ? (
 
                           // Using standard img tag to support any domain without next.config.js restrictions
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={getSafeImageUrl(related.featuredImage)!}
+                            src={getSafeImageUrl(related.featuredImages)!}
                             alt={related.title}
                             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                             loading="lazy"

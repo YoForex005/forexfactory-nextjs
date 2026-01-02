@@ -83,7 +83,7 @@ export async function POST(request: Request) {
                 status: status,
                 content: body_html || "<p>No content generated.</p>",
                 author: blogAuthor,
-                featuredImage: featured_image ? [featured_image] : [defaultImage],
+                featuredImages: featured_image ? [featured_image] : [defaultImage],
                 tags: Array.isArray(secondary_keywords) ? secondary_keywords.join(",") : "AI, Forex",
                 categoryId: categoryId,
                 downloadLink: download_link || null,  // Bot/EA download link for download button

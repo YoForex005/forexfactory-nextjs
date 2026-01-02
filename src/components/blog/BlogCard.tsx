@@ -46,7 +46,7 @@ export function BlogCard({ blog }: BlogCardProps) {
   // Ensure we have a valid slug - fallback to id if seoSlug is missing
   const slug = blog.seoSlug || blog.id.toString();
   const articleUrl = `/blog/${slug}`;
-  const imageUrl = getSafeImageUrl(blog.featuredImage);
+  const imageUrl = getSafeImageUrl(blog.featuredImages);
 
   return (
     <Link

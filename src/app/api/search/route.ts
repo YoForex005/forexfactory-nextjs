@@ -20,53 +20,53 @@ export async function GET(request: NextRequest) {
     // Search blogs
     const blogs = type === "all" || type === "blog"
       ? await prisma.blog.findMany({
-          where: {
-            AND: [
-              { status: "published" },
-              {
-                OR: [
-                  { title: { contains: query } },
-                  { content: { contains: query } },
-                  { tags: { contains: query } },
-                ],
-              },
-            ],
-          },
-          select: {
-            id: true,
-            title: true,
-            seoSlug: true,
-            content: true,
-            featuredImage: true,
-            createdAt: true,
-            views: true,
-          },
-          take: type === "blog" ? limit : Math.floor(limit / 2),
-          orderBy: { createdAt: "desc" },
-        })
+        where: {
+          AND: [
+            { status: "published" },
+            {
+              OR: [
+                { title: { contains: query } },
+                { content: { contains: query } },
+                { tags: { contains: query } },
+              ],
+            },
+          ],
+        },
+        select: {
+          id: true,
+          title: true,
+          seoSlug: true,
+          content: true,
+          featuredImages: true,
+          createdAt: true,
+          views: true,
+        },
+        take: type === "blog" ? limit : Math.floor(limit / 2),
+        orderBy: { createdAt: "desc" },
+      })
       : [];
 
     // Search signals
     const signals = type === "all" || type === "signal"
       ? await prisma.signal.findMany({
-          where: {
-            OR: [
-              { title: { contains: query } },
-              { description: { contains: query } },
-            ],
-          },
-          select: {
-            id: true,
-            uuid: true,
-            title: true,
-            description: true,
-            sizeBytes: true,
-            mime: true,
-            createdAt: true,
-          },
-          take: type === "signal" ? limit : Math.floor(limit / 2),
-          orderBy: { createdAt: "desc" },
-        })
+        where: {
+          OR: [
+            { title: { contains: query } },
+            { description: { contains: query } },
+          ],
+        },
+        select: {
+          id: true,
+          uuid: true,
+          title: true,
+          description: true,
+          sizeBytes: true,
+          mime: true,
+          createdAt: true,
+        },
+        take: type === "signal" ? limit : Math.floor(limit / 2),
+        orderBy: { createdAt: "desc" },
+      })
       : [];
 
     const total = blogs.length + signals.length;
