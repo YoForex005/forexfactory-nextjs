@@ -83,31 +83,10 @@ export async function POST(request: Request) {
                 status: status,
                 content: body_html || "<p>No content generated.</p>",
                 author: blogAuthor,
-                featuredImages: featured_image ? [featured_image] : [defaultImage],
+                featuredImage: featured_image || defaultImage,
                 tags: Array.isArray(secondary_keywords) ? secondary_keywords.join(",") : "AI, Forex",
                 categoryId: categoryId,
                 downloadLink: download_link || null,  // Bot/EA download link for download button
-
-                // Mapped fields
-                metaTitle: meta_title,
-                metaDescription: meta_description,
-                faqSchema: faq_schema_json ? JSON.stringify(faq_schema_json) : null,
-                lsiKeywords: lsi_used ? JSON.stringify(lsi_used) : null,
-                primaryKeyword: primary_keyword,
-                secondaryKeywords: secondary_keywords ? JSON.stringify(secondary_keywords) : null,
-                targetAudience: target_audience,
-                searchIntent: intent,
-                contentType: content_type,
-                personaType: act_as,
-                customPersona: custom_persona,
-                tone: tone,
-                style: style,
-                pov: pov,
-                emojiUsage: emoji_usage,
-                humanizationLevel: humanization_level,
-                ctaText: cta,
-
-                isAiGenerated: true
             }
         });
 

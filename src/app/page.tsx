@@ -27,7 +27,7 @@ export default async function Home() {
   }
 
   // Create filtered lists
-  const popularBlogs = [...allBlogs].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
+  const popularBlogs = [...allBlogs].sort((a, b) => Number(b.views || 0) - Number(a.views || 0)).slice(0, 3);
   const latestBlogs = allBlogs.slice(0, 3);
   const mt4Blogs = filterByKeywords(allBlogs, ['MT4']);
   const mt5Blogs = filterByKeywords(allBlogs, ['MT5']);

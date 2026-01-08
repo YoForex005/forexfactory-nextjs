@@ -7,11 +7,9 @@ interface BlogCardProps {
   blog: any;
 }
 
-function getSafeImageUrl(images?: string[] | null): string | null {
-  if (!images || images.length === 0) return null;
-  const src = images[0];
-  if (!src) return null;
-  const value = src.trim();
+function getSafeImageUrl(image?: string | null): string | null {
+  if (!image) return null;
+  const value = image.trim();
   if (!value) return null;
 
   if (value.startsWith("http://") || value.startsWith("https://")) {
@@ -46,7 +44,7 @@ export function BlogCard({ blog }: BlogCardProps) {
   // Ensure we have a valid slug - fallback to id if seoSlug is missing
   const slug = blog.seoSlug || blog.id.toString();
   const articleUrl = `/blog/${slug}`;
-  const imageUrl = getSafeImageUrl(blog.featuredImages);
+  const imageUrl = getSafeImageUrl(blog.featuredImage);
 
   return (
     <Link

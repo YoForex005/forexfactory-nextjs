@@ -6,7 +6,7 @@ import { isLoggedIn, getToken } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 interface SaveButtonProps {
-    blogId: number;
+    blogId: bigint;
 }
 
 export function SaveButton({ blogId }: SaveButtonProps) {
@@ -56,7 +56,7 @@ export function SaveButton({ blogId }: SaveButtonProps) {
         try {
             if (isSaved) {
                 // Remove
-                const res = await fetch(`/api/user/saved?blogId=${blogId}`, {
+                const res = await fetch(`/api/user/saved?blogId=${Number(blogId)}`, {
                     method: "DELETE",
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -69,7 +69,7 @@ export function SaveButton({ blogId }: SaveButtonProps) {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`
                     },
-                    body: JSON.stringify({ blogId }),
+                    body: JSON.stringify({ blogId: Number(blogId) }),
                 });
                 if (res.ok) setIsSaved(true);
             }

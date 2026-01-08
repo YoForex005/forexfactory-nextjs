@@ -30,7 +30,7 @@ export default async function BlogPage() {
         id: true,
         title: true,
         seoSlug: true,
-        featuredImages: true,
+        featuredImage: true,
         createdAt: true,
         views: true,
         author: true,

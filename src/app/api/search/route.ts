@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
           title: true,
           seoSlug: true,
           content: true,
-          featuredImages: true,
+          featuredImage: true,
           createdAt: true,
           views: true,
         },

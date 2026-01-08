@@ -39,25 +39,9 @@ function resolveUrl(value: string): string | null {
   return null;
 }
 
-function getSafeImageUrl(images?: string[] | null): string | null {
-  if (!images || images.length === 0) return null;
-  const src = images[0];
-  if (!src) return null;
-  return resolveUrl(src);
-}
-
-function getSafeImageUrls(images?: string[] | null): string[] {
-  if (!images || images.length === 0) return [];
-  const urls: string[] = [];
-
-  images.forEach(src => {
-    if (src) {
-      const resolved = resolveUrl(src);
-      if (resolved) urls.push(resolved);
-    }
-  });
-
-  return urls;
+function getSafeImageUrl(image?: string | null): string | null {
+  if (!image) return null;
+  return resolveUrl(image);
 }
 
 function calculateReadTime(content: string): number {
@@ -92,29 +76,10 @@ const getBlog = cache(async (slug: string) => {
     createdAt: true,
     content: true,
     author: true,
-    featuredImages: true,
+    featuredImage: true,
     tags: true,
     categoryId: true,
     downloadLink: true,
-    // AI Generation Metadata
-    isAiGenerated: true,
-    primaryKeyword: true,
-    secondaryKeywords: true,
-    targetAudience: true,
-    searchIntent: true,
-    contentType: true,
-    personaType: true,
-    customPersona: true,
-    tone: true,
-    style: true,
-    pov: true,
-    emojiUsage: true,
-    humanizationLevel: true,
-    lsiKeywords: true,
-    faqSchema: true,
-    ctaText: true,
-    metaTitle: true,
-    metaDescription: true,
     // Relations
     seoMeta: true,
     categories: {
@@ -142,7 +107,7 @@ const getBlog = cache(async (slug: string) => {
   return blog;
 });
 
-const getRelatedBlogs = cache(async (categoryId: number, currentBlogId: number) => {
+const getRelatedBlogs = cache(async (categoryId: bigint, currentBlogId: bigint) => {
   return prisma.blog.findMany({
     where: {
       categoryId: categoryId,
@@ -154,7 +119,7 @@ const getRelatedBlogs = cache(async (categoryId: number, currentBlogId: number) 
     select: {
       title: true,
       seoSlug: true,
-      featuredImages: true,
+      featuredImage: true,
       createdAt: true,
       author: true,
       views: true
@@ -180,7 +145,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
   const title = seo?.seoTitle || blog.title;
   const description = seo?.seoDescription || blog.content.substring(0, 160);
   const ogImage = seo?.ogImage ? resolveUrl(seo.ogImage) : null;
-  const featuredImage = getSafeImageUrl(blog.featuredImages);
+  const featuredImage = getSafeImageUrl(blog.featuredImage);
   const image = ogImage || featuredImage || DEFAULT_OG_IMAGE;
 
   return {
@@ -218,8 +183,8 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
   const { contentWithIds, headings } = processContent(blog.content);
   const readTime = calculateReadTime(blog.content);
-  const imageUrl = getSafeImageUrl(blog.featuredImages);
-  const imageUrls = getSafeImageUrls(blog.featuredImages);
+  const imageUrl = getSafeImageUrl(blog.featuredImage);
+  const imageUrls = imageUrl ? [imageUrl] : [];
 
   const jsonLd = generateArticleSchema({
     title: blog.title,
@@ -364,19 +329,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
               {/* Download Box - Always visible at end of blog */}
               <DownloadBox downloadLink={blog.downloadLink} />
 
-              {/* AI Blog Metadata - Shows for AI-generated content */}
-              <AIBlogMeta
-                isAiGenerated={blog.isAiGenerated}
-                primaryKeyword={blog.primaryKeyword}
-                searchIntent={blog.searchIntent}
-                contentType={blog.contentType}
-                personaType={blog.personaType}
-                targetAudience={blog.targetAudience}
-                lsiKeywords={blog.lsiKeywords}
-                faqSchema={blog.faqSchema}
-                tone={blog.tone}
-                style={blog.style}
-              />
+              {/* AI Blog Metadata removed - fields no longer in schema */}
 
               {/* Tags */}
               {blog.tags && (
@@ -457,12 +410,12 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                       className="group block bg-[#0a0a0f] rounded-xl border border-white/5 overflow-hidden hover:border-brand/30 transition-all"
                     >
                       <div className="relative aspect-[16/10] bg-zinc-900">
-                        {getSafeImageUrl(related.featuredImages) ? (
+                        {getSafeImageUrl(related.featuredImage) ? (
 
                           // Using standard img tag to support any domain without next.config.js restrictions
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={getSafeImageUrl(related.featuredImages)!}
+                            src={getSafeImageUrl(related.featuredImage)!}
                             alt={related.title}
                             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                             loading="lazy"

@@ -4,31 +4,30 @@ import { PrismaClient, BlogStatus } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-    console.log('Verifying featuredImage array schema...')
+    console.log('Verifying featuredImage schema...')
 
-    const slug = `test-blog-array-${Date.now()}`
+    const slug = `test-blog-${Date.now()}`
 
     try {
         const blog = await prisma.blog.create({
             data: {
-                title: 'Test Blog with Multiple Images',
+                title: 'Test Blog with Single Image',
                 seoSlug: slug,
                 content: '<p>Test content</p>',
                 author: 'Test Author',
-                featuredImage: ['image1.jpg', 'image2.jpg', 'image3.jpg'],
+                featuredImage: 'image1.jpg',
                 tags: 'test',
-                categoryId: 1, // Assuming category 1 exists, if not we might fail unless we create one.
-                isAiGenerated: false,
+                categoryId: BigInt(1), // Assuming category 1 exists
                 status: 'published' // Using string literal which Prisma accepts for enum
             }
         })
 
         console.log('Created blog with id:', blog.id)
-        console.log('Featured Image type:', Array.isArray(blog.featuredImage) ? 'Array' : typeof blog.featuredImage)
+        console.log('Featured Image type:', typeof blog.featuredImage)
         console.log('Featured Image value:', blog.featuredImage)
 
-        if (Array.isArray(blog.featuredImage) && blog.featuredImage.length === 3) {
-            console.log('SUCCESS: featuredImage is an array with 3 elements.')
+        if (typeof blog.featuredImage === 'string' && blog.featuredImage === 'image1.jpg') {
+            console.log('SUCCESS: featuredImage is a string with correct value.')
         } else {
             console.error('FAILURE: featuredImage is not correct.')
             process.exit(1)
@@ -52,21 +51,20 @@ async function main() {
             // Retry blog creation
             const blog = await prisma.blog.create({
                 data: {
-                    title: 'Test Blog with Multiple Images',
+                    title: 'Test Blog with Single Image',
                     seoSlug: slug,
                     content: '<p>Test content</p>',
                     author: 'Test Author',
-                    featuredImage: ['image1.jpg', 'image2.jpg', 'image3.jpg'],
+                    featuredImage: 'image1.jpg',
                     tags: 'test',
-                    categoryId: category.categoryId,
-                    isAiGenerated: false,
+                    categoryId: BigInt(category.categoryId),
                     status: 'published'
                 }
             })
             console.log('Created blog with id:', blog.id)
-            console.log('Featured Image value:', this.featuredImage) // Typo fix: blog.featuredImage
-            if (Array.isArray(blog.featuredImage) && blog.featuredImage.length === 3) {
-                console.log('SUCCESS: featuredImage is an array with 3 elements.')
+            console.log('Featured Image value:', blog.featuredImage)
+            if (typeof blog.featuredImage === 'string') {
+                console.log('SUCCESS: featuredImage is a string.')
             }
             await prisma.blog.delete({ where: { id: blog.id } })
             await prisma.category.delete({ where: { categoryId: category.categoryId } })

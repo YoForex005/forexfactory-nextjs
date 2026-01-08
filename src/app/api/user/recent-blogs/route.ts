@@ -32,7 +32,7 @@ export async function GET(req: Request) {
                         id: true,
                         title: true,
                         seoSlug: true,
-                        featuredImages: true,
+                        featuredImage: true,
                         createdAt: true,
                         author: true,
                     }

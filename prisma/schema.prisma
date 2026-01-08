@@ -298,6 +298,8 @@ enum BlogStatus {
   published
   draft
   scheduled
+
+  @@map("blogs_status")
 }
 
 enum CategoryStatus {
