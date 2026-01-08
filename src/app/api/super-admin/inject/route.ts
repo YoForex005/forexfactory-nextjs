@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlogStatus } from '@prisma/client';
 
 export async function POST(request: Request) {
     try {
@@ -69,9 +70,9 @@ export async function POST(request: Request) {
         // Map status
         // AI might send "Publish", "Draft", "Schedule"
         // Schema has "published", "draft", "scheduled"
-        let status = 'draft';
+        let status = BlogStatus.draft;
         if (post_status?.toLowerCase().includes('publish')) {
-            status = 'published';
+            status = BlogStatus.published;
         }
 
         // Create Blog
