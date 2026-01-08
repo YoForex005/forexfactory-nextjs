@@ -24,25 +24,24 @@ model Admin {
 }
 
 model Blog {
-  id                BigInt         @id @default(autoincrement())
-  title             String         @db.VarChar(255)
-  seoSlug           String         @unique @map("seo_slug") @db.VarChar(255)
-  status            BlogStatus
-  views             BigInt?        @default(0)
-  createdAt         DateTime       @default(now()) @map("created_at")
-  content           String         @db.Text
-  author            String         @db.VarChar(255)
-  featuredImage     String         @map("featured_image") @db.VarChar(255)
-  tags              String         @db.VarChar(255)
-  categoryId        BigInt         @map("category_id")
-  downloadLink      String?        @map("download_link") @db.VarChar(255)
-  categories        BlogCategory[]
-  comments          Comment[]
-  seoMeta           SeoMeta[]
-  savedBy           SavedArticle[]
-  recentViews       RecentBlog[]
+  id            BigInt         @id @default(autoincrement())
+  title         String         @db.VarChar(255)
+  seoSlug       String         @unique @map("seo_slug") @db.VarChar(255)
+  status        String
+  views         BigInt?        @default(0)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  content       String
+  author        String         @db.VarChar(255)
+  featuredImage String         @map("featured_image") @db.VarChar(255)
+  tags          String         @db.VarChar(255)
+  categoryId    BigInt         @map("category_id")
+  downloadLink  String?        @map("download_link") @db.VarChar(255)
+  categories    BlogCategory[]
+  comments      Comment[]
+  seoMeta       SeoMeta[]
+  savedBy       SavedArticle[]
+  recentViews   RecentBlog[]
 
-  @@index([status, createdAt])
   @@map("blogs")
 }
 
@@ -123,26 +122,24 @@ model Signal {
   id            Int      @id @default(autoincrement())
   uuid          String   @db.VarChar(32)
   title         String   @db.VarChar(255)
-  description   String   @db.Text
+  description   String
   filePath      String   @map("file_path") @db.VarChar(500)
   mime          String   @db.VarChar(100)
   sizeBytes     Int      @map("size_bytes")
   createdAt     DateTime @default(now()) @map("created_at")
-  
-  // Consolidated fields for metadata
-  platform      String?   @db.VarChar(50)
-  strategy      String?   @db.VarChar(100)
-  version       String?   @db.VarChar(20)
-  winRate       Float?    @map("win_rate")
-  profitFactor  Float?    @map("profit_factor")
-  maxDrawdown   Float?    @map("max_drawdown")
+  platform      String?  @db.VarChar(50)
+  strategy      String?  @db.VarChar(100)
+  version       String?  @db.VarChar(20)
+  winRate       Float?   @map("win_rate")
+  profitFactor  Float?   @map("profit_factor")
+  maxDrawdown   Float?   @map("max_drawdown")
   rating        Float?
-  downloadCount Int       @default(0) @map("download_count")
-  isPremium     Boolean   @default(false) @map("is_premium")
+  downloadCount Int      @default(0) @map("download_count")
+  isPremium     Boolean  @default(false) @map("is_premium")
   price         Float?
-  features      String?   @db.Text
-  requirements  String?   @db.Text
-  compatibility String?   @db.VarChar(255)
+  features      String?
+  requirements  String?
+  compatibility String?  @db.VarChar(255)
 
   @@index([createdAt], map: "created_at_idx")
   @@map("signals")
@@ -230,7 +227,7 @@ model SeoAutomation {
   error       String?
   processedAt DateTime? @map("processed_at")
   createdAt   DateTime  @default(now()) @map("created_at")
-  blogId      BigInt?   @map("blog_id")
+  blogId      Int?      @map("blog_id")
 
   @@index([blogId], map: "blog_id_idx")
   @@index([status], map: "status_idx")
@@ -287,6 +284,24 @@ model EmailLog {
   @@index([recipient], map: "email_recipient_idx")
   @@index([status], map: "email_status_idx")
   @@map("email_logs")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model blogs_mysql_staging {
+  id             Int?
+  title          String?
+  seo_slug       String?
+  status         String?
+  views          Int?
+  created_at     DateTime? @db.Timestamp(6)
+  content        String?
+  author         String?
+  featured_image String?
+  tags           String?
+  category_id    Int?
+  download_link  String?
+
+  @@ignore
 }
 
 enum AdminRole {
