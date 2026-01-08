@@ -314,7 +314,7 @@ enum BlogStatus {
   draft
   scheduled
 
-  @@map("yofo_dashboard.blogs_status")
+  @@map("blogs_status")
 }
 
 enum CategoryStatus {
