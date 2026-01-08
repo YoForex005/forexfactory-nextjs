@@ -70,7 +70,7 @@ export async function POST(request: Request) {
         // Map status
         // AI might send "Publish", "Draft", "Schedule"
         // Schema has "published", "draft", "scheduled"
-        let status = BlogStatus.draft;
+        let status: BlogStatus = BlogStatus.draft;
         if (post_status?.toLowerCase().includes('publish')) {
             status = BlogStatus.published;
         }
