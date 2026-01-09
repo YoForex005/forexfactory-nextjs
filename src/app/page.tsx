@@ -9,10 +9,23 @@ import { BlogSection } from "@/components/blog/BlogSection";
 export const revalidate = 300;
 
 export default async function Home() {
-  // Fetch blogs from the Blog table
+  // Fetch only recent blogs with necessary fields for better performance
+  // Limit to 100 most recent blogs instead of fetching all 2000+ blogs
   const allBlogs = await prisma.blog.findMany({
-    orderBy: { createdAt: "desc" },
     where: { status: "published" },
+    orderBy: { createdAt: "desc" },
+    take: 30, // Limit to 30 blogs for homepage - optimized for performance
+    select: {
+      id: true,
+      title: true,
+      seoSlug: true,
+      status: true,
+      views: true,
+      createdAt: true,
+      featuredImage: true,
+      tags: true,
+      author: true,
+    },
   });
 
   // Helper function to filter blogs by keywords

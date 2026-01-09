@@ -6,7 +6,7 @@ import { Blog } from "@prisma/client";
 interface BlogSectionProps {
     title: string;
     subtitle?: string;
-    blogs: Blog[];
+    blogs: any[]; // Changed from Blog[] to accept partial blog objects
     viewMoreLink?: string;
     id?: string;
 }

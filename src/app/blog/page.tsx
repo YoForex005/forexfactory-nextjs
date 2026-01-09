@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SITE_NAME } from "@/lib/seo";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: `Trading Blog & Insights | ${SITE_NAME}`,
@@ -18,27 +19,52 @@ export const metadata: Metadata = {
 // Enable static generation with revalidation
 export const revalidate = 60; // Revalidate every 60 seconds
 
-export default async function BlogPage() {
+const BLOGS_PER_PAGE = 12; // Show 12 blogs per page
+
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const skip = (currentPage - 1) * BLOGS_PER_PAGE;
+
   let allContent: any[] = [];
+  let totalBlogs = 0;
 
   try {
-    // Fetch from Blog model only
-    allContent = await prisma.blog.findMany({
-      where: { status: "published" },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        seoSlug: true,
-        featuredImage: true,
-        createdAt: true,
-        views: true,
-        author: true,
-      },
-    });
+    // Fetch blogs with pagination
+    const [blogs, count] = await Promise.all([
+      prisma.blog.findMany({
+        where: { status: "published" },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: BLOGS_PER_PAGE,
+        select: {
+          id: true,
+          title: true,
+          seoSlug: true,
+          featuredImage: true,
+          createdAt: true,
+          views: true,
+          author: true,
+        },
+      }),
+      prisma.blog.count({
+        where: { status: "published" },
+      }),
+    ]);
+
+    allContent = blogs;
+    totalBlogs = count;
   } catch (error) {
     console.error("Failed to fetch content:", error);
   }
+
+  const totalPages = Math.ceil(totalBlogs / BLOGS_PER_PAGE);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -54,17 +80,85 @@ export default async function BlogPage() {
             <p className="mx-auto max-w-2xl text-lg text-zinc-400">
               Discover the latest strategies, expert advisor reviews, and technical analysis guides to elevate your trading.
             </p>
+            <p className="mt-4 text-sm text-zinc-500">
+              Showing {skip + 1}-{Math.min(skip + BLOGS_PER_PAGE, totalBlogs)} of {totalBlogs} articles
+            </p>
           </div>
         </div>
 
         {/* Blog Grid */}
         <div className="container mx-auto px-4 py-16">
           {allContent.length > 0 ? (
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {allContent.map((item) => (
-                <BlogCard key={item.id} blog={item} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {allContent.map((item) => (
+                  <BlogCard key={item.id} blog={item} />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-16 flex items-center justify-center gap-2">
+                  {/* Previous Button */}
+                  {hasPrevPage ? (
+                    <Link
+                      href={`/blog?page=${currentPage - 1}`}
+                      className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
+                    >
+                      ← Previous
+                    </Link>
+                  ) : (
+                    <span className="rounded-lg border border-white/5 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-600 cursor-not-allowed">
+                      ← Previous
+                    </span>
+                  )}
+
+                  {/* Page Numbers */}
+                  <div className="flex gap-2">
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      const isActive = pageNum === currentPage;
+                      return (
+                        <Link
+                          key={pageNum}
+                          href={`/blog?page=${pageNum}`}
+                          className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${isActive
+                            ? "bg-brand text-white"
+                            : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
+                            }`}
+                        >
+                          {pageNum}
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  {/* Next Button */}
+                  {hasNextPage ? (
+                    <Link
+                      href={`/blog?page=${currentPage + 1}`}
+                      className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
+                    >
+                      Next →
+                    </Link>
+                  ) : (
+                    <span className="rounded-lg border border-white/5 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-600 cursor-not-allowed">
+                      Next →
+                    </span>
+                  )}
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="rounded-full bg-white/5 p-4 mb-4">
