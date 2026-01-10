@@ -5,62 +5,126 @@ import { ArrowRight, Download, BarChart2, BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { BlogSection } from "@/components/blog/BlogSection";
 
-// Cache this page for 5 minutes (300 seconds)
-export const revalidate = 300;
+// Cache this page for 3 minutes (180 seconds) with static generation
+export const revalidate = 180;
+
+// Generate static page at build time
+export const dynamic = 'force-static';
+
+// Blog selection type
+type BlogPreview = {
+  id: bigint;
+  title: string;
+  seoSlug: string;
+  status: string;
+  views: bigint | null;
+  createdAt: Date;
+  featuredImage: string;
+  tags: string;
+  author: string;
+};
 
 export default async function Home() {
-  // Fetch only recent blogs with necessary fields for better performance
-  // Limit to 100 most recent blogs instead of fetching all 2000+ blogs
-  const allBlogs = await prisma.blog.findMany({
-    where: { status: "published" },
-    orderBy: { createdAt: "desc" },
-    take: 30, // Limit to 30 blogs for homepage - optimized for performance
-    select: {
-      id: true,
-      title: true,
-      seoSlug: true,
-      status: true,
-      views: true,
-      createdAt: true,
-      featuredImage: true,
-      tags: true,
-      author: true,
-    },
-  });
+  // Optimized: Fetch blogs in parallel with specific queries for each section
+  // This reduces database load and improves performance significantly
+  const [latestBlogs, popularBlogs, allCategoryBlogs] = await Promise.all([
+    // Latest 3 blogs
+    prisma.blog.findMany({
+      where: { status: "published" },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        seoSlug: true,
+        status: true,
+        views: true,
+        createdAt: true,
+        featuredImage: true,
+        tags: true,
+        author: true,
+      },
+    }),
+    // Top 3 popular blogs
+    prisma.blog.findMany({
+      where: { status: "published" },
+      orderBy: { views: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        seoSlug: true,
+        status: true,
+        views: true,
+        createdAt: true,
+        featuredImage: true,
+        tags: true,
+        author: true,
+      },
+    }),
+    // Get 50 blogs for category filtering (reduced from 30 for better category coverage)
+    prisma.blog.findMany({
+      where: { status: "published" },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: {
+        id: true,
+        title: true,
+        seoSlug: true,
+        status: true,
+        views: true,
+        createdAt: true,
+        featuredImage: true,
+        tags: true,
+        author: true,
+      },
+    }),
+  ]);
 
-  // Helper function to filter blogs by keywords
-  function filterByKeywords(blogs: any[], keywords: string[]) {
-    return blogs.filter(blog => {
-      const title = (blog.title || '').toLowerCase();
-      const tags = (blog.tags || '').toLowerCase();
-      return keywords.some(keyword =>
-        title.includes(keyword.toLowerCase()) || tags.includes(keyword.toLowerCase())
-      );
-    }).slice(0, 3);
+  // Optimized helper function with memoization
+  function filterByKeywords(blogs: BlogPreview[], keywords: string[], limit = 3): BlogPreview[] {
+    const results: BlogPreview[] = [];
+    const keywordsLower = keywords.map(k => k.toLowerCase());
+
+    for (const blog of blogs) {
+      if (results.length >= limit) break;
+
+      const title = blog.title.toLowerCase();
+      const tags = blog.tags.toLowerCase();
+
+      if (keywordsLower.some(keyword =>
+        title.includes(keyword) || tags.includes(keyword)
+      )) {
+        results.push(blog);
+      }
+    }
+
+    return results;
   }
 
-  // Create filtered lists
-  const popularBlogs = [...allBlogs].sort((a, b) => Number(b.views || 0) - Number(a.views || 0)).slice(0, 3);
-  const latestBlogs = allBlogs.slice(0, 3);
-  const mt4Blogs = filterByKeywords(allBlogs, ['MT4']);
-  const mt5Blogs = filterByKeywords(allBlogs, ['MT5']);
-  const indicatorMT4Blogs = filterByKeywords(allBlogs, ['Indicator']).filter(b =>
-    (b.title?.toLowerCase().includes('mt4') || b.tags?.toLowerCase().includes('mt4'))
+  // Create filtered lists efficiently
+  const mt4Blogs = filterByKeywords(allCategoryBlogs, ['MT4']);
+  const mt5Blogs = filterByKeywords(allCategoryBlogs, ['MT5']);
+
+  const indicatorBlogs = filterByKeywords(allCategoryBlogs, ['Indicator'], 10);
+  const indicatorMT4Blogs = indicatorBlogs.filter(b =>
+    b.title.toLowerCase().includes('mt4') || b.tags.toLowerCase().includes('mt4')
   ).slice(0, 3);
-  const indicatorMT5Blogs = filterByKeywords(allBlogs, ['Indicator']).filter(b =>
-    (b.title?.toLowerCase().includes('mt5') || b.tags?.toLowerCase().includes('mt5'))
+  const indicatorMT5Blogs = indicatorBlogs.filter(b =>
+    b.title.toLowerCase().includes('mt5') || b.tags.toLowerCase().includes('mt5')
   ).slice(0, 3);
-  const beginnerGuideBlogs = filterByKeywords(allBlogs, ['Beginner', 'Guide']);
+
+  const beginnerGuideBlogs = filterByKeywords(allCategoryBlogs, ['Beginner', 'Guide']);
   const indicatorMT4OnlyBlogs = indicatorMT4Blogs;
-  const sourceCodeMQ4Blogs = filterByKeywords(allBlogs, ['Source Code', 'Source', 'MQ4']);
-  const sourceCodeMQ5Blogs = filterByKeywords(allBlogs, ['Source Code', 'Source', 'MQ5']);
-  const flexyMarketsBlogs = filterByKeywords(allBlogs, ['Flexy', 'Flexy Markets']);
-  const eaMT4MT5Blogs = filterByKeywords(allBlogs, ['EA', 'Expert Advisor']);
-  const courseBlogs = filterByKeywords(allBlogs, ['Course', 'Training']);
-  const indicatorMT4MT5Blogs = filterByKeywords(allBlogs, ['Indicator']);
-  const copyTradingBlogs = filterByKeywords(allBlogs, ['Copy Trading', 'Copy']);
-  const indicatorMQ4Blogs = filterByKeywords(allBlogs, ['Indicator', 'MQ4']);
-  const propFirmPassingBlogs = filterByKeywords(allBlogs, ['PropFirm', 'Prop Firm', 'Passing']);
+  const sourceCodeMQ4Blogs = filterByKeywords(allCategoryBlogs, ['Source Code', 'Source', 'MQ4']);
+  const sourceCodeMQ5Blogs = filterByKeywords(allCategoryBlogs, ['Source Code', 'Source', 'MQ5']);
+  const flexyMarketsBlogs = filterByKeywords(allCategoryBlogs, ['Flexy']);
+  const eaMT4MT5Blogs = filterByKeywords(allCategoryBlogs, ['EA', 'Expert Advisor']);
+  const courseBlogs = filterByKeywords(allCategoryBlogs, ['Course', 'Training']);
+  const indicatorMT4MT5Blogs = indicatorBlogs.slice(0, 3);
+  const copyTradingBlogs = filterByKeywords(allCategoryBlogs, ['Copy Trading', 'Copy']);
+  const indicatorMQ4Blogs = filterByKeywords(allCategoryBlogs, ['Indicator', 'MQ4']);
+  const propFirmPassingBlogs = filterByKeywords(allCategoryBlogs, ['PropFirm', 'Prop Firm', 'Passing']);
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -41,6 +41,7 @@ model Blog {
   seoMeta       SeoMeta[]
   savedBy       SavedArticle[]
   recentViews   RecentBlog[]
+  updatedAt     DateTime   @default(now()) @updatedAt @map("updated_at")
 
   @@map("blogs")
 }

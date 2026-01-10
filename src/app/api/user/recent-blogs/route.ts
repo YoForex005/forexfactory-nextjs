@@ -42,7 +42,21 @@ export async function GET(req: Request) {
             take: limit,
         });
 
-        return NextResponse.json({ recentBlogs });
+        // Convert BigInt to number for JSON serialization
+        const serializedBlogs = recentBlogs.map(item => ({
+            id: item.id,
+            visitedAt: item.visitedAt.toISOString(),
+            blog: {
+                id: Number(item.blog.id),
+                title: item.blog.title,
+                seoSlug: item.blog.seoSlug,
+                featuredImage: item.blog.featuredImage,
+                createdAt: item.blog.createdAt.toISOString(),
+                author: item.blog.author,
+            }
+        }));
+
+        return NextResponse.json({ recentBlogs: serializedBlogs });
     } catch (error) {
         console.error("Recent blogs fetch error:", error);
         return NextResponse.json({ error: "Failed to fetch recent blogs" }, { status: 500 });
@@ -92,7 +106,16 @@ export async function POST(req: Request) {
             });
         }
 
-        return NextResponse.json({ success: true, recentBlog });
+        const safeRecentBlog = JSON.parse(
+            JSON.stringify(recentBlog, (_, value) =>
+                typeof value === "bigint" ? value.toString() : value
+            )
+        );
+
+        return NextResponse.json({
+            success: true,
+            recentBlog: safeRecentBlog
+        });
     } catch (error) {
         console.error("Log blog visit error:", error);
         return NextResponse.json({ error: "Failed to log blog visit" }, { status: 500 });

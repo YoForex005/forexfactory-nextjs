@@ -250,3 +250,381 @@ Downloads Count: 2
 Saved Count (via count): 0
 Saved Count (via findMany): 0
 ----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:37:20.188Z
+User ID: 3
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:37:20.704Z
+User ID: 3
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:39:08.469Z
+User ID: 3
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:39:10.508Z
+User ID: 3
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:39:25.466Z
+User ID: 3
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:39:27.193Z
+User ID: 3
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:46:38.526Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:46:39.736Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:47:39.365Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:47:41.586Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:48:31.674Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:48:31.767Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:51:13.005Z
+User ID: 3
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:51:13.445Z
+User ID: 3
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:52:12.437Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:52:12.726Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:52:24.449Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:52:25.686Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:53:14.383Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:53:14.873Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:53:45.856Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:53:46.218Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:54:08.484Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T06:54:08.907Z
+User ID: 3
+User Found: true
+Downloads Count: 3
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:03:20.888Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:03:21.764Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 1
+Saved Count (via findMany): 1
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:08:23.422Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:08:24.667Z
+User ID: 4
+User Found: true
+Downloads Count: 0
+Saved Count (via count): 2
+Saved Count (via findMany): 2
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:12:44.755Z
+User ID: 4
+User Found: true
+Downloads Count: 1
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:12:45.868Z
+User ID: 4
+User Found: true
+Downloads Count: 1
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:14:47.220Z
+User ID: 4
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 4
+Saved Count (via findMany): 4
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:14:48.063Z
+User ID: 4
+User Found: true
+Downloads Count: 2
+Saved Count (via count): 4
+Saved Count (via findMany): 4
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:32:35.199Z
+User ID: 3
+User Found: true
+Downloads Count: 4
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:32:36.022Z
+User ID: 3
+User Found: true
+Downloads Count: 4
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:32:52.287Z
+User ID: 3
+User Found: true
+Downloads Count: 4
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:32:52.994Z
+User ID: 3
+User Found: true
+Downloads Count: 4
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:33:03.201Z
+User ID: 3
+User Found: true
+Downloads Count: 4
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:33:03.791Z
+User ID: 3
+User Found: true
+Downloads Count: 4
+Saved Count (via count): 3
+Saved Count (via findMany): 3
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:58:19.656Z
+User ID: 3
+User Found: true
+Downloads Count: 5
+Saved Count (via count): 4
+Saved Count (via findMany): 4
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T07:58:20.116Z
+User ID: 3
+User Found: true
+Downloads Count: 5
+Saved Count (via count): 4
+Saved Count (via findMany): 4
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T08:45:50.074Z
+User ID: 3
+User Found: true
+Downloads Count: 6
+Saved Count (via count): 4
+Saved Count (via findMany): 4
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-10T08:45:50.596Z
+User ID: 3
+User Found: true
+Downloads Count: 6
+Saved Count (via count): 4
+Saved Count (via findMany): 4
+----------------------------------------

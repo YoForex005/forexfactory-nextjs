@@ -39,7 +39,22 @@ export async function GET(req: Request) {
             orderBy: { createdAt: 'desc' }
         });
 
-        return NextResponse.json({ savedArticles });
+        // Convert BigInt to string for JSON serialization
+        const serializedArticles = savedArticles.map(article => ({
+            id: article.id,
+            blogId: Number(article.blogId), // Convert BigInt to number
+            createdAt: article.createdAt.toISOString(),
+            blog: {
+                id: Number(article.blog.id), // Convert BigInt to number
+                title: article.blog.title,
+                seoSlug: article.blog.seoSlug,
+                content: article.blog.content,
+                tags: article.blog.tags,
+                createdAt: article.blog.createdAt.toISOString(),
+            }
+        }));
+
+        return NextResponse.json({ savedArticles: serializedArticles });
     } catch (error) {
         console.error("Saved articles fetch error:", error);
         return NextResponse.json({ error: "Failed to fetch saved articles" }, { status: 500 });
@@ -65,14 +80,25 @@ export async function POST(req: Request) {
         });
 
         if (existing) {
-            return NextResponse.json({ success: true, saved: existing });
+            const safeExisting = JSON.parse(
+                JSON.stringify(existing, (_, value) =>
+                    typeof value === "bigint" ? value.toString() : value
+                )
+            );
+            return NextResponse.json({ success: true, saved: safeExisting });
         }
 
         const saved = await prisma.savedArticle.create({
             data: { userId, blogId }
         });
 
-        return NextResponse.json({ success: true, saved });
+        const safeSaved = JSON.parse(
+            JSON.stringify(saved, (_, value) =>
+                typeof value === "bigint" ? value.toString() : value
+            )
+        );
+
+        return NextResponse.json({ success: true, saved: safeSaved });
     } catch (error) {
         console.error("Save article error:", error);
         return NextResponse.json({ error: "Failed to save article" }, { status: 500 });

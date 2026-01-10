@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const searchTerm = `%${query}%`;
 
-    // Search blogs
+    // Search blogs - OPTIMIZED: Don't fetch full content
     const blogs = type === "all" || type === "blog"
       ? await prisma.blog.findMany({
         where: {
@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
             {
               OR: [
                 { title: { contains: query } },
-                { content: { contains: query } },
                 { tags: { contains: query } },
               ],
             },
@@ -36,10 +35,11 @@ export async function GET(request: NextRequest) {
           id: true,
           title: true,
           seoSlug: true,
-          content: true,
           featuredImage: true,
           createdAt: true,
           views: true,
+          tags: true,
+          author: true,
         },
         take: type === "blog" ? limit : Math.floor(limit / 2),
         orderBy: { createdAt: "desc" },
