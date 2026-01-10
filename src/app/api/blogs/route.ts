@@ -68,6 +68,27 @@ export async function POST(req: Request) {
       },
     });
 
+    // **FIX: Create SEO Meta automatically**
+    // Extract plain text description from HTML content (first 160 chars)
+    const plainTextDescription = validatedData.content
+      .replace(/<[^>]*>/g, '')
+      .substring(0, 160);
+
+    await prisma.seoMeta.create({
+      data: {
+        postId: blog.id,
+        seoTitle: validatedData.title,
+        seoDescription: plainTextDescription,
+        seoKeywords: validatedData.tags,
+        seoSlug: validatedData.seoSlug,
+        canonicalUrl: null,
+        metaRobots: "index_follow",
+        ogTitle: validatedData.title,
+        ogDescription: plainTextDescription,
+        ogImage: validatedData.featuredImage,
+      }
+    });
+
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {
     console.error("Error creating blog:", error);

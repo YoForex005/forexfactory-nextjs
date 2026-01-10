@@ -90,7 +90,25 @@ export async function POST(request: Request) {
             }
         });
 
-        console.log("Successfully injected blog:", blog.id);
+        // **FIX: Create SEO Meta automatically**
+        await prisma.seoMeta.create({
+            data: {
+                postId: blog.id,
+                seoTitle: meta_title || h1 || "Untitled AI Blog",
+                seoDescription: meta_description || body_html?.replace(/<[^>]*>/g, '').substring(0, 160) || "",
+                seoKeywords: Array.isArray(secondary_keywords)
+                    ? secondary_keywords.join(", ")
+                    : primary_keyword || "Forex, Trading",
+                seoSlug: slug,
+                canonicalUrl: null,  // Will be set automatically by frontend
+                metaRobots: "index_follow",
+                ogTitle: meta_title || h1 || "Untitled AI Blog",
+                ogDescription: meta_description || body_html?.replace(/<[^>]*>/g, '').substring(0, 160) || "",
+                ogImage: featured_image || defaultImage,
+            }
+        });
+
+        console.log("Successfully injected blog with SEO meta:", blog.id);
 
         return NextResponse.json({ success: true, blogId: blog.id, slug: blog.seoSlug });
     } catch (error) {
