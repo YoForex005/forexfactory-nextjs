@@ -78,7 +78,7 @@ export async function POST(request: Request) {
         // Create Blog
         const blog = await prisma.blog.create({
             data: {
-                title: h1 || "Untitled AI Blog",
+                title: (h1 && h1.trim()) || "Untitled AI Blog",
                 seoSlug: slug,
                 status: status,
                 content: body_html || "<p>No content generated.</p>",
@@ -91,19 +91,36 @@ export async function POST(request: Request) {
         });
 
         // **FIX: Create SEO Meta automatically**
+        // Helper function to strip HTML and get clean text
+        const stripHtml = (html: string | undefined): string => {
+            if (!html) return "";
+            return html
+                .replace(/<[^>]*>/g, '')  // Remove HTML tags
+                .replace(/&nbsp;/g, ' ')   // Replace &nbsp; with space
+                .replace(/&amp;/g, '&')    // Replace &amp; with &
+                .replace(/&lt;/g, '<')     // Replace &lt; with <
+                .replace(/&gt;/g, '>')     // Replace &gt; with >
+                .replace(/&quot;/g, '"')   // Replace &quot; with "
+                .replace(/\s+/g, ' ')      // Replace multiple spaces with single space
+                .trim();
+        };
+
+        // Get clean description (always strip HTML)
+        const cleanDescription = stripHtml(meta_description || body_html || "").substring(0, 160);
+
         await prisma.seoMeta.create({
             data: {
                 postId: blog.id,
-                seoTitle: meta_title || h1 || "Untitled AI Blog",
-                seoDescription: meta_description || body_html?.replace(/<[^>]*>/g, '').substring(0, 160) || "",
+                seoTitle: (meta_title && meta_title.trim()) || (h1 && h1.trim()) || "Untitled AI Blog",
+                seoDescription: cleanDescription,
                 seoKeywords: Array.isArray(secondary_keywords)
                     ? secondary_keywords.join(", ")
                     : primary_keyword || "Forex, Trading",
                 seoSlug: slug,
                 canonicalUrl: null,  // Will be set automatically by frontend
                 metaRobots: "index_follow",
-                ogTitle: meta_title || h1 || "Untitled AI Blog",
-                ogDescription: meta_description || body_html?.replace(/<[^>]*>/g, '').substring(0, 160) || "",
+                ogTitle: (meta_title && meta_title.trim()) || (h1 && h1.trim()) || "Untitled AI Blog",
+                ogDescription: cleanDescription,
                 ogImage: featured_image || defaultImage,
             }
         });

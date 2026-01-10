@@ -133,6 +133,21 @@ interface BlogDetailProps {
   }>;
 }
 
+// Helper function to strip HTML tags and entities from text
+function stripHtmlTags(html: string | null | undefined): string {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, '')        // Remove HTML tags
+    .replace(/&nbsp;/g, ' ')         // Replace &nbsp;
+    .replace(/&amp;/g, '&')          // Replace &amp;
+    .replace(/&lt;/g, '<')           // Replace &lt;
+    .replace(/&gt;/g, '>')           // Replace &gt;
+    .replace(/&quot;/g, '"')         // Replace &quot;
+    .replace(/&#39;/g, "'")          // Replace &#39;
+    .replace(/\s+/g, ' ')            // Replace multiple spaces
+    .trim();
+}
+
 export async function generateMetadata({ params }: BlogDetailProps): Promise<Metadata> {
   const { slug } = await params;
   const blog = await getBlog(slug);
@@ -143,7 +158,14 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
 
   const seo = blog.seoMeta[0];
   const title = seo?.seoTitle || blog.title;
-  const description = seo?.seoDescription || blog.content.substring(0, 160);
+
+  // **FIX: Always strip HTML tags from descriptions**
+  const rawDescription = seo?.seoDescription || blog.content.substring(0, 160);
+  const description = stripHtmlTags(rawDescription).substring(0, 160);
+
+  const rawOgDescription = seo?.ogDescription || rawDescription;
+  const ogDescription = stripHtmlTags(rawOgDescription).substring(0, 160);
+
   const ogImage = seo?.ogImage ? resolveUrl(seo.ogImage) : null;
   const featuredImage = getSafeImageUrl(blog.featuredImage);
   const image = ogImage || featuredImage || DEFAULT_OG_IMAGE;
@@ -153,7 +175,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
     description,
     openGraph: {
       title: seo?.ogTitle || title,
-      description: seo?.ogDescription || description,
+      description: ogDescription,
       url: `${SITE_URL}/blog/${blog.seoSlug}`,
       images: [{ url: image }],
       type: 'article',
@@ -163,7 +185,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
     twitter: {
       card: 'summary_large_image',
       title: seo?.seoTitle || title,
-      description: seo?.seoDescription || description,
+      description: description,
       images: [image],
     },
     alternates: {
@@ -243,9 +265,16 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
               )}
 
               {/* Title */}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8 px-4">
                 {blog.title}
               </h1>
+
+              {/* SEO Description - Visible on page */}
+              {blog.seoMeta[0]?.seoDescription && (
+                <p className="text-xl text-zinc-400 leading-relaxed max-w-3xl mx-auto mb-8 px-4">
+                  {stripHtmlTags(blog.seoMeta[0].seoDescription)}
+                </p>
+              )}
 
               {/* Author & Meta */}
               <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-zinc-400">
