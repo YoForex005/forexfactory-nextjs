@@ -628,3 +628,39 @@ Downloads Count: 6
 Saved Count (via count): 4
 Saved Count (via findMany): 4
 ----------------------------------------
+
+----------------------------------------
+Time: 2026-01-12T04:48:45.510Z
+User ID: 2
+User Found: true
+Downloads Count: 5
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-12T04:48:46.491Z
+User ID: 2
+User Found: true
+Downloads Count: 5
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-12T04:49:04.713Z
+User ID: 2
+User Found: true
+Downloads Count: 5
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
+
+----------------------------------------
+Time: 2026-01-12T04:49:04.897Z
+User ID: 2
+User Found: true
+Downloads Count: 5
+Saved Count (via count): 0
+Saved Count (via findMany): 0
+----------------------------------------
