@@ -10,6 +10,7 @@ import {
   SITE_NAME,
   generateCanonicalUrl,
   generateSoftwareApplicationSchema,
+  DEFAULT_OG_IMAGE,
 } from "@/lib/seo";
 
 interface PageProps {
@@ -56,6 +57,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       type: "article",
       url,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

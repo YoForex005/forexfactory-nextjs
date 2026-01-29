@@ -2,10 +2,10 @@ import { Metadata } from "next";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-    title: "Log In to Your Account - Manage Downloads & Signals",
-    description: "Access your ForexFactory.cc account to manage your downloads, signals, and profile.",
+    title: "Search",
+    description: "Search for the latest Forex Expert Advisors, signals, and trading indicators on ForexFactory.cc.",
     alternates: {
-        canonical: `${SITE_URL}/login`,
+        canonical: `${SITE_URL}/search`,
     },
     robots: {
         index: true,
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     },
 };
 
-export default function LoginLayout({
+export default function SearchLayout({
     children,
 }: {
     children: React.ReactNode;

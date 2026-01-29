@@ -11,6 +11,54 @@ export const revalidate = 180;
 // Generate static page at build time
 export const dynamic = 'force-static';
 
+
+import { Metadata } from 'next';
+import { SITE_NAME, SITE_TAGLINE, SITE_URL, DEFAULT_OG_IMAGE, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  description: "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+  openGraph: {
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+    description: "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+    description: "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
+
+const jsonLdOrganization = generateOrganizationSchema();
+const jsonLdWebsite = generateWebsiteSchema();
+
 // Blog selection type
 type BlogPreview = {
   id: bigint;
@@ -128,6 +176,10 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite]) }}
+      />
       <Navbar />
 
       <main className="flex-1">

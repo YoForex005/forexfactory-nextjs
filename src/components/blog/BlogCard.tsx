@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { Blog } from "@prisma/client";
-// import Image from "next/image";
+import Image from "next/image";
 
 interface BlogCardProps {
   blog: any;
@@ -55,11 +55,13 @@ export function BlogCard({ blog }: BlogCardProps) {
         {imageUrl ? (
           // Using standard img tag to support any domain without next.config.js restrictions
           // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={imageUrl}
             alt={blog.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
+            fill
+            unoptimized
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="flex h-full items-center justify-center">

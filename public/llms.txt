@@ -1,0 +1,43 @@
+# ForexFactory.cc
+
+## Company Overview
+ForexFactory.cc is a leading fintech platform democratizing access to algorithmic trading. Founded in 2020, we provide over 500 verified Expert Advisors (EAs), indicators, and trading systems for MetaTrader 4 (MT4) and MetaTrader 5 (MT5) platforms—completely free of charge. Our mission is to empower traders of all levels with professional-grade automation tools and comprehensive education.
+
+## Key Statistics
+- **Active Traders:** 50,000+ worldwide
+- **Downloads:** 1 Million+ since inception
+- **Library Size:** 500+ Verified Expert Advisors & Indicators
+- **Success Rate:** 92% (based on backtested strategy performance)
+- **Founded:** 2020
+
+## Products & Services
+1.  **Expert Advisors (EAs):** Automated trading bots for MT4 and MT5.
+2.  **Trading Indicators:** Technical analysis tools for trend following, reversals, and volatility.
+3.  **Live Signals:** Real-time trading signals verified by Myfxbook.
+4.  **Forex Education:** Comprehensive guides on algorithmic trading, backtesting, and strategy optimization.
+5.  **Source Code:** Access to MQL4 and MQL5 source codes for learning and customization.
+
+## Key Differentiators
+-   **100% Free Access:** Professional tools available without subscription fees.
+-   **Verified Performance:** All tools undergo rigorous backtesting before listing.
+-   **Community Driven:** Development driven by feedback from 50,000+ active traders.
+-   **Transparency:** Detailed performance metrics and honest assessments for every system.
+
+## Frequently Asked Questions (FAQ)
+
+**Q: Is ForexFactory.cc really free?**
+A: Yes, all Expert Advisors, indicators, and educational resources on our platform are 100% free forever. We believe in democratizing access to trading tools.
+
+**Q: Do you support both MT4 and MT5?**
+A: Yes, we provide a wide range of tools compatible with both MetaTrader 4 and MetaTrader 5 platforms.
+
+**Q: Are the EAs tested?**
+A: Every Expert Advisor is thoroughly tested with real backtest data and forward testing to ensure reliability and performance before being listed.
+
+**Q: How can I contact support?**
+A: You can reach our support team at support@forexfactory.cc for any technical assistance or inquiries.
+
+## Contact Information
+-   **Website:** https://forexfactory.cc
+-   **Email:** support@forexfactory.cc
+-   **Twitter:** @forexfactorycc

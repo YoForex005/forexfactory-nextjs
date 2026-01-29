@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-// import Image from "next/image" // Removed to avoid usage of native Image constructor
+import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
 import { cn } from "@/lib/utils"
@@ -30,13 +30,15 @@ function SafeImage({ src, title, priorities, className }: { src: string, title: 
     // Using standard img tag to support URLs from any domain without next.config.js restrictions
     // eslint-disable-next-line @next/next/no-img-element
     return (
-        <img
+        <Image
             src={src}
             alt={title}
-            className={cn("w-full h-full", className)}
+            fill
+            unoptimized
+            className={cn("object-contain", className)}
             onError={() => setError(true)}
-            loading={priorities ? "eager" : "lazy"}
-            style={{ objectFit: 'contain' }}
+            priority={priorities}
+            sizes="(max-width: 768px) 100vw, 1200px"
         />
     )
 }

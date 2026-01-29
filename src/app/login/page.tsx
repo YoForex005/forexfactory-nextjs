@@ -7,6 +7,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { saveAuth } from "@/lib/auth-client";
+import { signIn } from "next-auth/react";
+import { SITE_NAME } from "@/lib/seo";
 
 export default function LoginPage() {
     const router = useRouter();

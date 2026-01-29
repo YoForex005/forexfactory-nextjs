@@ -1,25 +1,38 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_NAME, generateCanonicalUrl } from "@/lib/seo";
+import { SITE_NAME, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { Metadata } from "next";
 import { Signal } from "@prisma/client";
 import { SignalCard } from "@/components/signals/SignalCard";
 
 export const metadata: Metadata = {
-  title: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
+  title: "Free Forex Signals & Trading Alerts",
   description: "Real-time forex trading signals with entry, stop-loss, and take-profit levels. Expert analysis for EUR/USD, GBP/USD, and major currency pairs.",
+  alternates: {
+    canonical: `${SITE_URL}/signals`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
     description: "Real-time forex trading signals with expert analysis and performance tracking.",
     type: "website",
-    url: generateCanonicalUrl("/signals"),
+    url: `${SITE_URL}/signals`,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
+    description: "Real-time forex trading signals with expert analysis and performance tracking.",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 
 async function getSignalsData() {
   let signals: Signal[] = [];
-  
+
   try {
     signals = await prisma.signal.findMany({
       orderBy: { createdAt: "desc" },
@@ -38,7 +51,7 @@ export default async function SignalsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
       <Navbar />
-      
+
       <main className="flex-1">
         {/* Hero Section */}
         <div className="relative border-b border-white/10 bg-surface-50 py-20">

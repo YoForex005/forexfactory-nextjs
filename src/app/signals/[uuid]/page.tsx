@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_URL, SITE_NAME, generateCanonicalUrl } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, generateCanonicalUrl, DEFAULT_OG_IMAGE, generateSoftwareApplicationSchema } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -43,6 +43,12 @@ export async function generateMetadata({ params }: SignalDetailProps): Promise<M
       url: `${SITE_URL}/signals/${signal.uuid}`,
       type: "website",
     },
+    twitter: {
+      card: "summary_large_image",
+      title: signal.title,
+      description: signal.description,
+      images: [DEFAULT_OG_IMAGE], // Signals don't have featured images, using default
+    },
     alternates: {
       canonical: generateCanonicalUrl(`/signals/${signal.uuid}`),
     },
@@ -64,6 +70,11 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
     year: 'numeric'
   });
 
+  function stripHtmlTags(html: string | null | undefined): string {
+    if (!html) return "";
+    return html.replace(/<[^>]*>?/gm, "");
+  }
+
   // Helper to handle multiple levels of escaped HTML
   const decodeHtml = (html: string) => {
     let decoded = html;
@@ -80,8 +91,27 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
     return { __html: decoded };
   };
 
+  const jsonLd = generateSoftwareApplicationSchema({
+    name: signal.title,
+    description: stripHtmlTags(signal.description),
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: signal.mime.includes('mq4') ? 'Windows (MetaTrader 4)' : 'Windows (MetaTrader 5)',
+    softwareVersion: signal.version || '1.0',
+    downloadUrl: `${SITE_URL}/api/download/${signal.uuid}`,
+    fileSize: `${(signal.sizeBytes / 1024).toFixed(1)} KB`,
+    datePublished: signal.createdAt.toISOString(),
+    aggregateRating: {
+      ratingValue: signal.rating || 5, // Default to 5 if no rating
+      reviewCount: Math.max(1, Math.floor((signal.downloadCount || 0) / 10)) // Estimate reviews from downloads
+    }
+  });
+
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-1">

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { prisma } from "@/lib/prisma";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -34,6 +34,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       title: `${category.name} | ${SITE_NAME}`,
       description: category.description || `Browse ${category.name} articles`,
       type: 'website',
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${category.name} | ${SITE_NAME}`,
+      description: category.description || `Browse ${category.name} articles`,
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

@@ -2,21 +2,40 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CheckCircle2, Users, TrendingUp, Award, Target, Heart } from "lucide-react";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, DEFAULT_OG_IMAGE, generateOrganizationSchema, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: `About Us | ${SITE_NAME}`,
+  title: "About Us - Trusted Forex Expert Advisors & Trading Tools",
   description: "Learn about Forex Factory - your trusted source for free Expert Advisors, trading signals, and Forex education. Join 50,000+ traders worldwide.",
+  alternates: {
+    canonical: `${SITE_URL}/about`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: `About Us | ${SITE_NAME}`,
     description: "Learn about Forex Factory - your trusted source for free Expert Advisors, trading signals, and Forex education.",
     type: 'website',
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About Us | ${SITE_NAME}`,
+    description: "Learn about Forex Factory - your trusted source for free Expert Advisors, trading signals, and Forex education.",
+    images: [DEFAULT_OG_IMAGE],
   }
 };
+
+const jsonLd = generateOrganizationSchema();
 
 export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-1 bg-surface-100">

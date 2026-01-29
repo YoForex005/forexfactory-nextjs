@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { saveAuth } from "@/lib/auth-client";
+import { SITE_NAME } from "@/lib/seo";
 
 export default function SignupPage() {
     const router = useRouter();

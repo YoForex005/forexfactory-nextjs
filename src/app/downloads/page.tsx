@@ -4,14 +4,18 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DownloadCard } from "@/components/downloads/DownloadCard";
-import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl } from "@/lib/seo";
+import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
+  title: "Forex Robots & Expert Advisors Marketplace",
   description:
-    "Discover verified MT4 & MT5 Expert Advisors, indicators, and trading systems. Filter by strategy, platform, and performance metrics to find the perfect forex robot.",
+    "Download 500+ free Forex Expert Advisors, MT4/MT5 indicators, and trading robots. Verified backtests, real performance data, and daily updates.",
   alternates: {
     canonical: generateCanonicalUrl("/downloads"),
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   openGraph: {
     title: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
@@ -19,6 +23,12 @@ export const metadata: Metadata = {
       "Browse premium and free MT4/MT5 robots with backtested performance, download stats, and trader reviews.",
     type: "website",
     url: generateCanonicalUrl("/downloads"),
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
+    description: "Browse premium and free MT4/MT5 robots with backtested performance, download stats, and trader reviews.",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 
@@ -58,8 +68,8 @@ export default async function DownloadsPage() {
             <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
               Download <span className="gradient-text">{SITE_TAGLINE}</span>
             </h1>
-            <p className="mx-auto max-w-2xl text-lg text-zinc-400">
-              Curated Expert Advisors, indicators, and automated strategies with transparent performance metrics and community ratings.
+            <p className="mx-auto max-w-3xl text-lg text-zinc-400">
+              Access the world's largest library of <strong>free Expert Advisors</strong> and indicators. Every tool is rigorously backtested and verified for performance, giving you the data you need to automate your trading with confidence.
             </p>
 
             <div className="mt-10 grid gap-6 sm:grid-cols-3">

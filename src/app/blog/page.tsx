@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/seo";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -13,7 +13,27 @@ export const metadata: Metadata = {
     title: `Trading Blog & Insights | ${SITE_NAME}`,
     description: "Expert guides, trading strategies, and market analysis for Forex traders.",
     type: 'website',
-  }
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Trading Blog & Insights | ${SITE_NAME}`,
+    description: "Expert guides, trading strategies, and market analysis for Forex traders.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  alternates: {
+    canonical: `${SITE_URL}/blog`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 // Enable static generation with revalidation

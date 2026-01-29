@@ -2,10 +2,10 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FileText, Scale, AlertTriangle, Shield, Ban, RefreshCw, Gavel } from "lucide-react";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
-    title: `Terms of Service | ${SITE_NAME}`,
+    title: "Terms of Service - User Agreement & Trading Disclaimers",
     description: "Read the Terms of Service for ForexFactory.cc. Understand your rights and responsibilities when using our Expert Advisors and trading tools.",
     openGraph: {
         title: `Terms of Service | ${SITE_NAME}`,
@@ -14,6 +14,16 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: `${SITE_URL}/terms`,
+    },
+    robots: {
+        index: true,
+        follow: true,
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: `Terms of Service | ${SITE_NAME}`,
+        description: "Read the Terms of Service for ForexFactory.cc.",
+        images: [DEFAULT_OG_IMAGE],
     }
 };
 

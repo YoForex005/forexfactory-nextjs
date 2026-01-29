@@ -1,4 +1,4 @@
-export const SITE_URL = "https://forexfactory.cc";
+export const SITE_URL = process.env.SITE_URL || "https://forexfactory.cc";
 export const SITE_NAME = "ForexFactory.cc";
 export const SITE_TAGLINE = "Best Forex Robots, EA Trading & MT4/MT5 Expert Advisors";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;

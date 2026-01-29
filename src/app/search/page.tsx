@@ -3,8 +3,10 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { Search, FileText, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { SITE_NAME } from "@/lib/seo";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -89,8 +91,8 @@ function SearchContent() {
             <button
               onClick={() => handleTabChange("all")}
               className={`border-b-2 px-4 py-4 font-medium transition-colors ${activeTab === "all"
-                  ? "border-brand text-brand"
-                  : "border-transparent text-zinc-400 hover:text-white"
+                ? "border-brand text-brand"
+                : "border-transparent text-zinc-400 hover:text-white"
                 }`}
             >
               All ({results.total})
@@ -98,8 +100,8 @@ function SearchContent() {
             <button
               onClick={() => handleTabChange("blog")}
               className={`border-b-2 px-4 py-4 font-medium transition-colors ${activeTab === "blog"
-                  ? "border-brand text-brand"
-                  : "border-transparent text-zinc-400 hover:text-white"
+                ? "border-brand text-brand"
+                : "border-transparent text-zinc-400 hover:text-white"
                 }`}
             >
               Blog Posts ({results.blogs?.length || 0})
@@ -107,8 +109,8 @@ function SearchContent() {
             <button
               onClick={() => handleTabChange("signal")}
               className={`border-b-2 px-4 py-4 font-medium transition-colors ${activeTab === "signal"
-                  ? "border-brand text-brand"
-                  : "border-transparent text-zinc-400 hover:text-white"
+                ? "border-brand text-brand"
+                : "border-transparent text-zinc-400 hover:text-white"
                 }`}
             >
               Signals ({results.signals?.length || 0})

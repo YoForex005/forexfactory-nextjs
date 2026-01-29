@@ -2,10 +2,10 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Shield, Lock, Eye, Database, Users, Mail } from "lucide-react";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
-    title: `Privacy Policy | ${SITE_NAME}`,
+    title: "Privacy Policy - Data Protection & User Privacy Information",
     description: "Learn how ForexFactory.cc collects, uses, and protects your personal information. Read our comprehensive privacy policy.",
     openGraph: {
         title: `Privacy Policy | ${SITE_NAME}`,
@@ -14,6 +14,16 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: `${SITE_URL}/privacy`,
+    },
+    robots: {
+        index: true,
+        follow: true,
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: `Privacy Policy | ${SITE_NAME}`,
+        description: "Learn how ForexFactory.cc collects, uses, and protects your personal information.",
+        images: [DEFAULT_OG_IMAGE],
     }
 };
 

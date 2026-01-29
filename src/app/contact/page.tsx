@@ -4,6 +4,22 @@ import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Mail, MessageSquare, Send, CheckCircle2 } from "lucide-react";
+import { SITE_NAME, generateOrganizationSchema } from "@/lib/seo";
+
+const jsonLd = {
+  ...generateOrganizationSchema(),
+  '@type': 'ContactPage',
+  mainEntity: {
+    '@type': 'Organization',
+    name: SITE_NAME,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'support@forexfactory.cc',
+      availableLanguage: ['English']
+    }
+  }
+};
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -45,6 +61,10 @@ export default function ContactPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-1 bg-surface-100">
