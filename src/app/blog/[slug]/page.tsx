@@ -52,15 +52,45 @@ function calculateReadTime(content: string): number {
 
 function processContent(content: string) {
   const headings: { id: string; text: string; level: number }[] = [];
+  const usedIds = new Set<string>();
 
   const contentWithIds = content.replace(/<h([2-3])([^>]*)>(.*?)<\/h\1>/g, (match, levelStr, attrs, innerText) => {
     const level = parseInt(levelStr);
-    const plainText = innerText.replace(/<[^>]*>/g, "").trim();
-    const id = plainText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
 
-    headings.push({ id, text: plainText, level });
+    // Strip HTML tags and entities for the ID generation
+    let plainText = innerText
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .trim();
 
-    return `<h${level} id="${id}"${attrs}>${innerText}</h${level}>`;
+    let id = plainText
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-"); // Collapse multiple dashes
+
+    // Ensure id is not empty and not just dashes
+    if (!id || id === "-") {
+      id = `section-${level}-${Math.random().toString(36).substring(2, 7)}`;
+    }
+
+    // Handle duplicate IDs
+    let uniqueId = id;
+    let counter = 1;
+    while (usedIds.has(uniqueId)) {
+      uniqueId = `${id}-${counter}`;
+      counter++;
+    }
+
+    usedIds.add(uniqueId);
+    headings.push({ id: uniqueId, text: plainText, level });
+
+    return `<h${level} id="${uniqueId}"${attrs}>${innerText}</h${level}>`;
   });
 
   return { contentWithIds, headings };
