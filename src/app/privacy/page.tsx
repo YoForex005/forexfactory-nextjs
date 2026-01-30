@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Shield, Lock, Eye, Database, Users, Mail } from "lucide-react";
-import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE, generateWebPageSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
     title: "Privacy Policy - Data Protection & User Privacy Information",
@@ -30,8 +30,20 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
     const lastUpdated = "December 31, 2024";
 
+    const jsonLd = generateWebPageSchema({
+        title: "Privacy Policy | " + SITE_NAME,
+        description: "Learn how " + SITE_NAME + " collects, uses, and protects your personal information.",
+        url: `${SITE_URL}/privacy`,
+        datePublished: "2024-01-01",
+        dateModified: "2024-12-31"
+    });
+
     return (
         <div className="flex min-h-screen flex-col">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <Navbar />
 
             <main className="flex-1 bg-surface-100">

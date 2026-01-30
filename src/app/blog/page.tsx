@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_NAME, DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/seo";
+import { SITE_NAME, DEFAULT_OG_IMAGE, SITE_URL, generateBlogSchema } from "@/lib/seo";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -69,6 +69,8 @@ export default async function BlogPage({
           createdAt: true,
           views: true,
           author: true,
+          content: true, // Need content for schema description
+          seoMeta: true, // Need metadescription for schema
         },
       }),
       prisma.blog.count({
@@ -86,8 +88,19 @@ export default async function BlogPage({
   const hasNextPage = currentPage < totalPages;
   const hasPrevPage = currentPage > 1;
 
+  const jsonLd = generateBlogSchema({
+    title: `Trading Blog & Insights | ${SITE_NAME}`,
+    description: "Expert guides, trading strategies, and market analysis for Forex traders.",
+    url: `${SITE_URL}/blog`,
+    blogs: allContent
+  });
+
   return (
     <div className="flex min-h-screen flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-1 bg-surface-100">

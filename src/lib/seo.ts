@@ -1,6 +1,6 @@
 export const SITE_URL = process.env.SITE_URL || "https://forexfactory.cc";
 export const SITE_NAME = "ForexFactory.cc";
-export const SITE_TAGLINE = "Best Forex Robots, EA Trading & MT4/MT5 Expert Advisors";
+export const SITE_TAGLINE = "Forex Robots & Expert Advisors for MT4/MT5";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 export interface MetaTags {
@@ -404,4 +404,175 @@ export function analyzeSEO(content: {
     suggestions.push('Consider reviewing SEO best practices');
   }
   return { score: Math.max(0, score), issues, suggestions };
+}
+
+export function generateWebPageSchema({
+  title,
+  description,
+  url,
+  datePublished,
+  dateModified
+}: {
+  title: string;
+  description: string;
+  url: string;
+  datePublished?: string;
+  dateModified?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description,
+    url,
+    datePublished,
+    dateModified: dateModified || datePublished,
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`
+      }
+    }
+  };
+}
+
+export function generateBlogSchema({
+  title,
+  description,
+  url,
+  blogs
+}: {
+  title: string;
+  description: string;
+  url: string;
+  blogs: any[];
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: title,
+    description,
+    url,
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`
+      }
+    },
+    blogPost: blogs.map(blog => ({
+      '@type': 'BlogPosting',
+      headline: blog.title,
+      description: blog.content?.substring(0, 150) || blog.seoMeta?.[0]?.seoDescription,
+      datePublished: blog.createdAt,
+      author: {
+        '@type': 'Person',
+        name: blog.author
+      },
+      url: `${SITE_URL}/blog/${blog.seoSlug}`
+    }))
+  };
+}
+
+export function generateCollectionPageSchema({
+  title,
+  description,
+  url,
+  items
+}: {
+  title: string;
+  description: string;
+  url: string;
+  items: any[];
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${SITE_URL}/${item.uuid ? 'signals/' + item.uuid : 'downloads/' + item.uuid}`
+      }))
+    }
+  };
+}
+
+export function generateSearchResultsPageSchema({
+  query,
+  results
+}: {
+  query: string;
+  results: any[];
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SearchResultsPage',
+    name: `Search results for "${query}"`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: results.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: item.seoSlug ? `${SITE_URL}/blog/${item.seoSlug}` : `${SITE_URL}/signals/${item.uuid}`
+      }))
+    }
+  };
+}
+
+export function generateAboutPageSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: `About Us | ${SITE_NAME}`,
+    description: 'Learn about Forex Factory - your trusted source for free Expert Advisors, trading signals, and Forex education.',
+    url: `${SITE_URL}/about`,
+    mainEntity: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`
+      },
+      description: 'Leading provider of free Forex Expert Advisors (EA), MT4/MT5 indicators, and automated trading solutions',
+      sameAs: [
+        'https://twitter.com/forexfactorycc',
+        'https://facebook.com/forexfactorycc',
+        'https://linkedin.com/company/forexfactorycc'
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: 'support@forexfactory.cc',
+        availableLanguage: ['English']
+      }
+    }
+  };
+}
+
+export function generateContactPageSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: `Contact Us | ${SITE_NAME}`,
+    description: `Get in touch with ${SITE_NAME} support team.`,
+    url: `${SITE_URL}/contact`,
+    mainEntity: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: 'support@forexfactory.cc',
+        availableLanguage: ['English']
+      }
+    }
+  };
 }

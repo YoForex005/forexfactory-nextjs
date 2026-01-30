@@ -4,22 +4,9 @@ import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Mail, MessageSquare, Send, CheckCircle2 } from "lucide-react";
-import { SITE_NAME, generateOrganizationSchema } from "@/lib/seo";
+import { SITE_NAME, generateContactPageSchema } from "@/lib/seo";
 
-const jsonLd = {
-  ...generateOrganizationSchema(),
-  '@type': 'ContactPage',
-  mainEntity: {
-    '@type': 'Organization',
-    name: SITE_NAME,
-    contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'customer support',
-      email: 'support@forexfactory.cc',
-      availableLanguage: ['English']
-    }
-  }
-};
+const jsonLd = generateContactPageSchema();
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

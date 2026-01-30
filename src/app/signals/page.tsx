@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_NAME, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/seo";
+import { SITE_NAME, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateCollectionPageSchema } from "@/lib/seo";
 import { Metadata } from "next";
 import { Signal } from "@prisma/client";
 import { SignalCard } from "@/components/signals/SignalCard";
@@ -48,8 +48,19 @@ async function getSignalsData() {
 export default async function SignalsPage() {
   const { signals } = await getSignalsData();
 
+  const jsonLd = generateCollectionPageSchema({
+    title: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
+    description: "Real-time forex trading signals with entry, stop-loss, and take-profit levels.",
+    url: `${SITE_URL}/signals`,
+    items: signals
+  });
+
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-1">

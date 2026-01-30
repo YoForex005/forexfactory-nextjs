@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CheckCircle2, Users, TrendingUp, Award, Target, Heart } from "lucide-react";
-import { SITE_NAME, DEFAULT_OG_IMAGE, generateOrganizationSchema, SITE_URL } from "@/lib/seo";
+import { SITE_NAME, DEFAULT_OG_IMAGE, generateAboutPageSchema, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "About Us - Trusted Forex Expert Advisors & Trading Tools",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   }
 };
 
-const jsonLd = generateOrganizationSchema();
+const jsonLd = generateAboutPageSchema();
 
 export default function AboutPage() {
   return (

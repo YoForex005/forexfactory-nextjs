@@ -6,7 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Search, FileText, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, generateSearchResultsPageSchema } from "@/lib/seo";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -56,8 +56,17 @@ function SearchContent() {
     return html?.replace(/<[^>]*>/g, "").substring(0, 200) || "";
   };
 
+  const jsonLd = generateSearchResultsPageSchema({
+    query: searchQuery || "Search",
+    results: [...(results.blogs || []), ...(results.signals || [])]
+  });
+
   return (
     <main className="flex-1 bg-surface-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Search Header */}
       <section className="border-b border-white/10 bg-surface-50 py-12">
         <div className="container mx-auto px-4">

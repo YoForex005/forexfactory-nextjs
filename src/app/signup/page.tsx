@@ -7,7 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { saveAuth } from "@/lib/auth-client";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, generateWebPageSchema } from "@/lib/seo";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -78,8 +78,18 @@ export default function SignupPage() {
         }
     };
 
+    const jsonLd = generateWebPageSchema({
+        title: "Sign Up | " + SITE_NAME,
+        description: "Create a new account on " + SITE_NAME + ".",
+        url: `${SITE_URL}/signup`
+    });
+
     return (
         <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <Navbar />
 
             <main className="flex-1 flex items-center justify-center px-4 py-16">

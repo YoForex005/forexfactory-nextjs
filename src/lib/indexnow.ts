@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { SITE_URL } from '@/lib/seo';
 
 interface IndexNowParams {
     host: string;
@@ -8,7 +9,7 @@ interface IndexNowParams {
 }
 
 export async function getSitemapUrls(): Promise<string[]> {
-    const baseUrl = process.env.INDEXNOW_HOST || 'https://forexfactory.cc';
+    const baseUrl = process.env.INDEXNOW_HOST || SITE_URL;
 
     // Static routes from sitemap.ts
     const staticRoutes = [
@@ -35,7 +36,7 @@ export async function getSitemapUrls(): Promise<string[]> {
 }
 
 export async function submitSingleUrl(url: string): Promise<{ success: boolean; message: string }> {
-    const host = process.env.INDEXNOW_HOST;
+    const host = process.env.INDEXNOW_HOST || SITE_URL;
     const key = process.env.INDEXNOW_KEY;
     const endpoint = process.env.INDEXNOW_ENDPOINT || 'www.bing.com';
 
@@ -65,7 +66,7 @@ export async function submitSingleUrl(url: string): Promise<{ success: boolean; 
 }
 
 export async function submitBulkUrls(urls: string[]): Promise<{ success: boolean; message: string }> {
-    const host = process.env.INDEXNOW_HOST;
+    const host = process.env.INDEXNOW_HOST || SITE_URL;
     const key = process.env.INDEXNOW_KEY;
     const endpoint = process.env.INDEXNOW_ENDPOINT || 'www.bing.com';
 

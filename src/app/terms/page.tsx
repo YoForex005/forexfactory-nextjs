@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FileText, Scale, AlertTriangle, Shield, Ban, RefreshCw, Gavel } from "lucide-react";
-import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE, generateWebPageSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
     title: "Terms of Service - User Agreement & Trading Disclaimers",
@@ -30,8 +30,20 @@ export const metadata: Metadata = {
 export default function TermsOfServicePage() {
     const lastUpdated = "December 31, 2024";
 
+    const jsonLd = generateWebPageSchema({
+        title: "Terms of Service | " + SITE_NAME,
+        description: "Read the Terms of Service for " + SITE_NAME + ".",
+        url: `${SITE_URL}/terms`,
+        datePublished: "2024-01-01",
+        dateModified: "2024-12-31"
+    });
+
     return (
         <div className="flex min-h-screen flex-col">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <Navbar />
 
             <main className="flex-1 bg-surface-100">

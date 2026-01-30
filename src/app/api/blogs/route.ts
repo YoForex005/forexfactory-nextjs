@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { submitSingleUrl } from "@/lib/indexnow";
+import { SITE_URL } from "@/lib/seo";
 
 // Inline Zod schema for blog validation (compatible with Prisma)
 const insertBlogSchema = z.object({
@@ -88,6 +90,36 @@ export async function POST(req: Request) {
         ogImage: validatedData.featuredImage,
       }
     });
+
+    // Trigger IndexNow if published
+    if (validatedData.status === 'published') {
+      const blogUrl = `${SITE_URL}/blog/${validatedData.seoSlug}`;
+      try {
+        const indexResult = await submitSingleUrl(blogUrl);
+        await prisma.indexingLog.create({
+          data: {
+            url: blogUrl,
+            service: 'IndexNow',
+            action: 'create',
+            status: indexResult.success ? 'success' : 'failed',
+            response: indexResult.message,
+            blogId: blog.id,
+          }
+        });
+      } catch (indexingError: any) {
+        console.error("Indexing notification failed:", indexingError);
+        await prisma.indexingLog.create({
+          data: {
+            url: blogUrl,
+            service: 'IndexNow',
+            action: 'create',
+            status: 'error',
+            error: indexingError.message,
+            blogId: blog.id,
+          }
+        });
+      }
+    }
 
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {

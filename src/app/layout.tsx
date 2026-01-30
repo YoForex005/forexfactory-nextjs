@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+    "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
   keywords: [
     "forex expert advisors",
     "mt4 robots",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description:
-      "ForexFactory.cc offers premium-grade trading robots, indicators, and SEO-rich content for algorithmic traders.",
+      "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
     images: [
       {
         url: `${SITE_URL}/og-image.png`,
@@ -57,8 +57,11 @@ export const metadata: Metadata = {
     site: "@forexfactorycc",
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description:
-      "Free Forex EAs, MT4/MT5 robots, and AI-enhanced SEO content to grow your trading business.",
+      "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
     images: [`${SITE_URL}/og-image.png`],
+  },
+  verification: {
+    google: "zaVCeEONH2MBblcEN1wrlJhwNvknYX-5JcCcpvJWChk",
   },
   alternates: {
     canonical: SITE_URL,

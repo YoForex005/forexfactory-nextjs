@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DownloadCard } from "@/components/downloads/DownloadCard";
-import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateCollectionPageSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Forex Robots & Expert Advisors Marketplace",
@@ -55,8 +55,19 @@ async function getDownloadsData() {
 export default async function DownloadsPage() {
   const { latestSignals, topRatedSignals, premiumSignals, stats } = await getDownloadsData();
 
+  const jsonLd = generateCollectionPageSchema({
+    title: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
+    description: "Download 500+ free Forex Expert Advisors, MT4/MT5 indicators, and trading robots.",
+    url: `${SITE_URL}/downloads`,
+    items: latestSignals
+  });
+
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-1">

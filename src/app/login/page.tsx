@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { saveAuth } from "@/lib/auth-client";
 import { signIn } from "next-auth/react";
-import { SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, generateWebPageSchema } from "@/lib/seo";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -54,8 +54,18 @@ export default function LoginPage() {
         }
     };
 
+    const jsonLd = generateWebPageSchema({
+        title: "Login | " + SITE_NAME,
+        description: "Login to your " + SITE_NAME + " account.",
+        url: `${SITE_URL}/login`
+    });
+
     return (
         <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <Navbar />
 
             <main className="flex-1 flex items-center justify-center px-4 py-16">

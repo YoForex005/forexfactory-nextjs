@@ -13,14 +13,14 @@ export const dynamic = 'force-static';
 
 
 import { Metadata } from 'next';
-import { SITE_NAME, SITE_TAGLINE, SITE_URL, DEFAULT_OG_IMAGE, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL, DEFAULT_OG_IMAGE, generateOrganizationSchema, generateWebsiteSchema, generateWebPageSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-  description: "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+  description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
   openGraph: {
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+    description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
     url: SITE_URL,
     siteName: SITE_NAME,
     images: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: "Download 500+ expert advisors, MT4/MT5 indicators, and automated trading systems updated daily for serious Forex traders.",
+    description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
     images: [DEFAULT_OG_IMAGE],
   },
   alternates: {
@@ -58,6 +58,11 @@ export const metadata: Metadata = {
 
 const jsonLdOrganization = generateOrganizationSchema();
 const jsonLdWebsite = generateWebsiteSchema();
+const jsonLdWebPage = generateWebPageSchema({
+  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+  url: SITE_URL
+});
 
 // Blog selection type
 type BlogPreview = {
@@ -178,7 +183,7 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite, jsonLdWebPage]) }}
       />
       <Navbar />
 
