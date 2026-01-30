@@ -23,7 +23,7 @@ async function validateSitemap() {
         console.log(`Found ${urls.length} URLs in sitemap.`);
 
         // Basic validation of required tags
-        const issues = [];
+        const issues: string[] = [];
         urls.forEach((u: any, index: number) => {
             if (!u.loc) issues.push(`URL at index ${index} is missing <loc>`);
             if (!u.lastmod) issues.push(`URL at index ${index} (${u.loc}) is missing <lastmod>`);
