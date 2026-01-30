@@ -18,6 +18,9 @@ import { SITE_NAME, SITE_TAGLINE, SITE_URL, DEFAULT_OG_IMAGE, generateOrganizati
 export const metadata: Metadata = {
   title: `${SITE_NAME} | ${SITE_TAGLINE}`,
   description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+  verification: {
+    google: "zaVCeEONH2MBblcEN1wrlJhwNvknYX-5JcCcpvJWChk",
+  },
   openGraph: {
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
     description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
