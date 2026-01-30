@@ -1,7 +1,13 @@
 import { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 import { SITE_URL } from '@/lib/seo';
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+    const headersList = await headers();
+    const host = headersList.get('host') || 'forexfactory.cc';
+    const protocol = headersList.get('x-forwarded-proto') || 'http';
+    const baseUrl = `${protocol}://${host}`;
+
     return {
         rules: [
             {
@@ -23,7 +29,7 @@ export default function robots(): MetadataRoute.Robots {
                 disallow: ['/api/', '/admin/', '/private/'],
             },
         ],
-        sitemap: `${SITE_URL}/sitemap.xml`,
-        host: SITE_URL,
+        sitemap: `${baseUrl}/sitemap.xml`,
+        host: baseUrl,
     };
 }
