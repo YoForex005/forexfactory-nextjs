@@ -87,19 +87,19 @@ export default async function DownloadsPage() {
             </p>
 
             <div className="mt-10 grid gap-6 sm:grid-cols-3">
-              <div className="glass-panel rounded-2xl border border-white/5 p-6 text-left">
+              <div className="glass-panel rounded-2xl border border-white/5 p-6 text-center sm:text-left">
                 <p className="text-sm text-zinc-400">Robots & Indicators</p>
                 <p className="mt-2 text-3xl font-bold text-white">
                   {stats.totalSignals}
                 </p>
               </div>
-              <div className="glass-panel rounded-2xl border border-white/5 p-6 text-left">
+              <div className="glass-panel rounded-2xl border border-white/5 p-6 text-center sm:text-left">
                 <p className="text-sm text-zinc-400">Average Win Rate</p>
                 <p className="mt-2 text-3xl font-bold text-white">
                   {stats.avgWinRate?.toFixed(1)}%
                 </p>
               </div>
-              <div className="glass-panel rounded-2xl border border-white/5 p-6 text-left">
+              <div className="glass-panel rounded-2xl border border-white/5 p-6 text-center sm:text-left">
                 <p className="text-sm text-zinc-400">Total Downloads</p>
                 <p className="mt-2 text-3xl font-bold text-white">
                   {stats.totalDownloads.toLocaleString()}
@@ -117,7 +117,7 @@ export default async function DownloadsPage() {
         </section>
 
         <section className="container mx-auto px-4 py-16">
-          <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="mb-10 flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:justify-between md:text-left">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-brand/70">Featured</p>
               <h2 className="text-3xl font-bold text-white">Trending Downloads</h2>
@@ -125,7 +125,7 @@ export default async function DownloadsPage() {
             </div>
             <Link
               href="/downloads?filter=premium"
-              className="inline-flex items-center rounded-full border border-brand/30 bg-brand/5 px-6 py-2 text-sm font-semibold text-white transition-all hover:bg-brand hover:text-white hover:shadow-lg hover:shadow-brand/20"
+              className="inline-flex items-center rounded-full border border-brand/30 bg-brand/5 px-6 py-2 text-sm font-semibold text-white transition-all hover:bg-brand hover:text-white hover:shadow-lg hover:shadow-brand/20 w-fit"
             >
               View Premium Library →
             </Link>

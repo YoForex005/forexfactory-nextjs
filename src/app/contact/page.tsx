@@ -57,12 +57,12 @@ export default function ContactPage() {
       <main className="flex-1 bg-surface-100">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl">
-              <h1 className="mb-6 text-5xl font-bold leading-tight text-white">
+          <div className="container mx-auto px-4 text-center md:text-left">
+            <div className="max-w-3xl mx-auto md:mx-0">
+              <h1 className="mb-6 text-4xl md:text-5xl font-bold leading-tight text-white">
                 Get in Touch
               </h1>
-              <p className="text-xl text-zinc-300">
+              <p className="text-lg md:text-xl text-zinc-300">
                 Have questions about our Expert Advisors or need support? We're here to help!
               </p>
             </div>
@@ -75,7 +75,7 @@ export default function ContactPage() {
             <div className="grid gap-12 lg:grid-cols-2">
               {/* Contact Form */}
               <div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left">
                   <h2 className="mb-6 text-2xl font-bold text-white">Send us a Message</h2>
 
                   {status === "success" ? (
@@ -89,7 +89,7 @@ export default function ContactPage() {
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
-                        <label htmlFor="name" className="mb-2 block text-sm font-medium text-zinc-300">
+                        <label htmlFor="name" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
                           Name *
                         </label>
                         <input
@@ -99,13 +99,13 @@ export default function ContactPage() {
                           value={formData.name}
                           onChange={handleChange}
                           required
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="Your name"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="email" className="mb-2 block text-sm font-medium text-zinc-300">
+                        <label htmlFor="email" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
                           Email *
                         </label>
                         <input
@@ -115,13 +115,13 @@ export default function ContactPage() {
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="your@email.com"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="subject" className="mb-2 block text-sm font-medium text-zinc-300">
+                        <label htmlFor="subject" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
                           Subject *
                         </label>
                         <input
@@ -131,13 +131,13 @@ export default function ContactPage() {
                           value={formData.subject}
                           onChange={handleChange}
                           required
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="How can we help?"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="message" className="mb-2 block text-sm font-medium text-zinc-300">
+                        <label htmlFor="message" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
                           Message *
                         </label>
                         <textarea
@@ -147,7 +147,7 @@ export default function ContactPage() {
                           onChange={handleChange}
                           required
                           rows={6}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="Tell us more about your inquiry..."
                         />
                       </div>
@@ -161,7 +161,7 @@ export default function ContactPage() {
                       <button
                         type="submit"
                         disabled={status === "loading"}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+                        className="flex w-full items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                       >
                         {status === "loading" ? (
                           "Sending..."
@@ -179,8 +179,8 @@ export default function ContactPage() {
 
               {/* Contact Info */}
               <div className="space-y-8">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left flex flex-col items-center md:items-start">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 mx-auto md:mx-0">
                     <Mail className="h-6 w-6 text-brand" />
                   </div>
                   <h3 className="mb-2 text-xl font-bold text-white">Email Us</h3>
@@ -192,8 +192,8 @@ export default function ContactPage() {
                   </a>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left flex flex-col items-center md:items-start">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 mx-auto md:mx-0">
                     <MessageSquare className="h-6 w-6 text-purple-400" />
                   </div>
                   <h3 className="mb-2 text-xl font-bold text-white">Live Chat</h3>
@@ -206,7 +206,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* FAQ */}
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left">
                   <h3 className="mb-4 text-xl font-bold text-white">Frequently Asked Questions</h3>
                   <div className="space-y-4">
                     <div>

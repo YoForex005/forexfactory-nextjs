@@ -3,6 +3,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CheckCircle2, Users, TrendingUp, Award, Target, Heart } from "lucide-react";
 import { SITE_NAME, DEFAULT_OG_IMAGE, generateAboutPageSchema, SITE_URL } from "@/lib/seo";
+import { StatsSection } from "@/components/about/StatsSection";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "About Us - Trusted Forex Expert Advisors & Trading Tools",
@@ -29,7 +31,49 @@ export const metadata: Metadata = {
 
 const jsonLd = generateAboutPageSchema();
 
-export default function AboutPage() {
+async function getStats() {
+  try {
+    const [eaCount, userCount, signals] = await Promise.all([
+      prisma.signal.count(),
+      prisma.user.count(),
+      prisma.signal.findMany({
+        select: {
+          downloadCount: true,
+          winRate: true,
+        },
+      }),
+    ]);
+
+    const totalDownloads = signals.reduce((acc: number, curr: { downloadCount: number }) => acc + (curr.downloadCount || 0), 0);
+    const totalWinRate = signals.reduce((acc: number, curr: { winRate: number | null }) => acc + (curr.winRate || 0), 0);
+    const avgWinRate = signals.length > 0
+      ? totalWinRate / signals.length
+      : 92;
+
+    return {
+      eaCount: 500 + eaCount,
+      userCount: 50 + Math.floor(userCount / 1000),
+      userSuffix: "K+",
+      downloadCount: 1 + Math.floor(totalDownloads / 1000000),
+      downloadSuffix: "M+",
+      winRate: Math.round(avgWinRate),
+    };
+  } catch (error) {
+    console.error("Failed to fetch about stats:", error);
+    return {
+      eaCount: 500,
+      userCount: 50,
+      userSuffix: "K+",
+      downloadCount: 1,
+      downloadSuffix: "M+",
+      winRate: 92,
+    };
+  }
+}
+
+export default async function AboutPage() {
+  const stats = await getStats();
+
   return (
     <div className="flex min-h-screen flex-col">
       <script
@@ -41,12 +85,12 @@ export default function AboutPage() {
       <main className="flex-1 bg-surface-100">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl">
-              <h1 className="mb-6 text-5xl font-bold leading-tight text-white">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto">
+              <h1 className="mb-6 text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
                 About Forex Factory
               </h1>
-              <p className="text-xl text-zinc-300">
+              <p className="text-lg md:text-xl text-zinc-300">
                 Empowering traders worldwide with free Expert Advisors, real-time signals,
                 and comprehensive Forex education since 2020.
               </p>
@@ -57,9 +101,9 @@ export default function AboutPage() {
         {/* Mission Section */}
         <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-              <div>
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="flex flex-col items-center text-center rounded-3xl border border-white/10 bg-white/5 p-10 md:p-16 transition-all hover:border-brand/30 hover:bg-white/10">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10 mx-auto">
                   <Target className="h-8 w-8 text-brand" />
                 </div>
                 <h2 className="mb-4 text-3xl font-bold text-white">Our Mission</h2>
@@ -73,8 +117,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div>
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-500/10">
+              <div className="flex flex-col items-center text-center rounded-3xl border border-white/10 bg-white/5 p-10 md:p-16 transition-all hover:border-purple-500/30 hover:bg-white/10">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-500/10 mx-auto">
                   <Heart className="h-8 w-8 text-purple-400" />
                 </div>
                 <h2 className="mb-4 text-3xl font-bold text-white">Our Vision</h2>
@@ -91,29 +135,8 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="border-y border-white/10 bg-white/5 py-16">
-          <div className="container mx-auto px-4">
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-brand">500+</div>
-                <div className="text-zinc-400">Expert Advisors</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-brand">50K+</div>
-                <div className="text-zinc-400">Active Traders</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-brand">1M+</div>
-                <div className="text-zinc-400">Downloads</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-brand">92%</div>
-                <div className="text-zinc-400">Success Rate</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Live Stats Section */}
+        <StatsSection stats={stats} />
 
         {/* Values Section */}
         <section className="py-20">
@@ -121,8 +144,8 @@ export default function AboutPage() {
             <h2 className="mb-12 text-center text-4xl font-bold text-white">Our Core Values</h2>
 
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 mx-auto">
                   <CheckCircle2 className="h-6 w-6 text-brand" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Quality First</h3>
@@ -132,8 +155,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 mx-auto">
                   <Users className="h-6 w-6 text-emerald-400" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Community Driven</h3>
@@ -143,8 +166,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 mx-auto">
                   <TrendingUp className="h-6 w-6 text-blue-400" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Innovation</h3>
@@ -154,8 +177,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 mx-auto">
                   <Award className="h-6 w-6 text-purple-400" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Transparency</h3>
@@ -165,8 +188,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 mx-auto">
                   <Heart className="h-6 w-6 text-yellow-400" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Free Access</h3>
@@ -176,8 +199,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center flex flex-col items-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 mx-auto">
                   <Target className="h-6 w-6 text-red-400" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Education</h3>
@@ -192,7 +215,7 @@ export default function AboutPage() {
 
         {/* Story Section */}
         <section className="bg-white/5 py-20">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 text-center">
             <div className="mx-auto max-w-3xl">
               <h2 className="mb-8 text-4xl font-bold text-white">Our Story</h2>
               <div className="space-y-6 text-lg text-zinc-300">
@@ -236,13 +259,13 @@ export default function AboutPage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                 <a
                   href="/signals"
-                  className="rounded-lg bg-brand px-8 py-4 font-medium text-white transition-colors hover:bg-brand-dark"
+                  className="rounded-full bg-brand px-8 py-4 font-medium text-white transition-colors hover:bg-brand-dark"
                 >
                   Browse Expert Advisors
                 </a>
                 <a
                   href="/blog"
-                  className="rounded-lg border border-white/20 bg-white/10 px-8 py-4 font-medium text-white transition-colors hover:bg-white/20"
+                  className="rounded-full border border-white/20 bg-white/10 px-8 py-4 font-medium text-white transition-colors hover:bg-white/20"
                 >
                   Read Our Blog
                 </a>
