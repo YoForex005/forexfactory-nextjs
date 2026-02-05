@@ -34,7 +34,6 @@ function SafeImage({ src, title, priorities, className }: { src: string, title: 
             src={src}
             alt={title}
             fill
-            unoptimized
             className={cn("object-contain", className)}
             onError={() => setError(true)}
             priority={priorities}
@@ -101,9 +100,6 @@ export function BlogHeroSlideshow({ images, title }: BlogHeroSlideshowProps) {
                                 <AnimatePresence mode="wait">
                                     {selectedIndex === index && (
                                         <motion.div
-                                            initial={{ scale: 1 }}
-                                            animate={{ scale: 1.05 }}
-                                            transition={{ duration: 6, ease: "linear" }}
                                             className="w-full h-full relative"
                                         >
                                             <SafeImage

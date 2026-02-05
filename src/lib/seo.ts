@@ -50,6 +50,21 @@ export interface SoftwareAppSchemaProps {
   };
 }
 
+export interface ServiceSchemaProps {
+  name: string;
+  description: string;
+  serviceType: string;
+  url: string;
+  provider?: {
+    name: string;
+    url: string;
+  };
+  offers?: {
+    price: string;
+    priceCurrency: string;
+  };
+}
+
 export interface FAQItem {
   question: string;
   answer: string;
@@ -219,6 +234,39 @@ export function generateSoftwareApplicationSchema({
       worstRating: 1
     };
   }
+  return schema;
+}
+
+export function generateServiceSchema({
+  name,
+  description,
+  serviceType,
+  url,
+  provider = { name: SITE_NAME, url: SITE_URL },
+  offers
+}: ServiceSchemaProps) {
+  const schema: Record<string, any> = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name,
+    description,
+    serviceType,
+    url,
+    provider: {
+      '@type': 'Organization',
+      name: provider.name,
+      url: provider.url
+    }
+  };
+
+  if (offers) {
+    schema.offers = {
+      '@type': 'Offer',
+      price: offers.price,
+      priceCurrency: offers.priceCurrency
+    };
+  }
+
   return schema;
 }
 

@@ -274,96 +274,103 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
 
       <main className="pb-20">
         {/* Hero Section */}
-        <div className="relative">
+        <div className="relative overflow-hidden border-b border-white/5 bg-[#0a0a0f]">
           {/* Background Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-brand/5 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-transparent pointer-events-none" />
 
-          <div className="container mx-auto px-4 pt-12 pb-8">
-            <div className="max-w-4xl mx-auto text-center">
-              {/* Category Badge */}
-              {blog.categories && blog.categories.length > 0 && (
-                <div className="inline-flex items-center gap-2 mb-6">
-                  {blog.categories.slice(0, 2).map((cat: any) => (
-                    <span
-                      key={cat.categoryId}
-                      className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 rounded-md border border-brand/20"
-                    >
-                      {cat.category.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Title */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8 px-4">
-                {blog.title}
-              </h1>
-
-              {/* SEO Description - Visible on page */}
-              {blog.seoMeta[0]?.seoDescription && (
-                <p className="text-xl text-zinc-400 leading-relaxed max-w-3xl mx-auto mb-8 px-4">
-                  {stripHtmlTags(blog.seoMeta[0].seoDescription)}
-                </p>
-              )}
-
-              {/* Author & Meta */}
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-zinc-400">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
-                    {blog.author.charAt(0).toUpperCase()}
+          <div className="container mx-auto px-4 py-12 md:py-16">
+            <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 items-center">
+              {/* Left Column: Heading & Meta */}
+              <div className="text-center lg:text-left order-2 lg:order-1">
+                {/* Category Badge */}
+                {blog.categories && blog.categories.length > 0 && (
+                  <div className="inline-flex items-center gap-2 mb-6">
+                    {blog.categories.slice(0, 2).map((cat: any) => (
+                      <span
+                        key={cat.categoryId}
+                        className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 rounded-md border border-brand/20"
+                      >
+                        {cat.category.name}
+                      </span>
+                    ))}
                   </div>
-                  <div className="text-left">
-                    <p className="text-white font-medium">{blog.author}</p>
-                    <p className="text-xs text-zinc-500">Author</p>
-                  </div>
-                </div>
-
-                <span className="w-px h-6 bg-white/10 hidden sm:block" />
-
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4 text-zinc-500" />
-                  <span>{format(new Date(blog.createdAt), "MMM d, yyyy")}</span>
-                </div>
-
-                <span className="w-px h-6 bg-white/10 hidden sm:block" />
-
-                <div className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-zinc-500" />
-                  <span>{readTime} min read</span>
-                </div>
-
-                {blog.views !== null && (
-                  <>
-                    <span className="w-px h-6 bg-white/10 hidden sm:block" />
-                    <div className="flex items-center gap-1.5">
-                      <Eye className="h-4 w-4 text-zinc-500" />
-                      <span>{blog.views.toLocaleString()} views</span>
-                    </div>
-                  </>
                 )}
+
+                {/* Title */}
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+                  {blog.title}
+                </h1>
+
+                {/* SEO Description - Visible on page */}
+                {blog.seoMeta[0]?.seoDescription && (
+                  <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-8">
+                    {stripHtmlTags(blog.seoMeta[0].seoDescription)}
+                  </p>
+                )}
+
+                {/* Author & Meta */}
+                {/* Moved to separate section below */}
+
+                {/* Action Buttons */}
+                {/* Moved to separate section below */}
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-6 flex items-center justify-center gap-3">
-                <SaveButton blogId={blog.id} />
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-all">
-                  <Share2 className="h-4 w-4" />
-                  Share
-                </button>
+              {/* Right Column: Featured Image / Slideshow */}
+              <div className="order-1 lg:order-2">
+                <BlogHeroSlideshow images={imageUrls} title={blog.title} />
+              </div>
+            </div>
+
+            {/* Separate Meta & Actions Bar */}
+            <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/5">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs md:text-sm text-zinc-400">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                      {blog.author.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-white font-medium">{blog.author}</span>
+                  </div>
+
+                  <span className="text-zinc-700">•</span>
+
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-zinc-500" />
+                    <span>{format(new Date(blog.createdAt), "MMM d, yyyy")}</span>
+                  </div>
+
+                  <span className="text-zinc-700">•</span>
+
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-zinc-500" />
+                    <span>{readTime} min read</span>
+                  </div>
+
+                  {blog.views !== null && (
+                    <>
+                      <span className="text-zinc-700">•</span>
+                      <div className="flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5 text-zinc-500" />
+                        <span>{blog.views.toLocaleString()} views</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <SaveButton blogId={blog.id} />
+                  <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-all">
+                    <Share2 className="h-4 w-4" />
+                    Share
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Featured Image Slideshow */}
-        <div className="container mx-auto px-4 mb-12">
-          <div className="max-w-4xl mx-auto">
-            <BlogHeroSlideshow images={imageUrls} title={blog.title} />
-          </div>
-        </div>
-
         {/* Content Layout */}
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 mt-12">
           <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-[1fr_260px]">
 
             {/* Article Content */}
@@ -477,8 +484,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                             src={getSafeImageUrl(related.featuredImage)!}
                             alt={related.title}
                             fill
-                            unoptimized
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="object-contain transition-transform duration-300"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (

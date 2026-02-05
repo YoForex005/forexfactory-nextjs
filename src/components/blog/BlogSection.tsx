@@ -9,9 +9,10 @@ interface BlogSectionProps {
     blogs: any[]; // Changed from Blog[] to accept partial blog objects
     viewMoreLink?: string;
     id?: string;
+    priorityStartIndex?: number;
 }
 
-export function BlogSection({ title, subtitle, blogs, viewMoreLink = "/blog", id }: BlogSectionProps) {
+export function BlogSection({ title, subtitle, blogs, viewMoreLink = "/blog", id, priorityStartIndex = -1 }: BlogSectionProps) {
     if (blogs.length === 0) return null;
 
     return (
@@ -25,8 +26,12 @@ export function BlogSection({ title, subtitle, blogs, viewMoreLink = "/blog", id
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {blogs.map((blog) => (
-                        <BlogCard key={blog.id} blog={blog} />
+                    {blogs.map((blog, index) => (
+                        <BlogCard
+                            key={blog.id}
+                            blog={blog}
+                            priority={index < priorityStartIndex}
+                        />
                     ))}
                 </div>
 

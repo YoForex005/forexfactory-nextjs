@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DownloadCard } from "@/components/downloads/DownloadCard";
-import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateCollectionPageSchema } from "@/lib/seo";
+import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateSoftwareApplicationSchema } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Forex Robots & Expert Advisors Marketplace",
@@ -55,11 +55,14 @@ async function getDownloadsData() {
 export default async function DownloadsPage() {
   const { latestSignals, topRatedSignals, premiumSignals, stats } = await getDownloadsData();
 
-  const jsonLd = generateCollectionPageSchema({
-    title: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
+  const jsonLd = generateSoftwareApplicationSchema({
+    name: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
     description: "Download 500+ free Forex Expert Advisors, MT4/MT5 indicators, and trading robots.",
-    url: `${SITE_URL}/downloads`,
-    items: latestSignals
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Windows",
+    softwareVersion: "1.0",
+    downloadUrl: `${SITE_URL}/downloads`,
+    datePublished: new Date().toISOString(),
   });
 
   return (

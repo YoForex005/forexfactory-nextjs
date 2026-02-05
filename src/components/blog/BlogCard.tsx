@@ -5,6 +5,7 @@ import Image from "next/image";
 
 interface BlogCardProps {
   blog: any;
+  priority?: boolean;
 }
 
 function getSafeImageUrl(image?: string | null): string | null {
@@ -40,7 +41,7 @@ function getSafeImageUrl(image?: string | null): string | null {
   return null;
 }
 
-export function BlogCard({ blog }: BlogCardProps) {
+export function BlogCard({ blog, priority }: BlogCardProps) {
   // Ensure we have a valid slug - fallback to id if seoSlug is missing
   const slug = blog.seoSlug || blog.id.toString();
   const articleUrl = `/blog/${slug}`;
@@ -59,8 +60,8 @@ export function BlogCard({ blog }: BlogCardProps) {
             src={imageUrl}
             alt={blog.title}
             fill
-            unoptimized
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            priority={priority}
+            className="object-contain transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (

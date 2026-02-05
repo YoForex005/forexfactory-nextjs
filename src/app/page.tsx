@@ -223,21 +223,21 @@ export default async function Home() {
         <section className="py-20 bg-surface-50">
           <div className="container mx-auto px-4">
             <div className="grid gap-8 md:grid-cols-3">
-              <div className="glass-panel p-8 relative overflow-hidden group">
+              <div className="glass-panel p-8 relative overflow-hidden group flex flex-col items-center text-center md:items-start md:text-left">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <Download className="h-10 w-10 text-brand mb-6" />
                 <h3 className="text-xl font-bold text-white mb-3">Free Downloads</h3>
                 <p className="text-zinc-400">Access a massive library of EAs and indicators for MetaTrader 4 and 5 platforms.</p>
               </div>
 
-              <div className="glass-panel p-8 relative overflow-hidden group">
+              <div className="glass-panel p-8 relative overflow-hidden group flex flex-col items-center text-center md:items-start md:text-left">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <BarChart2 className="h-10 w-10 text-purple-400 mb-6" />
                 <h3 className="text-xl font-bold text-white mb-3">Live Signals</h3>
                 <p className="text-zinc-400">Follow high-performance trading signals with verified Myfxbook track records.</p>
               </div>
 
-              <div className="glass-panel p-8 relative overflow-hidden group">
+              <div className="glass-panel p-8 relative overflow-hidden group flex flex-col items-center text-center md:items-start md:text-left">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <BookOpen className="h-10 w-10 text-emerald-400 mb-6" />
                 <h3 className="text-xl font-bold text-white mb-3">Education</h3>
@@ -253,12 +253,14 @@ export default async function Home() {
             title="Popular Forex Articles"
             subtitle="Most read insights and strategies"
             blogs={popularBlogs}
+            priorityStartIndex={3}
           />
 
           <BlogSection
             title="Latest Market Updates"
             subtitle="Stay ahead with fresh market news"
             blogs={latestBlogs}
+            priorityStartIndex={3}
           />
 
           <BlogSection

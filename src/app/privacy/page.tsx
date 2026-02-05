@@ -50,19 +50,21 @@ export default function PrivacyPolicyPage() {
                 {/* Hero Section */}
                 <section className="relative overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
                     <div className="container mx-auto px-4">
-                        <div className="max-w-3xl">
+                        <div className="flex flex-col items-center text-center">
                             <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
                                 <Shield className="h-8 w-8 text-brand" />
                             </div>
-                            <h1 className="mb-6 text-5xl font-bold leading-tight text-white">
-                                Privacy Policy
-                            </h1>
-                            <p className="text-xl text-zinc-300">
-                                Your privacy is important to us. This policy explains how we collect, use, and protect your information.
-                            </p>
-                            <p className="mt-4 text-sm text-zinc-400">
-                                Last updated: {lastUpdated}
-                            </p>
+                            <div className="max-w-3xl">
+                                <h1 className="mb-6 text-5xl font-bold leading-tight text-white">
+                                    Privacy Policy
+                                </h1>
+                                <p className="text-xl text-zinc-300">
+                                    Your privacy is important to us. This policy explains how we collect, use, and protect your information.
+                                </p>
+                                <p className="mt-4 text-sm text-zinc-400">
+                                    Last updated: {lastUpdated}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -73,43 +75,43 @@ export default function PrivacyPolicyPage() {
                         <div className="mx-auto max-w-4xl space-y-12">
 
                             {/* Information Collection */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
                                     <Database className="h-6 w-6 text-brand" />
                                 </div>
                                 <h2 className="mb-4 text-2xl font-bold text-white">Information We Collect</h2>
                                 <div className="space-y-4 text-zinc-300">
                                     <p>We collect information you provide directly to us, including:</p>
-                                    <ul className="ml-6 list-disc space-y-2 text-zinc-400">
-                                        <li><strong className="text-zinc-300">Account Information:</strong> When you register, we collect your name, email address, and password.</li>
-                                        <li><strong className="text-zinc-300">Contact Information:</strong> When you contact us, we collect your name, email, and message content.</li>
-                                        <li><strong className="text-zinc-300">Usage Data:</strong> Information about how you interact with our services, including downloads and pages visited.</li>
-                                        <li><strong className="text-zinc-300">Device Information:</strong> Browser type, operating system, and IP address for analytics purposes.</li>
+                                    <ul className="ml-6 flex flex-col items-center space-y-2 text-zinc-400">
+                                        <li className="list-inside"><strong className="text-zinc-300">Account Information:</strong> When you register, we collect your name, email address, and password.</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Contact Information:</strong> When you contact us, we collect your name, email, and message content.</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Usage Data:</strong> Information about how you interact with our services, including downloads and pages visited.</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Device Information:</strong> Browser type, operating system, and IP address for analytics purposes.</li>
                                     </ul>
                                 </div>
                             </div>
 
                             {/* Use of Information */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10">
                                     <Eye className="h-6 w-6 text-emerald-400" />
                                 </div>
                                 <h2 className="mb-4 text-2xl font-bold text-white">How We Use Your Information</h2>
                                 <div className="space-y-4 text-zinc-300">
                                     <p>We use the information we collect to:</p>
-                                    <ul className="ml-6 list-disc space-y-2 text-zinc-400">
-                                        <li>Provide, maintain, and improve our services</li>
-                                        <li>Send you technical notices, updates, and support messages</li>
-                                        <li>Respond to your comments, questions, and requests</li>
-                                        <li>Monitor and analyze trends, usage, and activities</li>
-                                        <li>Detect, investigate, and prevent fraudulent transactions and abuse</li>
-                                        <li>Personalize your experience and provide tailored content</li>
+                                    <ul className="ml-6 flex flex-col items-center space-y-2 text-zinc-400">
+                                        <li className="list-inside">Provide, maintain, and improve our services</li>
+                                        <li className="list-inside">Send you technical notices, updates, and support messages</li>
+                                        <li className="list-inside">Respond to your comments, questions, and requests</li>
+                                        <li className="list-inside">Monitor and analyze trends, usage, and activities</li>
+                                        <li className="list-inside">Detect, investigate, and prevent fraudulent transactions and abuse</li>
+                                        <li className="list-inside">Personalize your experience and provide tailored content</li>
                                     </ul>
                                 </div>
                             </div>
 
                             {/* Cookies */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
                                     <Lock className="h-6 w-6 text-purple-400" />
                                 </div>
@@ -122,10 +124,10 @@ export default function PrivacyPolicyPage() {
                                     <p className="text-zinc-400">
                                         <strong className="text-zinc-300">Types of cookies we use:</strong>
                                     </p>
-                                    <ul className="ml-6 list-disc space-y-2 text-zinc-400">
-                                        <li><strong className="text-zinc-300">Essential Cookies:</strong> Required for the website to function properly</li>
-                                        <li><strong className="text-zinc-300">Analytics Cookies:</strong> Help us understand how visitors use our site</li>
-                                        <li><strong className="text-zinc-300">Preference Cookies:</strong> Remember your settings and preferences</li>
+                                    <ul className="ml-6 flex flex-col items-center space-y-2 text-zinc-400">
+                                        <li className="list-inside"><strong className="text-zinc-300">Essential Cookies:</strong> Required for the website to function properly</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Analytics Cookies:</strong> Help us understand how visitors use our site</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Preference Cookies:</strong> Remember your settings and preferences</li>
                                     </ul>
                                     <p className="text-zinc-400">
                                         You can control cookies through your browser settings. Note that disabling cookies may affect site functionality.
@@ -134,7 +136,7 @@ export default function PrivacyPolicyPage() {
                             </div>
 
                             {/* Third-Party Services */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
                                     <Users className="h-6 w-6 text-blue-400" />
                                 </div>
@@ -143,10 +145,10 @@ export default function PrivacyPolicyPage() {
                                     <p>
                                         We may share your information with third-party service providers that help us operate our website and deliver services:
                                     </p>
-                                    <ul className="ml-6 list-disc space-y-2 text-zinc-400">
-                                        <li><strong className="text-zinc-300">Analytics Providers:</strong> To understand site usage and improve our services</li>
-                                        <li><strong className="text-zinc-300">Hosting Providers:</strong> To store and serve our website content</li>
-                                        <li><strong className="text-zinc-300">Email Services:</strong> To send newsletters and notifications if you opt in</li>
+                                    <ul className="ml-6 flex flex-col items-center space-y-2 text-zinc-400">
+                                        <li className="list-inside"><strong className="text-zinc-300">Analytics Providers:</strong> To understand site usage and improve our services</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Hosting Providers:</strong> To store and serve our website content</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Email Services:</strong> To send newsletters and notifications if you opt in</li>
                                     </ul>
                                     <p className="text-zinc-400">
                                         We do not sell your personal information to third parties.
@@ -155,7 +157,7 @@ export default function PrivacyPolicyPage() {
                             </div>
 
                             {/* Data Security */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10">
                                     <Shield className="h-6 w-6 text-yellow-400" />
                                 </div>
@@ -164,29 +166,29 @@ export default function PrivacyPolicyPage() {
                                     <p>
                                         We implement appropriate technical and organizational measures to protect your personal information, including:
                                     </p>
-                                    <ul className="ml-6 list-disc space-y-2 text-zinc-400">
-                                        <li>SSL/TLS encryption for data in transit</li>
-                                        <li>Encrypted storage for sensitive data</li>
-                                        <li>Regular security audits and updates</li>
-                                        <li>Access controls and authentication measures</li>
+                                    <ul className="ml-6 flex flex-col items-center space-y-2 text-zinc-400">
+                                        <li className="list-inside">SSL/TLS encryption for data in transit</li>
+                                        <li className="list-inside">Encrypted storage for sensitive data</li>
+                                        <li className="list-inside">Regular security audits and updates</li>
+                                        <li className="list-inside">Access controls and authentication measures</li>
                                     </ul>
                                 </div>
                             </div>
 
                             {/* Your Rights */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10">
                                     <Users className="h-6 w-6 text-red-400" />
                                 </div>
                                 <h2 className="mb-4 text-2xl font-bold text-white">Your Rights</h2>
                                 <div className="space-y-4 text-zinc-300">
                                     <p>You have the following rights regarding your personal data:</p>
-                                    <ul className="ml-6 list-disc space-y-2 text-zinc-400">
-                                        <li><strong className="text-zinc-300">Access:</strong> Request a copy of your personal data</li>
-                                        <li><strong className="text-zinc-300">Correction:</strong> Request correction of inaccurate data</li>
-                                        <li><strong className="text-zinc-300">Deletion:</strong> Request deletion of your data</li>
-                                        <li><strong className="text-zinc-300">Portability:</strong> Request a machine-readable copy of your data</li>
-                                        <li><strong className="text-zinc-300">Objection:</strong> Object to processing of your data</li>
+                                    <ul className="ml-6 flex flex-col items-center space-y-2 text-zinc-400">
+                                        <li className="list-inside"><strong className="text-zinc-300">Access:</strong> Request a copy of your personal data</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Correction:</strong> Request correction of inaccurate data</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Deletion:</strong> Request deletion of your data</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Portability:</strong> Request a machine-readable copy of your data</li>
+                                        <li className="list-inside"><strong className="text-zinc-300">Objection:</strong> Object to processing of your data</li>
                                     </ul>
                                     <p className="text-zinc-400">
                                         To exercise these rights, please contact us at the email address below.
@@ -195,7 +197,7 @@ export default function PrivacyPolicyPage() {
                             </div>
 
                             {/* Contact */}
-                            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+                            <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
                                     <Mail className="h-6 w-6 text-brand" />
                                 </div>

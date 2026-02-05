@@ -4,8 +4,8 @@ import { SITE_NAME } from "@/lib/seo";
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-surface-50 py-12">
-      <div className="container mx-auto px-4 grid gap-8 md:grid-cols-4">
-        <div>
+      <div className="container mx-auto px-4 grid gap-8 grid-cols-3 md:grid-cols-4">
+        <div className="col-span-3 md:col-span-1 text-center md:text-left">
           <div className="font-bold text-xl text-white mb-4">
             <span className="text-brand">Forex</span>Factory
           </div>
@@ -13,8 +13,8 @@ export function Footer() {
             Premium trading tools and educational resources for the modern algorithmic trader.
           </p>
         </div>
-        
-        <div>
+
+        <div className="text-center md:text-left">
           <h3 className="font-semibold text-white mb-4">Platform</h3>
           <ul className="space-y-2 text-sm text-zinc-400">
             <li><Link href="/downloads" className="hover:text-brand">Expert Advisors</Link></li>
@@ -23,7 +23,7 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="text-center md:text-left">
           <h3 className="font-semibold text-white mb-4">Support</h3>
           <ul className="space-y-2 text-sm text-zinc-400">
             <li><Link href="/contact" className="hover:text-brand">Contact Us</Link></li>
@@ -31,7 +31,7 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="text-center md:text-left">
           <h3 className="font-semibold text-white mb-4">Legal</h3>
           <ul className="space-y-2 text-sm text-zinc-400">
             <li><Link href="/privacy" className="hover:text-brand">Privacy Policy</Link></li>
