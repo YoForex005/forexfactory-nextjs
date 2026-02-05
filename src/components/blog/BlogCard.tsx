@@ -62,7 +62,7 @@ export function BlogCard({ blog, priority }: BlogCardProps) {
             fill
             priority={priority}
             className="object-contain transition-transform duration-500"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 95vw, (max-width: 1024px) 45vw, 30vw"
           />
         ) : (
           <div className="flex h-full items-center justify-center">

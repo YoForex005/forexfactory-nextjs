@@ -253,14 +253,13 @@ export default async function Home() {
             title="Popular Forex Articles"
             subtitle="Most read insights and strategies"
             blogs={popularBlogs}
-            priorityStartIndex={3}
+            priorityStartIndex={2}
           />
 
           <BlogSection
             title="Latest Market Updates"
             subtitle="Stay ahead with fresh market news"
             blogs={latestBlogs}
-            priorityStartIndex={3}
           />
 
           <BlogSection
