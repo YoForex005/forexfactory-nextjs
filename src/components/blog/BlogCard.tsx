@@ -50,7 +50,7 @@ export function BlogCard({ blog, priority }: BlogCardProps) {
   return (
     <Link
       href={articleUrl}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all hover:border-brand/50 hover:bg-white/10 hover:shadow-2xl hover:shadow-brand/10"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] hover:border-brand/50 hover:bg-white/10 hover:shadow-2xl hover:shadow-brand/20"
     >
       <div className="aspect-video relative w-full overflow-hidden bg-gradient-to-br from-brand/20 to-purple-500/20">
         {imageUrl ? (
@@ -61,7 +61,7 @@ export function BlogCard({ blog, priority }: BlogCardProps) {
             alt={blog.title}
             fill
             priority={priority}
-            className="object-contain transition-transform duration-500"
+            className="object-contain transition-transform duration-700 group-hover:scale-110"
             sizes="(max-width: 640px) 95vw, (max-width: 1024px) 45vw, 30vw"
           />
         ) : (

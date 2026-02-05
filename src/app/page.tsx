@@ -209,10 +209,10 @@ export default async function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/downloads" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand px-8 py-4 text-base font-semibold text-white hover:bg-brand-dark transition-all">
+              <Link href="/downloads" className="w-56 sm:w-auto inline-flex items-center justify-center rounded-full bg-brand px-8 py-4 text-base font-semibold text-white hover:bg-brand-dark transition-all">
                 Browse Robots <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <Link href="/blog" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition-all">
+              <Link href="/blog" className="w-56 sm:w-auto inline-flex items-center justify-center rounded-full border border-brand/30 bg-brand/5 px-8 py-4 text-base font-semibold text-white hover:bg-brand hover:text-white transition-all shadow-lg shadow-brand/10">
                 Read Guides
               </Link>
             </div>

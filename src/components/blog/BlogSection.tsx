@@ -38,7 +38,7 @@ export function BlogSection({ title, subtitle, blogs, viewMoreLink = "/blog", id
                 <div className="mt-12 flex justify-center">
                     <Link
                         href={viewMoreLink}
-                        className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
+                        className="group flex items-center gap-2 rounded-full border border-brand/30 bg-brand/5 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-brand hover:text-white hover:shadow-lg hover:shadow-brand/20"
                     >
                         View More
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

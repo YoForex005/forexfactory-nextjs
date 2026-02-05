@@ -176,7 +176,7 @@ export function Navbar() {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-surface-50 border-r border-white/10 transform transition-transform duration-300 ease-in-out md:hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 z-50 h-[100dvh] w-72 bg-surface-50 border-r border-white/10 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
@@ -193,7 +193,7 @@ export function Navbar() {
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="flex flex-col p-4 space-y-1">
+        <nav className="flex-1 flex flex-col p-4 space-y-1 overflow-y-auto">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -214,12 +214,12 @@ export function Navbar() {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
+        <div className="flex-none p-4 pb-10 border-t border-white/10 space-y-3">
           {isAuthenticated ? (
             <>
               <Link
                 href="/dashboard"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
               >
                 Dashboard
               </Link>
@@ -229,7 +229,7 @@ export function Navbar() {
               </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
               >
                 <LogOut className="h-4 w-4" />
                 Log out
@@ -239,13 +239,13 @@ export function Navbar() {
             <>
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
               >
                 Sign Up
                 <ArrowRight className="h-4 w-4" />

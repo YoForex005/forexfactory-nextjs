@@ -30,10 +30,10 @@ export function DownloadCard({ signal }: DownloadCardProps) {
   return (
     <Link
       href={`/downloads/${signal.uuid}`}
-      className="group flex flex-col rounded-2xl border border-white/10 bg-white/5 p-6 transition-all hover:border-brand/50 hover:bg-white/10 hover:shadow-xl hover:shadow-brand/5"
+      className="group flex flex-col rounded-2xl border border-white/10 bg-white/5 p-6 transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:border-brand/50 hover:bg-white/10 hover:shadow-2xl hover:shadow-brand/20"
     >
       <div className="mb-4 flex items-start justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-brand group-hover:bg-brand group-hover:text-white transition-colors">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-brand group-hover:bg-brand group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300">
           <FileCode className="h-6 w-6" />
         </div>
         <div className="rounded-full bg-surface-50 px-3 py-1 text-xs font-medium text-zinc-400 border border-white/5">

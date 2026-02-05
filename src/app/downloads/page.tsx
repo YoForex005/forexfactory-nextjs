@@ -125,7 +125,7 @@ export default async function DownloadsPage() {
             </div>
             <Link
               href="/downloads?filter=premium"
-              className="inline-flex items-center rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white hover:border-brand hover:text-brand"
+              className="inline-flex items-center rounded-full border border-brand/30 bg-brand/5 px-6 py-2 text-sm font-semibold text-white transition-all hover:bg-brand hover:text-white hover:shadow-lg hover:shadow-brand/20"
             >
               View Premium Library →
             </Link>
