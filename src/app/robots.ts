@@ -1,12 +1,7 @@
 import { MetadataRoute } from 'next';
-import { headers } from 'next/headers';
-import { SITE_URL } from '@/lib/seo';
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'forexfactory.cc';
-    const protocol = headersList.get('x-forwarded-proto') || 'http';
-    const baseUrl = `${protocol}://${host}`;
+export default function robots(): MetadataRoute.Robots {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://forexfactory.cc';
 
     return {
         rules: [
@@ -20,16 +15,18 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
                     'CCBot',
                     'PerplexityBot',
                     'Bytespider',
+                    'Googlebot',
+                    'Bingbot',
                 ],
-                disallow: '/',
+                allow: '/',
+                disallow: ['/api/', '/admin/'],
             },
             {
                 userAgent: '*',
                 allow: '/',
-                disallow: ['/api/', '/admin/', '/private/'],
+                disallow: ['/api/', '/admin/'],
             },
         ],
         sitemap: `${baseUrl}/sitemap.xml`,
-        host: baseUrl,
     };
 }
