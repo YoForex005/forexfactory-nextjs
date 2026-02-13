@@ -1,12 +1,9 @@
 import { MetadataRoute } from 'next';
-
 import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/seo';
 
-export const revalidate = 3600; // Cache for 1 hour to prevent timeouts
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://forexfactory.cc';
+    const baseUrl = SITE_URL;
 
     // Static routes
     const routes = [
