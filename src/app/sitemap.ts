@@ -1,13 +1,10 @@
 import { MetadataRoute } from 'next';
-import { headers } from 'next/headers';
+
 import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/seo';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'forexfactory.cc';
-    const protocol = headersList.get('x-forwarded-proto') || 'http';
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://forexfactory.cc';
 
     // Static routes
     const routes = [
