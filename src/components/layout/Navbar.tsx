@@ -106,7 +106,7 @@ export function Navbar() {
               className="rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
               title="Search"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-5 w-5" suppressHydrationWarning />
             </button>
 
             {/* Auth Buttons - Desktop */}
@@ -153,7 +153,7 @@ export function Navbar() {
           <div className="border-t border-white/10 bg-surface-50">
             <div className="container mx-auto px-4 py-4">
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" suppressHydrationWarning />
                 <input
                   type="text"
                   value={searchQuery}

@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -67,7 +68,8 @@ export default async function DownloadsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
-      <script
+      <Script
+        id="json-ld-software-application"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

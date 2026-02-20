@@ -1,9 +1,11 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
+import Script from "next/script";
 import { ArrowRight, Download, BarChart2, BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { BlogSection } from "@/components/blog/BlogSection";
+import { AdBanner } from "@/components/layout/AdBanner";
 
 // Cache this page for 3 minutes (180 seconds) with static generation
 export const revalidate = 180;
@@ -184,11 +186,8 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite, jsonLdWebPage]) }}
-      />
       <Navbar />
+      <AdBanner />
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -355,6 +354,12 @@ export default async function Home() {
       </main>
 
       <Footer />
+
+      <Script
+        id="json-ld-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite, jsonLdWebPage]) }}
+      />
     </div>
   );
 }

@@ -23,6 +23,7 @@ model Admin {
   @@map("admins")
 }
 
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model Blog {
   id            BigInt         @id @default(autoincrement())
   title         String         @db.VarChar(255)
@@ -36,12 +37,12 @@ model Blog {
   tags          String         @db.VarChar(255)
   categoryId    BigInt         @map("category_id")
   downloadLink  String?        @map("download_link") @db.VarChar(255)
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at")
   categories    BlogCategory[]
   comments      Comment[]
   seoMeta       SeoMeta[]
   savedBy       SavedArticle[]
   recentViews   RecentBlog[]
-  updatedAt     DateTime   @default(now()) @updatedAt @map("updated_at")
 
   @@map("blogs")
 }
