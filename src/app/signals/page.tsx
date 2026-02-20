@@ -6,6 +6,8 @@ import { Metadata } from "next";
 import { Signal } from "@prisma/client";
 import { SignalCard } from "@/components/signals/SignalCard";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Free Forex Signals & Trading Alerts",
   description: "Real-time forex trading signals with entry, stop-loss, and take-profit levels. Expert analysis for EUR/USD, GBP/USD, and major currency pairs.",

@@ -7,6 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 import { DownloadCard } from "@/components/downloads/DownloadCard";
 import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateSoftwareApplicationSchema } from "@/lib/seo";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Forex Robots & Expert Advisors Marketplace",
   description:

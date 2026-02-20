@@ -36,8 +36,9 @@ export const metadata: Metadata = {
   },
 };
 
-// Enable static generation with revalidation
-export const revalidate = 60; // Revalidate every 60 seconds
+// Enable dynamic rendering to avoid build-time DB connection
+export const dynamic = 'force-dynamic';
+// export const revalidate = 60; // Revalidate every 60 seconds
 
 const BLOGS_PER_PAGE = 12; // Show 12 blogs per page
 

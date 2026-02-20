@@ -11,7 +11,7 @@ import { AdBanner } from "@/components/layout/AdBanner";
 export const revalidate = 180;
 
 // Generate static page at build time
-export const dynamic = 'force-static';
+// export const dynamic = 'force-static';
 
 
 import { Metadata } from 'next';
