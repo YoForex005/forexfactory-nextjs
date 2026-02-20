@@ -6,6 +6,8 @@ import { SITE_NAME, DEFAULT_OG_IMAGE, generateAboutPageSchema, SITE_URL } from "
 import { StatsSection } from "@/components/about/StatsSection";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "About Us - Trusted Forex Expert Advisors & Trading Tools",
   description: "Learn about Forex Factory - your trusted source for free Expert Advisors, trading signals, and Forex education. Join 50,000+ traders worldwide.",
