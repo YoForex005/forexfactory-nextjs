@@ -80,7 +80,7 @@ export function Navbar() {
             className="md:hidden rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Open menu"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5" suppressHydrationWarning />
           </button>
 
           <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white">
@@ -119,14 +119,14 @@ export function Navbar() {
                   Dashboard
                 </Link>
                 <div className="flex items-center gap-2 text-sm text-zinc-300">
-                  <User className="h-4 w-4" />
+                  <User className="h-4 w-4" suppressHydrationWarning />
                   <span className="max-w-[100px] truncate">{userName?.split(" ")[0] || "User"}</span>
                 </div>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-1 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4" suppressHydrationWarning />
                 </button>
               </div>
             ) : (
@@ -188,7 +188,7 @@ export function Navbar() {
             className="rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Close menu"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" suppressHydrationWarning />
           </button>
         </div>
 
@@ -206,7 +206,7 @@ export function Navbar() {
                   : "text-zinc-400 hover:bg-white/5 hover:text-white"
                   }`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" suppressHydrationWarning />
                 {link.label}
               </Link>
             );
@@ -224,14 +224,14 @@ export function Navbar() {
                 Dashboard
               </Link>
               <div className="flex items-center gap-2 px-2 py-2 text-sm text-zinc-300">
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4" suppressHydrationWarning />
                 <span className="truncate">{userName || "User"}</span>
               </div>
               <button
                 onClick={handleLogout}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4" suppressHydrationWarning />
                 Log out
               </button>
             </>
@@ -248,7 +248,7 @@ export function Navbar() {
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
               >
                 Sign Up
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" suppressHydrationWarning />
               </Link>
             </>
           )}

@@ -8,10 +8,10 @@ import { BlogSection } from "@/components/blog/BlogSection";
 import { AdBanner } from "@/components/layout/AdBanner";
 
 // Cache this page for 3 minutes (180 seconds) with static generation
-export const revalidate = 180;
+// export const revalidate = 180;
 
 // Generate static page at build time
-// export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 
 import { Metadata } from 'next';
