@@ -36,23 +36,37 @@ export const metadata: Metadata = {
 };
 
 async function getDownloadsData() {
-  const latestSignals = await prisma.signal.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 9,
-  });
+  try {
+    const latestSignals = await prisma.signal.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 9,
+    });
 
-  const totalSignals = await prisma.signal.count();
+    const totalSignals = await prisma.signal.count();
 
-  return {
-    latestSignals,
-    topRatedSignals: [],
-    premiumSignals: [],
-    stats: {
-      totalSignals,
-      avgWinRate: 0,
-      totalDownloads: 0,
-    },
-  };
+    return {
+      latestSignals,
+      topRatedSignals: [],
+      premiumSignals: [],
+      stats: {
+        totalSignals,
+        avgWinRate: 0,
+        totalDownloads: 0,
+      },
+    };
+  } catch (error) {
+    console.error("Failed to fetch downloads data:", error);
+    return {
+      latestSignals: [],
+      topRatedSignals: [],
+      premiumSignals: [],
+      stats: {
+        totalSignals: 0,
+        avgWinRate: 0,
+        totalDownloads: 0,
+      },
+    };
+  }
 }
 
 export default async function DownloadsPage() {

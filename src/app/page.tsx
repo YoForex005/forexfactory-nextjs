@@ -85,59 +85,69 @@ type BlogPreview = {
 export default async function Home() {
   // Optimized: Fetch blogs in parallel with specific queries for each section
   // This reduces database load and improves performance significantly
-  const [latestBlogs, popularBlogs, allCategoryBlogs] = await Promise.all([
-    // Latest 3 blogs
-    prisma.blog.findMany({
-      where: { status: "published" },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        seoSlug: true,
-        status: true,
-        views: true,
-        createdAt: true,
-        featuredImage: true,
-        tags: true,
-        author: true,
-      },
-    }),
-    // Top 3 popular blogs
-    prisma.blog.findMany({
-      where: { status: "published" },
-      orderBy: { views: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        seoSlug: true,
-        status: true,
-        views: true,
-        createdAt: true,
-        featuredImage: true,
-        tags: true,
-        author: true,
-      },
-    }),
-    // Get 50 blogs for category filtering (reduced from 30 for better category coverage)
-    prisma.blog.findMany({
-      where: { status: "published" },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-      select: {
-        id: true,
-        title: true,
-        seoSlug: true,
-        status: true,
-        views: true,
-        createdAt: true,
-        featuredImage: true,
-        tags: true,
-        author: true,
-      },
-    }),
-  ]);
+  let latestBlogs: any[] = [];
+  let popularBlogs: any[] = [];
+  let allCategoryBlogs: BlogPreview[] = [];
+
+  try {
+    // Optimized: Fetch blogs in parallel with specific queries for each section
+    // This reduces database load and improves performance significantly
+    [latestBlogs, popularBlogs, allCategoryBlogs] = await Promise.all([
+      // Latest 3 blogs
+      prisma.blog.findMany({
+        where: { status: "published" },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: {
+          id: true,
+          title: true,
+          seoSlug: true,
+          status: true,
+          views: true,
+          createdAt: true,
+          featuredImage: true,
+          tags: true,
+          author: true,
+        },
+      }),
+      // Top 3 popular blogs
+      prisma.blog.findMany({
+        where: { status: "published" },
+        orderBy: { views: "desc" },
+        take: 3,
+        select: {
+          id: true,
+          title: true,
+          seoSlug: true,
+          status: true,
+          views: true,
+          createdAt: true,
+          featuredImage: true,
+          tags: true,
+          author: true,
+        },
+      }),
+      // Get 50 blogs for category filtering (reduced from 30 for better category coverage)
+      prisma.blog.findMany({
+        where: { status: "published" },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+        select: {
+          id: true,
+          title: true,
+          seoSlug: true,
+          status: true,
+          views: true,
+          createdAt: true,
+          featuredImage: true,
+          tags: true,
+          author: true,
+        },
+      }),
+    ]);
+  } catch (error) {
+    console.error("Failed to fetch home page data:", error);
+  }
 
   // Optimized helper function with memoization
   function filterByKeywords(blogs: BlogPreview[], keywords: string[], limit = 3): BlogPreview[] {
