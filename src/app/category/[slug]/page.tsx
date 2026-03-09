@@ -74,11 +74,22 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     .map((bc: any) => bc.blog)
     .filter((blog: any) => blog.status === "published");
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": category.name,
+    "description": category.description || `Browse ${category.name} articles and tutorials on Forex Factory`,
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
 
       <main className="flex-1 bg-surface-100">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {/* Header */}
         <section className="border-b border-white/10 bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
           <div className="container mx-auto px-4">

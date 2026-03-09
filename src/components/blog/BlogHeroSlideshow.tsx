@@ -6,7 +6,7 @@ import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react"
+import { ChevronLeft, ChevronRight, ImageOff as PlaceholderIcon } from "lucide-react"
 
 interface BlogHeroSlideshowProps {
     images: string[]
@@ -20,7 +20,7 @@ function SafeImage({ src, title, priorities, className }: { src: string, title: 
         return (
             <div className={cn("flex items-center justify-center w-full h-full bg-zinc-900 border border-white/5", className)}>
                 <div className="flex flex-col items-center gap-2 text-zinc-600">
-                    <ImageOff className="w-8 h-8" />
+                    <PlaceholderIcon className="w-8 h-8" />
                     <span className="text-xs">Image unavailable</span>
                 </div>
             </div>
