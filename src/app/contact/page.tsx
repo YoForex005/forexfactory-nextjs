@@ -70,7 +70,7 @@ export default function ContactPage() {
         </section>
 
         {/* Contact Form & Info */}
-        <section className="py-20">
+        <section id="contact-form" className="py-20">
           <div className="container mx-auto px-4">
             <div className="grid gap-12 lg:grid-cols-2">
               {/* Contact Form */}
@@ -187,8 +187,8 @@ export default function ContactPage() {
                   <p className="mb-4 text-zinc-400">
                     For general inquiries and support
                   </p>
-                  <a href="mailto:support@forexfactory.cc" className="text-brand hover:underline">
-                    support@forexfactory.cc
+                  <a href="#contact-form" className="text-brand hover:underline">
+                    support@yoforex.net
                   </a>
                 </div>
 
