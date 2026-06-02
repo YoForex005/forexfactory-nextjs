@@ -1,11 +1,20 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import Script from "next/script";
+import type { Signal } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DownloadCard } from "@/components/downloads/DownloadCard";
-import { SITE_NAME, SITE_TAGLINE, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateSoftwareApplicationSchema } from "@/lib/seo";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+  generateCanonicalUrl,
+  sanitizeText,
+} from "@/lib/seo";
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +35,7 @@ export const metadata: Metadata = {
       "Browse premium and free MT4/MT5 robots with backtested performance, download stats, and trader reviews.",
     type: "website",
     url: generateCanonicalUrl("/downloads"),
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
@@ -35,8 +45,8 @@ export const metadata: Metadata = {
   },
 };
 
-async function getDownloadsData() {
-  try {
+const getDownloadsData = unstable_cache(
+  async () => {
     const latestSignals = await prisma.signal.findMany({
       orderBy: { createdAt: "desc" },
       take: 9,
@@ -54,33 +64,43 @@ async function getDownloadsData() {
         totalDownloads: 0,
       },
     };
-  } catch (error) {
-    console.error("Failed to fetch downloads data:", error);
-    return {
-      latestSignals: [],
-      topRatedSignals: [],
-      premiumSignals: [],
-      stats: {
-        totalSignals: 0,
-        avgWinRate: 0,
-        totalDownloads: 0,
-      },
-    };
-  }
-}
+  },
+  ["downloads-page-data"],
+  { revalidate: 300 }
+);
 
 export default async function DownloadsPage() {
-  const { latestSignals, topRatedSignals, premiumSignals, stats } = await getDownloadsData();
+  let latestSignals: Signal[] = [];
+  let stats = {
+    totalSignals: 0,
+    avgWinRate: 0,
+    totalDownloads: 0,
+  };
 
-  const jsonLd = generateSoftwareApplicationSchema({
+  try {
+    ({ latestSignals, stats } = await getDownloadsData());
+  } catch (error) {
+    console.error("Failed to fetch downloads data:", error);
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
     name: `Forex Robots & Expert Advisors Marketplace | ${SITE_NAME}`,
-    description: "Download 500+ free Forex Expert Advisors, MT4/MT5 indicators, and trading robots.",
-    applicationCategory: "BusinessApplication",
-    operatingSystem: "Windows",
-    softwareVersion: "1.0",
-    downloadUrl: `${SITE_URL}/downloads`,
-    datePublished: new Date().toISOString(),
-  });
+    description:
+      "Download 500+ free Forex Expert Advisors, MT4/MT5 indicators, and trading robots.",
+    url: `${SITE_URL}/downloads`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: latestSignals.map((signal, index: number) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${SITE_URL}/downloads/${signal.uuid}`,
+        name: signal.title,
+        description: sanitizeText(signal.description, 160),
+      })),
+    },
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
@@ -101,7 +121,7 @@ export default async function DownloadsPage() {
               Download <span className="gradient-text">{SITE_TAGLINE}</span>
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-zinc-400">
-              Access the world's largest library of <strong>free Expert Advisors</strong> and indicators. Every tool is rigorously backtested and verified for performance, giving you the data you need to automate your trading with confidence.
+              Access the world&apos;s largest library of <strong>free Expert Advisors</strong> and indicators. Every tool is rigorously backtested and verified for performance, giving you the data you need to automate your trading with confidence.
             </p>
 
             <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -150,7 +170,7 @@ export default async function DownloadsPage() {
           </div>
           {latestSignals.length > 0 ? (
             <div className="grid gap-6 lg:grid-cols-3">
-              {latestSignals.map((signal: any) => (
+              {latestSignals.map((signal) => (
                 <DownloadCard key={signal.id} signal={signal} />
               ))}
             </div>

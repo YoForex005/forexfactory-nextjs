@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
+
 export const SITE_URL = process.env.SITE_URL || "https://forexfactory.cc";
 export const SITE_NAME = "ForexFactory.cc";
 export const SITE_TAGLINE = "Forex Robots & Expert Advisors for MT4/MT5";
+export const SITE_DESCRIPTION =
+  "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+export const SITE_TWITTER_HANDLE = "@forexfactorycc";
+export const SITE_EMAIL = "support@forexfactory.cc";
 
 export interface MetaTags {
   title: string;
@@ -81,10 +87,65 @@ export interface SEOScore {
   suggestions: string[];
 }
 
+export function toAbsoluteUrl(pathOrUrl: string): string {
+  if (!pathOrUrl) return SITE_URL;
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+
+  const normalizedPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+  return `${SITE_URL}${normalizedPath}`;
+}
+
 export function generateCanonicalUrl(path: string): string {
   if (!path) return SITE_URL;
-  const cleanPath = path.replace(/\/$/, '').split('?')[0];
-  return `${SITE_URL}${cleanPath}`;
+  const cleanPath = path.replace(/\/$/, "").split("?")[0];
+  return toAbsoluteUrl(cleanPath);
+}
+
+export function sanitizeText(value: string | null | undefined, maxLength?: number): string {
+  if (!value) return "";
+
+  const sanitized = value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&#039;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!maxLength || sanitized.length <= maxLength) {
+    return sanitized;
+  }
+
+  return `${sanitized.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+}
+
+export function slugifySegment(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function mapRobotsDirective(
+  directive?: string | null
+): Metadata["robots"] | undefined {
+  switch (directive?.toLowerCase()) {
+    case "noindex, follow":
+      return { index: false, follow: true };
+    case "index, nofollow":
+      return { index: true, follow: false };
+    case "noindex, nofollow":
+      return { index: false, follow: false };
+    case "index, follow":
+      return { index: true, follow: true };
+    default:
+      return undefined;
+  }
 }
 
 export function generateMetaTags({
@@ -100,8 +161,8 @@ export function generateMetaTags({
   ogType = 'website',
   ogUrl,
   twitterCard = 'summary_large_image',
-  twitterSite = '@forexfactorycc',
-  twitterCreator = '@forexfactorycc',
+  twitterSite = SITE_TWITTER_HANDLE,
+  twitterCreator = SITE_TWITTER_HANDLE,
   twitterTitle,
   twitterDescription,
   twitterImage,
@@ -148,7 +209,7 @@ export function generateOrganizationSchema() {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer support',
-      email: 'support@forexfactory.cc',
+      email: SITE_EMAIL,
       availableLanguage: ['English']
     }
   };
@@ -598,7 +659,7 @@ export function generateAboutPageSchema() {
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer support',
-        email: 'support@forexfactory.cc',
+        email: SITE_EMAIL,
         availableLanguage: ['English']
       }
     }
@@ -618,7 +679,7 @@ export function generateContactPageSchema() {
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer support',
-        email: 'support@forexfactory.cc',
+        email: SITE_EMAIL,
         availableLanguage: ['English']
       }
     }

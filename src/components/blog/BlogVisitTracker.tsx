@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { getToken } from "@/lib/auth-client";
 
 interface BlogVisitTrackerProps {
-    blogId: bigint;
+    blogId: bigint | number | string;
 }
 
 export function BlogVisitTracker({ blogId }: BlogVisitTrackerProps) {

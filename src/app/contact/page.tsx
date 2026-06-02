@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Mail, MessageSquare, Send, CheckCircle2 } from "lucide-react";
-import { SITE_NAME, generateContactPageSchema } from "@/lib/seo";
+import { generateContactPageSchema } from "@/lib/seo";
 
 const jsonLd = generateContactPageSchema();
 
@@ -63,7 +63,7 @@ export default function ContactPage() {
                 Get in Touch
               </h1>
               <p className="text-lg md:text-xl text-zinc-300">
-                Have questions about our Expert Advisors or need support? We're here to help!
+                Have questions about our Expert Advisors or need support? We&apos;re here to help!
               </p>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function ContactPage() {
                       <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />
                       <h3 className="mb-2 text-xl font-bold text-white">Message Sent!</h3>
                       <p className="text-zinc-300">
-                        Thank you for contacting us. We'll get back to you within 24 hours.
+                        Thank you for contacting us. We&apos;ll get back to you within 24 hours.
                       </p>
                     </div>
                   ) : (

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { HelpCircle, ChevronDown, ChevronUp, Cpu, TrendingUp, Settings, HeadphonesIcon } from "lucide-react";
-import { SITE_NAME, SITE_URL, generateFAQPageSchema } from "@/lib/seo";
+import { HelpCircle, ChevronDown, ChevronUp, Cpu, TrendingUp, HeadphonesIcon } from "lucide-react";
+import { generateFAQPageSchema } from "@/lib/seo";
 import Script from "next/script";
 
 const faqCategories = [

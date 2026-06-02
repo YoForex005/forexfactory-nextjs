@@ -1,25 +1,121 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { unstable_cache } from "next/cache";
 import { Navbar } from "@/components/layout/Navbar";
-import { BlogCard } from "@/components/blog/BlogCard";
 import { prisma } from "@/lib/prisma";
-import { SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { BlogCard } from "@/components/blog/BlogCard";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+  sanitizeText,
+} from "@/lib/seo";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
+type CategoryBlog = {
+  id: string;
+  title: string;
+  seoSlug: string;
+  content: string;
+  featuredImage: string;
+  createdAt: string;
+  views: number | null;
+  author: string;
+  status: "published" | "draft" | "scheduled";
+};
+
+function serializeCategoryBlog(blog: {
+  id: bigint;
+  title: string;
+  seoSlug: string;
+  content: string;
+  featuredImage: string;
+  createdAt: Date;
+  views: bigint | null;
+  author: string;
+  status: "published" | "draft" | "scheduled";
+}): CategoryBlog {
+  return {
+    title: blog.title,
+    seoSlug: blog.seoSlug,
+    content: blog.content,
+    featuredImage: blog.featuredImage,
+    author: blog.author,
+    status: blog.status,
+    id: blog.id.toString(),
+    createdAt: blog.createdAt.toISOString(),
+    views: blog.views === null ? null : Number(blog.views),
+  };
+}
+
+const getCategoryPageData = unstable_cache(
+  async (slug: string) => {
+    const category = await prisma.category.findFirst({
+      where: {
+        name: {
+          equals: decodeURIComponent(slug).replace(/-/g, " "),
+        },
+      },
+    });
+
+    if (!category) {
+      return {
+        category: null,
+        blogs: [],
+      };
+    }
+
+    const blogCategories = await prisma.blogCategory.findMany({
+      where: { categoryId: category.categoryId },
+      select: {
+        blog: {
+          select: {
+            id: true,
+            title: true,
+            seoSlug: true,
+            content: true,
+            featuredImage: true,
+            createdAt: true,
+            views: true,
+            author: true,
+            status: true,
+          },
+        },
+      },
+      take: 20,
+    });
+
+    const blogs: CategoryBlog[] = blogCategories
+      .map(({ blog }) =>
+        serializeCategoryBlog(blog as {
+          id: bigint;
+          title: string;
+          seoSlug: string;
+          content: string;
+          featuredImage: string;
+          createdAt: Date;
+          views: bigint | null;
+          author: string;
+          status: "published" | "draft" | "scheduled";
+        })
+      )
+      .filter((blog) => blog.status === "published");
+
+    return {
+      category,
+      blogs,
+    };
+  },
+  ["category-page-data"],
+  { revalidate: 300 }
+);
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  // Find category by name (slug)
-  const category = await prisma.category.findFirst({
-    where: {
-      name: {
-        equals: decodeURIComponent(slug).replace(/-/g, " "),
-      },
-    },
-  });
+  const { category } = await getCategoryPageData(slug);
 
   if (!category) {
     return {
@@ -27,58 +123,60 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     };
   }
 
+  const canonical = `${SITE_URL}/category/${slug}`;
+  const description =
+    category.description || `Browse ${category.name} articles and tutorials on Forex Factory`;
+
   return {
     title: `${category.name} | ${SITE_NAME}`,
-    description: category.description || `Browse ${category.name} articles and tutorials on Forex Factory`,
+    description,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       title: `${category.name} | ${SITE_NAME}`,
-      description: category.description || `Browse ${category.name} articles`,
-      type: 'website',
+      description,
+      type: "website",
+      url: canonical,
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: `${category.name} | ${SITE_NAME}`,
-      description: category.description || `Browse ${category.name} articles`,
+      description,
       images: [DEFAULT_OG_IMAGE],
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-
-  // Find category by name
-  const category = await prisma.category.findFirst({
-    where: {
-      name: {
-        equals: decodeURIComponent(slug).replace(/-/g, " "),
-      },
-    },
-  });
+  const { category, blogs } = await getCategoryPageData(slug);
 
   if (!category) {
     notFound();
   }
-
-  // Fetch blogs in this category
-  const blogCategories = await prisma.blogCategory.findMany({
-    where: { categoryId: category.categoryId },
-    include: {
-      blog: true,
-    },
-    take: 20,
-  });
-
-  // Filter published blogs
-  const blogs = blogCategories
-    .map((bc: any) => bc.blog)
-    .filter((blog: any) => blog.status === "published");
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": category.name,
     "description": category.description || `Browse ${category.name} articles and tutorials on Forex Factory`,
+    "url": `${SITE_URL}/category/${slug}`,
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": blogs.map((blog, index: number) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `${SITE_URL}/blog/${blog.seoSlug || blog.id.toString()}`,
+        "name": blog.title,
+        "description": sanitizeText(blog.content, 160),
+      })),
+    },
   };
 
   return (
@@ -110,7 +208,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="container mx-auto px-4">
             {blogs.length > 0 ? (
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {blogs.map((blog: any) => (
+                {blogs.map((blog) => (
                   <BlogCard key={blog.id} blog={blog} />
                 ))}
               </div>

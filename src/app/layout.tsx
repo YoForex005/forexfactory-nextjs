@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/seo";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_TWITTER_HANDLE,
+  SITE_URL,
+} from "@/lib/seo";
 import { Providers } from "@/components/Providers";
 
 const geistSans = Geist({
@@ -21,12 +27,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: SITE_NAME,
   title: {
     default: `${SITE_NAME} | ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "forex expert advisors",
     "mt4 robots",
@@ -35,13 +41,17 @@ export const metadata: Metadata = {
     "forex signals",
   ],
   authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "Finance",
+  referrer: "origin-when-cross-origin",
   openGraph: {
     type: "website",
     url: SITE_URL,
     siteName: SITE_NAME,
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description:
-      "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+    description: SITE_DESCRIPTION,
+    locale: "en_US",
     images: [
       {
         url: `${SITE_URL}/og-image.png`,
@@ -53,11 +63,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@forexfactorycc",
-    site: "@forexfactorycc",
+    creator: SITE_TWITTER_HANDLE,
+    site: SITE_TWITTER_HANDLE,
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description:
-      "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+    description: SITE_DESCRIPTION,
     images: [`${SITE_URL}/og-image.png`],
   },
   verification: {
@@ -67,9 +76,31 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    apple: '/favicon.png',
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
+  manifest: "/manifest.webmanifest",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    address: false,
+    email: false,
+    telephone: false,
   },
 };
 

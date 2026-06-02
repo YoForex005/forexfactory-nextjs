@@ -1,6 +1,8 @@
 import { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Signal } from "@prisma/client";
 import { Download, Star, ShieldCheck, Gauge, Cpu, ArrowLeft } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
@@ -11,27 +13,34 @@ import {
   generateCanonicalUrl,
   generateSoftwareApplicationSchema,
   DEFAULT_OG_IMAGE,
+  sanitizeText,
 } from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
 }
 
-async function getSignal(uuid: string) {
-  return prisma.signal.findFirst({
-    where: { uuid },
-  });
-}
+const getSignal = unstable_cache(
+  async (uuid: string) =>
+    prisma.signal.findFirst({
+      where: { uuid },
+    }),
+  ["download-detail"],
+  { revalidate: 900 }
+);
 
-async function getSuggestedSignals(id: number, platform?: string) {
-  return prisma.signal.findMany({
-    where: {
-      id: { not: id },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 3,
-  });
-}
+const getSuggestedSignals = unstable_cache(
+  async (id: number) =>
+    prisma.signal.findMany({
+      where: {
+        id: { not: id },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
+  ["download-detail-suggestions"],
+  { revalidate: 900 }
+);
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { uuid } = await params;
@@ -45,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${signal.title} for ${signal.platform ?? "MT4/MT5"} | ${SITE_NAME}`;
-  const description = signal.description.substring(0, 155);
+  const description = sanitizeText(signal.description, 155);
   const url = generateCanonicalUrl(`/downloads/${signal.uuid}`);
 
   return {
@@ -55,14 +64,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description,
-      type: "article",
+      type: "website",
       url,
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
       images: [DEFAULT_OG_IMAGE],
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -76,7 +90,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
   }
 
   const [suggestedSignals] = await Promise.all([
-    getSuggestedSignals(signal.id, signal.platform ?? undefined),
+    getSuggestedSignals(signal.id),
   ]);
 
   const winRate = signal.winRate ? Number(signal.winRate).toFixed(1) : null;
@@ -92,7 +106,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
 
   const schema = generateSoftwareApplicationSchema({
     name: signal.title,
-    description: signal.description,
+    description: sanitizeText(signal.description),
     applicationCategory: signal.strategy ? `${signal.strategy.replace(/_/g, " ")} Strategy` : "Forex Expert Advisor",
     operatingSystem:
       signal.platform === "Both"
@@ -281,7 +295,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
               <div className="rounded-3xl border border-white/5 bg-white/5 p-6">
                 <h3 className="text-lg font-semibold text-white">More like this</h3>
                 <div className="mt-4 space-y-4">
-                  {suggestedSignals.map((item: any) => (
+                  {suggestedSignals.map((item: Signal) => (
                     <Link
                       key={item.id}
                       href={`/downloads/${item.uuid}`}

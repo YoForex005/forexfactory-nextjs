@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_NAME, generateCanonicalUrl, DEFAULT_OG_IMAGE, SITE_URL, generateServiceSchema } from "@/lib/seo";
+import { unstable_cache } from "next/cache";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+  sanitizeText,
+} from "@/lib/seo";
 import { Metadata } from "next";
 import { Signal } from "@prisma/client";
 import { SignalCard } from "@/components/signals/SignalCard";
@@ -23,6 +29,7 @@ export const metadata: Metadata = {
     description: "Real-time forex trading signals with expert analysis and performance tracking.",
     type: "website",
     url: `${SITE_URL}/signals`,
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
@@ -32,34 +39,45 @@ export const metadata: Metadata = {
   },
 };
 
-async function getSignalsData() {
-  let signals: Signal[] = [];
-
-  try {
-    signals = await prisma.signal.findMany({
+const getSignalsData = unstable_cache(
+  async () => {
+    const signals = await prisma.signal.findMany({
       orderBy: { createdAt: "desc" },
       take: 50,
     });
+
+    return { signals };
+  },
+  ["signals-page-data"],
+  { revalidate: 300 }
+);
+
+export default async function SignalsPage() {
+  let signals: Signal[] = [];
+
+  try {
+    ({ signals } = await getSignalsData());
   } catch (error) {
     console.error("Failed to fetch signals:", error);
   }
 
-  return { signals };
-}
-
-export default async function SignalsPage() {
-  const { signals } = await getSignalsData();
-
-  const jsonLd = generateServiceSchema({
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
     name: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
     description: "Real-time forex trading signals with entry, stop-loss, and take-profit levels.",
-    serviceType: "Trading Signals",
     url: `${SITE_URL}/signals`,
-    offers: {
-      price: "0",
-      priceCurrency: "USD"
-    }
-  });
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: signals.map((signal, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${SITE_URL}/signals/${signal.uuid}`,
+        name: signal.title,
+        description: sanitizeText(signal.description, 160),
+      })),
+    },
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">

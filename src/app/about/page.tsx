@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { unstable_cache } from "next/cache";
 import { CheckCircle2, Users, TrendingUp, Award, Target, Heart } from "lucide-react";
 import { SITE_NAME, DEFAULT_OG_IMAGE, generateAboutPageSchema, SITE_URL } from "@/lib/seo";
 import { StatsSection } from "@/components/about/StatsSection";
@@ -22,6 +23,8 @@ export const metadata: Metadata = {
     title: `About Us | ${SITE_NAME}`,
     description: "Learn about Forex Factory - your trusted source for free Expert Advisors, trading signals, and Forex education.",
     type: 'website',
+    url: `${SITE_URL}/about`,
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
@@ -33,8 +36,8 @@ export const metadata: Metadata = {
 
 const jsonLd = generateAboutPageSchema();
 
-async function getStats() {
-  try {
+const getStats = unstable_cache(
+  async () => {
     const [eaCount, userCount, signals] = await Promise.all([
       prisma.signal.count(),
       prisma.user.count(),
@@ -60,21 +63,26 @@ async function getStats() {
       downloadSuffix: "M+",
       winRate: Math.round(avgWinRate),
     };
-  } catch (error) {
-    console.error("Failed to fetch about stats:", error);
-    return {
-      eaCount: 500,
-      userCount: 50,
-      userSuffix: "K+",
-      downloadCount: 1,
-      downloadSuffix: "M+",
-      winRate: 92,
-    };
-  }
-}
+  },
+  ["about-page-stats"],
+  { revalidate: 600 }
+);
 
 export default async function AboutPage() {
-  const stats = await getStats();
+  let stats = {
+    eaCount: 500,
+    userCount: 50,
+    userSuffix: "K+",
+    downloadCount: 1,
+    downloadSuffix: "M+",
+    winRate: 92,
+  };
+
+  try {
+    stats = await getStats();
+  } catch (error) {
+    console.error("Failed to fetch about stats:", error);
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -2,61 +2,71 @@ import { prisma } from "@/lib/prisma";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_NAME, DEFAULT_OG_IMAGE, SITE_URL, generateBlogSchema } from "@/lib/seo";
+import { unstable_cache } from "next/cache";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+  generateBlogSchema,
+  sanitizeText,
+} from "@/lib/seo";
 import { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: `Trading Blog & Insights | ${SITE_NAME}`,
-  description: "Expert guides, trading strategies, and market analysis for Forex traders. Master algorithmic trading with our in-depth tutorials.",
-  openGraph: {
-    title: `Trading Blog & Insights | ${SITE_NAME}`,
-    description: "Expert guides, trading strategies, and market analysis for Forex traders.",
-    type: 'website',
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `Trading Blog & Insights | ${SITE_NAME}`,
-    description: "Expert guides, trading strategies, and market analysis for Forex traders.",
-    images: [DEFAULT_OG_IMAGE],
-  },
-  alternates: {
-    canonical: `${SITE_URL}/blog`,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-};
+const BLOG_TITLE = `Trading Blog & Insights | ${SITE_NAME}`;
+const BLOG_DESCRIPTION =
+  "Expert guides, trading strategies, and market analysis for Forex traders. Master algorithmic trading with our in-depth tutorials.";
 
-// Enable dynamic rendering to avoid build-time DB connection
 export const dynamic = 'force-dynamic';
-// export const revalidate = 60; // Revalidate every 60 seconds
 
 const BLOGS_PER_PAGE = 12; // Show 12 blogs per page
 
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const params = await searchParams;
-  const currentPage = Number(params.page) || 1;
-  const skip = (currentPage - 1) * BLOGS_PER_PAGE;
+type BlogListItem = {
+  id: string;
+  title: string;
+  seoSlug: string;
+  featuredImage: string;
+  createdAt: string;
+  views: number | null;
+  author: string;
+  content: string;
+  seoMeta: Array<{
+    seoDescription: string | null;
+  }>;
+};
 
-  let allContent: any[] = [];
-  let totalBlogs = 0;
+function serializeBlogListItem(blog: {
+  id: bigint;
+  title: string;
+  seoSlug: string;
+  featuredImage: string;
+  createdAt: Date;
+  views: bigint | null;
+  author: string;
+  content: string;
+  seoMeta: Array<{
+    seoDescription: string | null;
+  }>;
+}): BlogListItem {
+  return {
+    title: blog.title,
+    seoSlug: blog.seoSlug,
+    featuredImage: blog.featuredImage,
+    author: blog.author,
+    content: blog.content,
+    seoMeta: blog.seoMeta.map((meta) => ({
+      seoDescription: meta.seoDescription,
+    })),
+    id: blog.id.toString(),
+    createdAt: blog.createdAt.toISOString(),
+    views: blog.views === null ? null : Number(blog.views),
+  };
+}
 
-  try {
-    // Fetch blogs with pagination
-    const [blogs, count] = await Promise.all([
+const getBlogListingData = unstable_cache(
+  async (currentPage: number) => {
+    const skip = (currentPage - 1) * BLOGS_PER_PAGE;
+    const [blogsRaw, count] = await Promise.all([
       prisma.blog.findMany({
         where: { status: "published" },
         orderBy: { createdAt: "desc" },
@@ -70,8 +80,12 @@ export default async function BlogPage({
           createdAt: true,
           views: true,
           author: true,
-          content: true, // Need content for schema description
-          seoMeta: true, // Need metadescription for schema
+          content: true,
+          seoMeta: {
+            select: {
+              seoDescription: true,
+            },
+          },
         },
       }),
       prisma.blog.count({
@@ -79,6 +93,73 @@ export default async function BlogPage({
       }),
     ]);
 
+    const blogs = blogsRaw.map(serializeBlogListItem);
+
+    return { blogs, count };
+  },
+  ["blog-listing-data"],
+  { revalidate: 300 }
+);
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page) || 1);
+  const canonical =
+    currentPage > 1 ? `${SITE_URL}/blog?page=${currentPage}` : `${SITE_URL}/blog`;
+  const title =
+    currentPage > 1 ? `Trading Blog Page ${currentPage} | ${SITE_NAME}` : BLOG_TITLE;
+
+  return {
+    title,
+    description: BLOG_DESCRIPTION,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description: BLOG_DESCRIPTION,
+      type: "website",
+      url: canonical,
+      images: [DEFAULT_OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: BLOG_DESCRIPTION,
+      images: [DEFAULT_OG_IMAGE],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+  };
+}
+
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page) || 1);
+  const skip = (currentPage - 1) * BLOGS_PER_PAGE;
+
+  let allContent: BlogListItem[] = [];
+  let totalBlogs = 0;
+
+  try {
+    const { blogs, count } = await getBlogListingData(currentPage);
     allContent = blogs;
     totalBlogs = count;
   } catch (error) {
@@ -90,10 +171,14 @@ export default async function BlogPage({
   const hasPrevPage = currentPage > 1;
 
   const jsonLd = generateBlogSchema({
-    title: `Trading Blog & Insights | ${SITE_NAME}`,
-    description: "Expert guides, trading strategies, and market analysis for Forex traders.",
-    url: `${SITE_URL}/blog`,
-    blogs: allContent
+    title: BLOG_TITLE,
+    description: BLOG_DESCRIPTION,
+    url: currentPage > 1 ? `${SITE_URL}/blog?page=${currentPage}` : `${SITE_URL}/blog`,
+    blogs: allContent.map((blog) => ({
+      ...blog,
+      content: sanitizeText(blog.content, 160),
+      createdAt: blog.createdAt,
+    })),
   });
 
   return (

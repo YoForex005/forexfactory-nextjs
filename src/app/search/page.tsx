@@ -3,16 +3,38 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Search, FileText, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { SITE_NAME, SITE_URL, generateSearchResultsPageSchema } from "@/lib/seo";
+import { generateSearchResultsPageSchema } from "@/lib/seo";
+
+type SearchBlogResult = {
+  id: bigint;
+  seoSlug: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  views: bigint | null;
+};
+
+type SearchSignalResult = {
+  id: number;
+  uuid: string;
+  title: string;
+  description: string;
+  sizeBytes: number;
+};
+
+type SearchResults = {
+  blogs: SearchBlogResult[];
+  signals: SearchSignalResult[];
+  total: number;
+};
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
-  const [results, setResults] = useState<any>({ blogs: [], signals: [], total: 0 });
+  const [results, setResults] = useState<SearchResults>({ blogs: [], signals: [], total: 0 });
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "blog" | "signal">("all");
 
@@ -153,7 +175,7 @@ function SearchContent() {
                     Blog Posts
                   </h2>
                   <div className="space-y-4">
-                    {results.blogs.map((blog: any) => (
+                    {results.blogs.map((blog) => (
                       <Link
                         key={blog.id}
                         href={`/blog/${blog.seoSlug}`}
@@ -184,7 +206,7 @@ function SearchContent() {
                     Signals & Expert Advisors
                   </h2>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {results.signals.map((signal: any) => (
+                    {results.signals.map((signal) => (
                       <Link
                         key={signal.id}
                         href={`/signals/${signal.uuid}`}

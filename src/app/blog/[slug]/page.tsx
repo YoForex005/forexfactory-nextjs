@@ -6,17 +6,16 @@ import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
-import { cache } from "react";
 import Image from "next/image";
 import { ProgressBar } from "@/components/blog/ProgressBar";
 import { TableOfContents } from "@/components/blog/TableOfContents";
-import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Bookmark, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Share2 } from "lucide-react";
 import { DownloadBox } from "@/components/blog/DownloadBox";
 import { SaveButton } from "@/components/blog/SaveButton";
 import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
-import { AIBlogMeta } from "@/components/blog/AIBlogMeta";
 
 import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
+import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
 
 function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
@@ -58,7 +57,7 @@ function processContent(content: string) {
     const level = parseInt(levelStr);
 
     // Strip HTML tags and entities for the ID generation
-    let plainText = innerText
+    const plainText = innerText
       .replace(/<[^>]*>/g, "")
       .replace(/&nbsp;/g, " ")
       .replace(/&amp;/g, "&")
@@ -96,7 +95,7 @@ function processContent(content: string) {
   return { contentWithIds, headings };
 }
 
-const getBlog = cache(async (slug: string) => {
+async function getBlog(slug: string) {
   const blogSelect = {
     id: true,
     title: true,
@@ -110,6 +109,7 @@ const getBlog = cache(async (slug: string) => {
     tags: true,
     categoryId: true,
     downloadLink: true,
+    updatedAt: true,
     // Relations
     seoMeta: true,
     categories: {
@@ -121,7 +121,7 @@ const getBlog = cache(async (slug: string) => {
 
   // Try to find by seoSlug first
   let blog = await prisma.blog.findFirst({
-    where: { seoSlug: slug },
+    where: { seoSlug: slug, status: "published" },
     select: blogSelect
   });
 
@@ -129,18 +129,18 @@ const getBlog = cache(async (slug: string) => {
   if (!blog && /^\d+$/.test(slug)) {
     const id = parseInt(slug, 10);
     blog = await prisma.blog.findFirst({
-      where: { id },
+      where: { id, status: "published" },
       select: blogSelect
     });
   }
 
   return blog;
-});
+}
 
-const getRelatedBlogs = cache(async (categoryId: bigint, currentBlogId: bigint) => {
+async function getRelatedBlogs(categoryId: bigint, currentBlogId: bigint) {
   return prisma.blog.findMany({
     where: {
-      categoryId: categoryId,
+      categoryId,
       id: { not: currentBlogId },
       status: "published"
     },
@@ -155,7 +155,7 @@ const getRelatedBlogs = cache(async (categoryId: bigint, currentBlogId: bigint) 
       views: true
     }
   });
-});
+}
 
 interface BlogDetailProps {
   params: Promise<{
@@ -189,12 +189,11 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
   const seo = blog.seoMeta[0];
   const title = seo?.seoTitle || blog.title;
 
-  // **FIX: Always strip HTML tags from descriptions**
   const rawDescription = seo?.seoDescription || blog.content.substring(0, 160);
-  const description = stripHtmlTags(rawDescription).substring(0, 160);
+  const description = sanitizeText(rawDescription, 160);
 
   const rawOgDescription = seo?.ogDescription || rawDescription;
-  const ogDescription = stripHtmlTags(rawOgDescription).substring(0, 160);
+  const ogDescription = sanitizeText(rawOgDescription, 160);
 
   const ogImage = seo?.ogImage ? resolveUrl(seo.ogImage) : null;
   const featuredImage = getSafeImageUrl(blog.featuredImage);
@@ -210,6 +209,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
       images: [{ url: image }],
       type: 'article',
       publishedTime: blog.createdAt.toISOString(),
+      modifiedTime: blog.updatedAt.toISOString(),
       authors: [blog.author],
     },
     twitter: {
@@ -220,7 +220,11 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
     },
     alternates: {
       canonical: seo?.canonicalUrl || `${SITE_URL}/blog/${blog.seoSlug}`,
-    }
+    },
+    robots: mapRobotsDirective(seo?.metaRobots) ?? {
+      index: true,
+      follow: true,
+    },
   };
 }
 
@@ -240,9 +244,9 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
 
   const jsonLd = generateArticleSchema({
     title: blog.title,
-    description: blog.seoMeta[0]?.seoDescription || blog.content.substring(0, 160),
+    description: sanitizeText(blog.seoMeta[0]?.seoDescription || blog.content, 160),
     datePublished: blog.createdAt.toISOString(),
-    dateModified: blog.createdAt.toISOString(),
+    dateModified: blog.updatedAt.toISOString(),
     author: blog.author,
     image: imageUrl || DEFAULT_OG_IMAGE,
     url: `${SITE_URL}/blog/${blog.seoSlug}`
@@ -285,7 +289,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 {/* Category Badge */}
                 {blog.categories && blog.categories.length > 0 && (
                   <div className="inline-flex items-center gap-2 mb-6">
-                    {blog.categories.slice(0, 2).map((cat: any) => (
+                    {blog.categories.slice(0, 2).map((cat) => (
                       <span
                         key={cat.categoryId}
                         className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 rounded-md border border-brand/20"
@@ -469,7 +473,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {relatedBlogs.map((related: any) => (
+                  {relatedBlogs.map((related) => (
                     <Link
                       href={`/blog/${related.seoSlug}`}
                       key={related.seoSlug}
@@ -478,8 +482,6 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                       <div className="relative aspect-[16/10] bg-zinc-900">
                         {getSafeImageUrl(related.featuredImage) ? (
 
-                          // Using standard img tag to support any domain without next.config.js restrictions
-                          // eslint-disable-next-line @next/next/no-img-element
                           <Image
                             src={getSafeImageUrl(related.featuredImage)!}
                             alt={related.title}

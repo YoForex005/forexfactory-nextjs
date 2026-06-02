@@ -1,7 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_URL, SITE_NAME, generateCanonicalUrl, DEFAULT_OG_IMAGE, generateSoftwareApplicationSchema } from "@/lib/seo";
+import { unstable_cache } from "next/cache";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+  generateCanonicalUrl,
+  generateSoftwareApplicationSchema,
+  sanitizeText,
+} from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -13,16 +21,14 @@ interface SignalDetailProps {
   }>;
 }
 
-async function getSignal(uuid: string) {
-  try {
-    return await prisma.signal.findFirst({
+const getSignal = unstable_cache(
+  async (uuid: string) =>
+    prisma.signal.findFirst({
       where: { uuid },
-    });
-  } catch (error) {
-    console.error("Failed to fetch signal:", error);
-    return null;
-  }
-}
+    }),
+  ["signal-detail"],
+  { revalidate: 900 }
+);
 
 export async function generateMetadata({ params }: SignalDetailProps): Promise<Metadata> {
   const { uuid } = await params;
@@ -36,28 +42,39 @@ export async function generateMetadata({ params }: SignalDetailProps): Promise<M
 
   return {
     title: `${signal.title} - Download Free | ${SITE_NAME}`,
-    description: signal.description,
+    description: sanitizeText(signal.description, 160),
     openGraph: {
       title: signal.title,
-      description: signal.description,
+      description: sanitizeText(signal.description, 160),
       url: `${SITE_URL}/signals/${signal.uuid}`,
       type: "website",
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: signal.title,
-      description: signal.description,
+      description: sanitizeText(signal.description, 160),
       images: [DEFAULT_OG_IMAGE], // Signals don't have featured images, using default
     },
     alternates: {
       canonical: generateCanonicalUrl(`/signals/${signal.uuid}`),
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
 
 export default async function SignalDetailPage({ params }: SignalDetailProps) {
   const { uuid } = await params;
-  const signal = await getSignal(uuid);
+  let signal = null;
+
+  try {
+    signal = await getSignal(uuid);
+  } catch (error) {
+    console.error("Failed to fetch signal:", error);
+  }
 
   if (!signal) {
     notFound();
@@ -93,7 +110,7 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
 
   const jsonLd = generateSoftwareApplicationSchema({
     name: signal.title,
-    description: stripHtmlTags(signal.description),
+    description: sanitizeText(stripHtmlTags(signal.description)),
     applicationCategory: 'FinanceApplication',
     operatingSystem: signal.mime.includes('mq4') ? 'Windows (MetaTrader 4)' : 'Windows (MetaTrader 5)',
     softwareVersion: signal.version || '1.0',

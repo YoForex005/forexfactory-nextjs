@@ -1,33 +1,28 @@
-import { MetadataRoute } from 'next';
-import { SITE_URL } from '@/lib/seo';
+import type { MetadataRoute } from "next";
+
+import { SITE_URL } from "@/lib/seo";
+
+const SITE_HOST = new URL(SITE_URL).host;
+
+const DISALLOWED_PATHS: string[] = [
+  "/admin/",
+  "/api/",
+  "/dashboard/",
+  "/login",
+  "/signup",
+  "/search",
+];
+
+export const revalidate = 86400;
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = SITE_URL;
-
-    return {
-        rules: [
-            {
-                userAgent: [
-                    'GPTBot',
-                    'ChatGPT-User',
-                    'Google-Extended',
-                    'ClaudeBot',
-                    'anthropic-ai',
-                    'CCBot',
-                    'PerplexityBot',
-                    'Bytespider',
-                    'Googlebot',
-                    'Bingbot',
-                ],
-                allow: '/',
-                disallow: ['/api/', '/admin/'],
-            },
-            {
-                userAgent: '*',
-                allow: '/',
-                disallow: ['/api/', '/admin/'],
-            },
-        ],
-        sitemap: `${baseUrl}/sitemap.xml`,
-    };
+  return {
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: DISALLOWED_PATHS,
+    },
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_HOST,
+  };
 }

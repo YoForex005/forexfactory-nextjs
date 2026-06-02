@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import Script from "next/script";
 import { ArrowRight, Download, BarChart2, BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -15,17 +16,26 @@ export const dynamic = 'force-dynamic';
 
 
 import { Metadata } from 'next';
-import { SITE_NAME, SITE_TAGLINE, SITE_URL, DEFAULT_OG_IMAGE, generateOrganizationSchema, generateWebsiteSchema, generateWebPageSchema } from "@/lib/seo";
+import {
+  DEFAULT_OG_IMAGE,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+  generateOrganizationSchema,
+  generateWebPageSchema,
+  generateWebsiteSchema,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-  description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+  description: SITE_DESCRIPTION,
   verification: {
     google: "zaVCeEONH2MBblcEN1wrlJhwNvknYX-5JcCcpvJWChk",
   },
   openGraph: {
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+    description: SITE_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_NAME,
     images: [
@@ -42,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+    description: SITE_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
   alternates: {
@@ -65,12 +75,24 @@ const jsonLdOrganization = generateOrganizationSchema();
 const jsonLdWebsite = generateWebsiteSchema();
 const jsonLdWebPage = generateWebPageSchema({
   title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-  description: "Download verified Forex robots and expert advisors for MT4 / MT5. Simple access, clear details, and regular updates.",
+  description: SITE_DESCRIPTION,
   url: SITE_URL
 });
 
 // Blog selection type
 type BlogPreview = {
+  id: string;
+  title: string;
+  seoSlug: string;
+  status: string;
+  views: number | null;
+  createdAt: string;
+  featuredImage: string;
+  tags: string;
+  author: string;
+};
+
+function serializeBlogPreview(blog: {
   id: bigint;
   title: string;
   seoSlug: string;
@@ -80,20 +102,18 @@ type BlogPreview = {
   featuredImage: string;
   tags: string;
   author: string;
-};
+}): BlogPreview {
+  return {
+    ...blog,
+    id: blog.id.toString(),
+    views: blog.views === null ? null : Number(blog.views),
+    createdAt: blog.createdAt.toISOString(),
+  };
+}
 
-export default async function Home() {
-  // Optimized: Fetch blogs in parallel with specific queries for each section
-  // This reduces database load and improves performance significantly
-  let latestBlogs: any[] = [];
-  let popularBlogs: any[] = [];
-  let allCategoryBlogs: BlogPreview[] = [];
-
-  try {
-    // Optimized: Fetch blogs in parallel with specific queries for each section
-    // This reduces database load and improves performance significantly
-    [latestBlogs, popularBlogs, allCategoryBlogs] = await Promise.all([
-      // Latest 3 blogs
+const getHomePageData = unstable_cache(
+  async () => {
+    const [latestBlogsRaw, popularBlogsRaw, allCategoryBlogsRaw] = await Promise.all([
       prisma.blog.findMany({
         where: { status: "published" },
         orderBy: { createdAt: "desc" },
@@ -110,7 +130,6 @@ export default async function Home() {
           author: true,
         },
       }),
-      // Top 3 popular blogs
       prisma.blog.findMany({
         where: { status: "published" },
         orderBy: { views: "desc" },
@@ -127,7 +146,6 @@ export default async function Home() {
           author: true,
         },
       }),
-      // Get 50 blogs for category filtering (reduced from 30 for better category coverage)
       prisma.blog.findMany({
         where: { status: "published" },
         orderBy: { createdAt: "desc" },
@@ -145,6 +163,24 @@ export default async function Home() {
         },
       }),
     ]);
+
+    const latestBlogs = latestBlogsRaw.map(serializeBlogPreview);
+    const popularBlogs = popularBlogsRaw.map(serializeBlogPreview);
+    const allCategoryBlogs = allCategoryBlogsRaw.map(serializeBlogPreview);
+
+    return { latestBlogs, popularBlogs, allCategoryBlogs };
+  },
+  ["home-page-data"],
+  { revalidate: 300 }
+);
+
+export default async function Home() {
+  let latestBlogs: BlogPreview[] = [];
+  let popularBlogs: BlogPreview[] = [];
+  let allCategoryBlogs: BlogPreview[] = [];
+
+  try {
+    ({ latestBlogs, popularBlogs, allCategoryBlogs } = await getHomePageData());
   } catch (error) {
     console.error("Failed to fetch home page data:", error);
   }
