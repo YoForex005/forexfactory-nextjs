@@ -76,6 +76,19 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "@tiptap/react"],
     optimizeCss: true,
   },
+
+  // Canonical host: 301-redirect www -> non-www so both hosts don't serve
+  // 200s (fixes the canonical mismatch; keeps forexfactory.cc authoritative).
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.forexfactory.cc" }],
+        destination: "https://forexfactory.cc/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
