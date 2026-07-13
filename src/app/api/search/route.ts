@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sanitizeText } from "@/lib/seo";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("q") || "";
+    const query = (searchParams.get("q") || "").trim();
     const type = searchParams.get("type") || "all"; // all, blog, signal
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const limit = Math.min(
+      Math.max(parseInt(searchParams.get("limit") || "20", 10) || 20, 1),
+      50
+    );
 
     if (!query || query.length < 2) {
       return NextResponse.json(
@@ -15,10 +19,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const searchTerm = `%${query}%`;
-
-    // Search blogs - OPTIMIZED: Don't fetch full content
-    const blogs = type === "all" || type === "blog"
+    // Search blogs and return sanitized excerpts instead of raw HTML.
+    const blogsRaw = type === "all" || type === "blog"
       ? await prisma.blog.findMany({
         where: {
           AND: [
@@ -35,6 +37,7 @@ export async function GET(request: NextRequest) {
           id: true,
           title: true,
           seoSlug: true,
+          content: true,
           featuredImage: true,
           createdAt: true,
           views: true,
@@ -46,8 +49,21 @@ export async function GET(request: NextRequest) {
       })
       : [];
 
+    const blogs = blogsRaw.map((blog) => ({
+      id: blog.id.toString(),
+      title: blog.title,
+      seoSlug: blog.seoSlug,
+      content: sanitizeText(blog.content, 220),
+      excerpt: sanitizeText(blog.content, 220),
+      featuredImage: blog.featuredImage,
+      createdAt: blog.createdAt.toISOString(),
+      views: blog.views === null ? 0 : Number(blog.views),
+      tags: blog.tags,
+      author: blog.author,
+    }));
+
     // Search signals
-    const signals = type === "all" || type === "signal"
+    const signalsRaw = type === "all" || type === "signal"
       ? await prisma.signal.findMany({
         where: {
           OR: [
@@ -68,6 +84,11 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
       })
       : [];
+
+    const signals = signalsRaw.map((signal) => ({
+      ...signal,
+      createdAt: signal.createdAt.toISOString(),
+    }));
 
     const total = blogs.length + signals.length;
 

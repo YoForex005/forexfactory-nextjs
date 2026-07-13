@@ -9,6 +9,7 @@ import {
   SITE_NAME,
   SITE_URL,
   sanitizeText,
+  slugifySegment,
 } from "@/lib/seo";
 
 interface CategoryPageProps {
@@ -53,13 +54,17 @@ function serializeCategoryBlog(blog: {
 
 const getCategoryPageData = unstable_cache(
   async (slug: string) => {
-    const category = await prisma.category.findFirst({
+    const requestedSlug = decodeURIComponent(slug).toLowerCase();
+    const categories = await prisma.category.findMany({
       where: {
-        name: {
-          equals: decodeURIComponent(slug).replace(/-/g, " "),
-        },
+        status: "active",
       },
+      orderBy: { categoryId: "asc" },
     });
+    const matchingCategories = categories.filter(
+      (category) => slugifySegment(category.name) === requestedSlug
+    );
+    const category = matchingCategories[0] ?? null;
 
     if (!category) {
       return {
@@ -68,41 +73,44 @@ const getCategoryPageData = unstable_cache(
       };
     }
 
-    const blogCategories = await prisma.blogCategory.findMany({
-      where: { categoryId: category.categoryId },
-      select: {
-        blog: {
-          select: {
-            id: true,
-            title: true,
-            seoSlug: true,
-            content: true,
-            featuredImage: true,
-            createdAt: true,
-            views: true,
-            author: true,
-            status: true,
+    const categoryIds = matchingCategories.map((item) => item.categoryId);
+    const blogsRaw = await prisma.blog.findMany({
+      where: {
+        status: "published",
+        categories: {
+          some: {
+            categoryId: { in: categoryIds },
           },
         },
       },
+      select: {
+        id: true,
+        title: true,
+        seoSlug: true,
+        content: true,
+        featuredImage: true,
+        createdAt: true,
+        views: true,
+        author: true,
+        status: true,
+      },
+      orderBy: { createdAt: "desc" },
       take: 20,
     });
 
-    const blogs: CategoryBlog[] = blogCategories
-      .map(({ blog }) =>
-        serializeCategoryBlog(blog as {
-          id: bigint;
-          title: string;
-          seoSlug: string;
-          content: string;
-          featuredImage: string;
-          createdAt: Date;
-          views: bigint | null;
-          author: string;
-          status: "published" | "draft" | "scheduled";
-        })
-      )
-      .filter((blog) => blog.status === "published");
+    const blogs: CategoryBlog[] = blogsRaw.map((blog) =>
+      serializeCategoryBlog(blog as {
+        id: bigint;
+        title: string;
+        seoSlug: string;
+        content: string;
+        featuredImage: string;
+        createdAt: Date;
+        views: bigint | null;
+        author: string;
+        status: "published" | "draft" | "scheduled";
+      })
+    );
 
     return {
       category,
@@ -123,7 +131,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     };
   }
 
-  const canonical = `${SITE_URL}/category/${slug}`;
+  const canonicalSlug = slugifySegment(category.name);
+  const canonical = `${SITE_URL}/category/${canonicalSlug}`;
   const description =
     category.description || `Browse ${category.name} articles and tutorials on Forex Factory`;
 
@@ -166,7 +175,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     "@type": "CollectionPage",
     "name": category.name,
     "description": category.description || `Browse ${category.name} articles and tutorials on Forex Factory`,
-    "url": `${SITE_URL}/category/${slug}`,
+    "url": `${SITE_URL}/category/${slugifySegment(category.name)}`,
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": blogs.map((blog, index: number) => ({

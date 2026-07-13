@@ -119,7 +119,7 @@ export function sanitizeText(value: string | null | undefined, maxLength?: numbe
     return sanitized;
   }
 
-  return `${sanitized.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+  return `${sanitized.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
 }
 
 export function slugifySegment(value: string): string {

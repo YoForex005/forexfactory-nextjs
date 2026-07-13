@@ -6,6 +6,19 @@ import { SITE_URL, slugifySegment } from '@/lib/seo';
 
 export const revalidate = 3600;
 
+function uniqueByUrl(routes: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+    const seen = new Set<string>();
+
+    return routes.filter((route) => {
+        if (seen.has(route.url)) {
+            return false;
+        }
+
+        seen.add(route.url);
+        return true;
+    });
+}
+
 const getCategoriesForSitemap = unstable_cache(
     async () =>
         prisma.category.findMany({
@@ -67,12 +80,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     try {
         const categories = await getCategoriesForSitemap();
 
-        categoryRoutes = categories.map((cat) => ({
+        categoryRoutes = uniqueByUrl(categories.map((cat) => ({
             url: `${SITE_URL}/category/${slugifySegment(cat.name)}`,
             lastModified: new Date(),
             changeFrequency: 'weekly' as const,
             priority: 0.75,
-        }));
+        })));
     } catch (error) {
         console.error('Failed to fetch categories for sitemap:', error);
     }
@@ -113,5 +126,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Failed to fetch signals for sitemap:', error);
     }
 
-    return [...routes, ...categoryRoutes, ...blogRoutes, ...signalRoutes, ...downloadRoutes];
+    return uniqueByUrl([...routes, ...categoryRoutes, ...blogRoutes, ...signalRoutes, ...downloadRoutes]);
 }
