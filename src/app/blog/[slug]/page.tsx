@@ -17,7 +17,7 @@ import { BlogFaq } from "@/components/blog/BlogFaq";
 
 import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
-import { normalizeBlogFaq } from "@/lib/blog-faq";
+import { normalizeBlogFaq, removeEmbeddedBlogFaq } from "@/lib/blog-faq";
 
 function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
@@ -240,11 +240,14 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   }
 
   const relatedBlogs = await getRelatedBlogs(blog.categoryId, blog.id);
-  const { contentWithIds, headings } = processContent(blog.content);
+  const faqItems = normalizeBlogFaq(blog.faqJson);
+  const articleContent = faqItems.length > 0
+    ? removeEmbeddedBlogFaq(blog.content)
+    : blog.content;
+  const { contentWithIds, headings } = processContent(articleContent);
   const readTime = calculateReadTime(blog.content);
   const imageUrl = getSafeImageUrl(blog.featuredImage);
   const imageUrls = imageUrl ? [imageUrl] : [];
-  const faqItems = normalizeBlogFaq(blog.faqJson);
 
   const jsonLd = generateArticleSchema({
     title: blog.title,
