@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { unstable_cache } from "next/cache";
 import {
   DEFAULT_OG_IMAGE,
   SITE_NAME,
@@ -63,43 +62,39 @@ function serializeBlogListItem(blog: {
   };
 }
 
-const getBlogListingData = unstable_cache(
-  async (currentPage: number) => {
-    const skip = (currentPage - 1) * BLOGS_PER_PAGE;
-    const [blogsRaw, count] = await Promise.all([
-      prisma.blog.findMany({
-        where: { status: "published" },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: BLOGS_PER_PAGE,
-        select: {
-          id: true,
-          title: true,
-          seoSlug: true,
-          featuredImage: true,
-          createdAt: true,
-          views: true,
-          author: true,
-          content: true,
-          seoMeta: {
-            select: {
-              seoDescription: true,
-            },
+async function getBlogListingData(currentPage: number) {
+  const skip = (currentPage - 1) * BLOGS_PER_PAGE;
+  const [blogsRaw, count] = await Promise.all([
+    prisma.blog.findMany({
+      where: { status: "published" },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: BLOGS_PER_PAGE,
+      select: {
+        id: true,
+        title: true,
+        seoSlug: true,
+        featuredImage: true,
+        createdAt: true,
+        views: true,
+        author: true,
+        content: true,
+        seoMeta: {
+          select: {
+            seoDescription: true,
           },
         },
-      }),
-      prisma.blog.count({
-        where: { status: "published" },
-      }),
-    ]);
+      },
+    }),
+    prisma.blog.count({
+      where: { status: "published" },
+    }),
+  ]);
 
-    const blogs = blogsRaw.map(serializeBlogListItem);
+  const blogs = blogsRaw.map(serializeBlogListItem);
 
-    return { blogs, count };
-  },
-  ["blog-listing-data"],
-  { revalidate: 300 }
-);
+  return { blogs, count };
+}
 
 export async function generateMetadata({
   searchParams,
