@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SITE_URL, generateArticleSchema, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { SITE_URL, generateArticleSchema, generateFAQPageSchema, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -13,9 +13,11 @@ import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Share2 } from "lucide-re
 import { DownloadBox } from "@/components/blog/DownloadBox";
 import { SaveButton } from "@/components/blog/SaveButton";
 import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
+import { BlogFaq } from "@/components/blog/BlogFaq";
 
 import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
+import { normalizeBlogFaq } from "@/lib/blog-faq";
 
 function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
@@ -104,6 +106,7 @@ async function getBlog(slug: string) {
     views: true,
     createdAt: true,
     content: true,
+    faqJson: true,
     author: true,
     featuredImage: true,
     tags: true,
@@ -241,6 +244,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const readTime = calculateReadTime(blog.content);
   const imageUrl = getSafeImageUrl(blog.featuredImage);
   const imageUrls = imageUrl ? [imageUrl] : [];
+  const faqItems = normalizeBlogFaq(blog.faqJson);
 
   const jsonLd = generateArticleSchema({
     title: blog.title,
@@ -251,6 +255,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
     image: imageUrl || DEFAULT_OG_IMAGE,
     url: `${SITE_URL}/blog/${blog.seoSlug}`
   });
+  const faqJsonLd = faqItems.length > 0 ? generateFAQPageSchema(faqItems) : null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -262,6 +267,15 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          id="blog-faq-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+      )}
 
       {/* Breadcrumb */}
       <div className="border-b border-white/5 bg-[#0d0d14]">
@@ -395,6 +409,8 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                   prose-img:rounded-xl prose-img:shadow-xl"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
+
+              <BlogFaq items={faqItems} />
 
               {/* Download Box - Always visible at end of blog */}
               <DownloadBox downloadLink={blog.downloadLink} />

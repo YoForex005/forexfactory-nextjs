@@ -32,6 +32,7 @@ model Blog {
   views         BigInt?        @default(0)
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   content       String
+  faqJson       Json?          @map("faq_json") @db.JsonB
   author        String         @db.VarChar(255)
   featuredImage String         @map("featured_image") @db.VarChar(255)
   tags          String         @db.VarChar(255)
