@@ -16,6 +16,7 @@ import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
 import { BlogFaq } from "@/components/blog/BlogFaq";
 
 import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
+import { AuthorPopover } from "@/components/blog/AuthorPopover";
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
 import { normalizeBlogFaq, removeEmbeddedBlogFaq } from "@/lib/blog-faq";
 
@@ -346,12 +347,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
             <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/5">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs md:text-sm text-zinc-400">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
-                      {blog.author.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-white font-medium">{blog.author}</span>
-                  </div>
+                  <AuthorPopover authorName={blog.author || "Author"} />
 
                   <span className="text-zinc-700">•</span>
 
