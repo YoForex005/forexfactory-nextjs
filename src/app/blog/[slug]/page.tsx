@@ -295,8 +295,8 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
       </div>
 
       <main className="pb-20">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden border-b border-white/5 bg-[#0a0a0f]">
+        {/* Hero Section — overflow-visible so meta popovers are not clipped */}
+        <div className="relative border-b border-white/5 bg-[#0a0a0f]">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-transparent pointer-events-none" />
 
