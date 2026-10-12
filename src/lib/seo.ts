@@ -202,7 +202,6 @@ export function generateOrganizationSchema() {
     logo: `${SITE_URL}/logo.png`,
     description: 'Leading provider of free Forex Expert Advisors (EA), MT4/MT5 indicators, and automated trading solutions',
     sameAs: [
-      'https://twitter.com/forexfactorycc',
       'https://facebook.com/forexfactorycc',
       'https://linkedin.com/company/forexfactorycc'
     ],
@@ -652,7 +651,6 @@ export function generateAboutPageSchema() {
       },
       description: 'Leading provider of free Forex Expert Advisors (EA), MT4/MT5 indicators, and automated trading solutions',
       sameAs: [
-        'https://twitter.com/forexfactorycc',
         'https://facebook.com/forexfactorycc',
         'https://linkedin.com/company/forexfactorycc'
       ],

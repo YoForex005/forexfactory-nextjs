@@ -138,9 +138,12 @@ export default function LoginPage() {
                                     />
                                     <span className="text-sm text-zinc-400">Remember me</span>
                                 </label>
-                                <Link href="#" className="text-sm text-brand hover:underline">
+                                <a
+                                    href="mailto:support@forexfactory.cc?subject=Password%20reset%20request"
+                                    className="text-sm text-brand hover:underline"
+                                >
                                     Forgot Password?
-                                </Link>
+                                </a>
                             </div>
 
                             {/* Submit */}

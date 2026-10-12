@@ -177,9 +177,9 @@ export default function SignupPage() {
                             {/* Terms */}
                             <p className="text-xs text-zinc-500">
                                 By signing up, you agree to our{" "}
-                                <Link href="#" className="text-brand hover:underline">Terms of Service</Link>
+                                <Link href="/terms" className="text-brand hover:underline">Terms of Service</Link>
                                 {" "}and{" "}
-                                <Link href="#" className="text-brand hover:underline">Privacy Policy</Link>
+                                <Link href="/privacy" className="text-brand hover:underline">Privacy Policy</Link>
                             </p>
 
                             {/* Submit */}
