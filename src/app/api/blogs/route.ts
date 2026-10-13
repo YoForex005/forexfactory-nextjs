@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { submitSingleUrl } from "@/lib/indexnow";
 import { SITE_URL } from "@/lib/seo";
+import { sanitizeBlogHtml } from "@/lib/content-links";
 
 // Inline Zod schema for blog validation (compatible with Prisma)
 const insertBlogSchema = z.object({
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
       data: {
         title: validatedData.title,
         seoSlug: validatedData.seoSlug,
-        content: validatedData.content,
+        content: sanitizeBlogHtml(validatedData.content),
         author: validatedData.author,
         featuredImage: validatedData.featuredImage,
         tags: validatedData.tags,

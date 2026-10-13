@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { BlogStatus } from '@prisma/client';
+import { sanitizeBlogHtml } from '@/lib/content-links';
 
 export async function POST(request: Request) {
     try {
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
                 title: (h1 && h1.trim()) || "Untitled AI Blog",
                 seoSlug: slug,
                 status: status,
-                content: body_html || "<p>No content generated.</p>",
+                content: sanitizeBlogHtml(body_html || "<p>No content generated.</p>"),
                 author: blogAuthor,
                 featuredImage: featured_image || defaultImage,
                 tags: Array.isArray(secondary_keywords) ? secondary_keywords.join(",") : "AI, Forex",

@@ -19,6 +19,7 @@ import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
 import { AuthorPopover } from "@/components/blog/AuthorPopover";
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
 import { normalizeBlogFaq, removeEmbeddedBlogFaq } from "@/lib/blog-faq";
+import { repairBlogImageUrl, sanitizeBlogHtml } from "@/lib/content-links";
 
 function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
@@ -42,8 +43,8 @@ function resolveUrl(value: string): string | null {
 }
 
 function getSafeImageUrl(image?: string | null): string | null {
-  if (!image) return null;
-  return resolveUrl(image);
+  const repairedImage = repairBlogImageUrl(image);
+  return repairedImage ? resolveUrl(repairedImage) : null;
 }
 
 function calculateReadTime(content: string): number {
@@ -245,7 +246,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
   const articleContent = faqItems.length > 0
     ? removeEmbeddedBlogFaq(blog.content)
     : blog.content;
-  const { contentWithIds, headings } = processContent(articleContent);
+  const { contentWithIds, headings } = processContent(sanitizeBlogHtml(articleContent));
   const readTime = calculateReadTime(blog.content);
   const imageUrl = getSafeImageUrl(blog.featuredImage);
   const imageUrls = imageUrl ? [imageUrl] : [];
