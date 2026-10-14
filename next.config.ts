@@ -81,6 +81,26 @@ const nextConfig: NextConfig = {
   // 200s (fixes the canonical mismatch; keeps forexfactory.cc authoritative).
   async redirects() {
     return [
+      // The old WordPress uploads directory has been retired. Historic posts
+      // may still reference it until the database migration can run; always
+      // return a valid local image instead of a 404 in the meantime.
+      {
+        source: "/uploads/:path*",
+        destination: "/og-image.png",
+        permanent: true,
+      },
+      // Historic post links that were published without the /blog prefix or
+      // with an outdated slug. Keep them reachable instead of returning 404.
+      {
+        source: "/aicon-ea-v8-18-mt5",
+        destination: "/blog/aicon-ea-v8-18-mt5",
+        permanent: true,
+      },
+      {
+        source: "/blog/TrendCandleEA",
+        destination: "/blog/trendcandleea-v1-0-mt5",
+        permanent: true,
+      },
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.forexfactory.cc" }],
