@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
-import { Blog } from "@prisma/client";
 import Image from "next/image";
+import { repairBlogFeaturedImageUrl } from "@/lib/content-links";
 
 interface BlogCardProps {
   blog: any;
@@ -9,8 +9,7 @@ interface BlogCardProps {
 }
 
 function getSafeImageUrl(image?: string | null): string | null {
-  if (!image) return null;
-  const value = image.trim();
+  const value = repairBlogFeaturedImageUrl(image).trim();
   if (!value) return null;
 
   if (value.startsWith("http://") || value.startsWith("https://")) {

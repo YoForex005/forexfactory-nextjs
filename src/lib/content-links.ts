@@ -1,5 +1,9 @@
 const R2_IMAGE_BASE = "https://pub-9fc60e9b8d334d298b6a4a22f06229c0.r2.dev/images";
 
+// This is a locally-served route, so it remains available even when an old
+// post's featured image has been deleted from the legacy media host.
+export const FALLBACK_BLOG_IMAGE = "/og-image.png";
+
 // These assets were migrated from the old WordPress library.  Keep the map
 // explicit: a replacement must be a verified asset, never a generic image.
 const LEGACY_IMAGE_REPLACEMENTS: Record<string, string> = {
@@ -26,6 +30,15 @@ export function repairBlogImageUrl(url?: string | null): string | null {
   return isLegacyBrokenImage(url) ? null : url;
 }
 
+/**
+ * Featured images and social images need a real URL even when their historic
+ * media file is gone. Inline article images are instead removed, which avoids
+ * repeating a generic image inside editorial copy.
+ */
+export function repairBlogFeaturedImageUrl(url?: string | null): string {
+  return repairBlogImageUrl(url) ?? FALLBACK_BLOG_IMAGE;
+}
+
 function replacementForImage(url: string) {
   return repairBlogImageUrl(url);
 }
@@ -44,8 +57,10 @@ function isLegacyWhatsAppHref(url: string) {
   const normalizedUrl = decodeHtmlUrl(url);
   return normalizedUrl.includes("wa.me/+443300272265")
     || normalizedUrl.includes("wa.me/443300272265")
+    || normalizedUrl.includes("wa.me/917449454349")
     || normalizedUrl.includes("api.whatsapp.com/send/?phone=%2B443300272265")
-    || normalizedUrl.includes("api.whatsapp.com/send/?phone=443300272265");
+    || normalizedUrl.includes("api.whatsapp.com/send/?phone=443300272265")
+    || normalizedUrl.includes("api.whatsapp.com/send/?phone=917449454349");
 }
 
 /**

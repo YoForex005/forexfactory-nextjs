@@ -1,22 +1,36 @@
 import { PrismaClient } from "@prisma/client";
-import { repairBlogImageUrl, sanitizeBlogHtml } from "../src/lib/content-links";
+import {
+  repairBlogFeaturedImageUrl,
+  sanitizeBlogHtml,
+} from "../src/lib/content-links";
 
 const prisma = new PrismaClient();
 const applyChanges = process.argv.includes("--apply");
 
 async function main() {
   const blogs = await prisma.blog.findMany({
-    select: { id: true, seoSlug: true, title: true, content: true, featuredImage: true },
+    select: {
+      id: true,
+      seoSlug: true,
+      title: true,
+      content: true,
+      featuredImage: true,
+      seoMeta: { select: { id: true, ogImage: true } },
+    },
   });
 
   const repairs = blogs
     .map((blog) => ({
       ...blog,
       repairedContent: sanitizeBlogHtml(blog.content),
-      repairedImage: repairBlogImageUrl(blog.featuredImage),
+      repairedImage: repairBlogFeaturedImageUrl(blog.featuredImage),
+      repairedOgImages: blog.seoMeta
+        .map((meta) => ({ id: meta.id, value: repairBlogFeaturedImageUrl(meta.ogImage) }))
+        .filter((meta) => meta.value !== blog.seoMeta.find((item) => item.id === meta.id)?.ogImage),
     }))
     .filter((blog) => blog.repairedContent !== blog.content
-      || (blog.repairedImage !== null && blog.repairedImage !== blog.featuredImage));
+      || blog.repairedImage !== blog.featuredImage
+      || blog.repairedOgImages.length > 0);
 
   console.log(`${repairs.length} of ${blogs.length} blog posts need link repairs.`);
   for (const blog of repairs) {
@@ -33,9 +47,13 @@ async function main() {
       where: { id: blog.id },
       data: {
         content: blog.repairedContent,
-        ...(blog.repairedImage ? { featuredImage: blog.repairedImage } : {}),
+        featuredImage: blog.repairedImage,
       },
-    })),
+    })).concat(
+      repairs.flatMap((blog) => blog.repairedOgImages.map((meta) =>
+        prisma.seoMeta.update({ where: { id: meta.id }, data: { ogImage: meta.value } }),
+      )),
+    ),
   );
   console.log(`Repaired ${repairs.length} blog posts.`);
 }

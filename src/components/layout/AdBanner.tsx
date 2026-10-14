@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { MessageSquare, ExternalLink } from "lucide-react";
 
 export function AdBanner() {
@@ -42,9 +41,7 @@ export function AdBanner() {
           {/* Action Links */}
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="https://wa.me/917449454349"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/contact"
               className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-bold transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
             >
               <span className="animate-bounce">🔥</span>

@@ -19,7 +19,7 @@ import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
 import { AuthorPopover } from "@/components/blog/AuthorPopover";
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
 import { normalizeBlogFaq, removeEmbeddedBlogFaq } from "@/lib/blog-faq";
-import { repairBlogImageUrl, sanitizeBlogHtml } from "@/lib/content-links";
+import { repairBlogFeaturedImageUrl, sanitizeBlogHtml } from "@/lib/content-links";
 
 function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
@@ -43,8 +43,7 @@ function resolveUrl(value: string): string | null {
 }
 
 function getSafeImageUrl(image?: string | null): string | null {
-  const repairedImage = repairBlogImageUrl(image);
-  return repairedImage ? resolveUrl(repairedImage) : null;
+  return resolveUrl(repairBlogFeaturedImageUrl(image));
 }
 
 function calculateReadTime(content: string): number {
@@ -200,7 +199,7 @@ export async function generateMetadata({ params }: BlogDetailProps): Promise<Met
   const rawOgDescription = seo?.ogDescription || rawDescription;
   const ogDescription = sanitizeText(rawOgDescription, 160);
 
-  const ogImage = seo?.ogImage ? resolveUrl(seo.ogImage) : null;
+  const ogImage = seo?.ogImage ? getSafeImageUrl(seo.ogImage) : null;
   const featuredImage = getSafeImageUrl(blog.featuredImage);
   const image = ogImage || featuredImage || DEFAULT_OG_IMAGE;
 
