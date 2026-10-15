@@ -34,8 +34,17 @@ export async function GET(req: Request) {
       prisma.blog.count(),
     ]);
 
+    const serializedBlogs = blogs.map((blog) => ({
+      ...blog,
+      id: blog.id.toString(),
+      categoryId: blog.categoryId.toString(),
+      views: (blog.views ?? BigInt(0)).toString(),
+      createdAt: blog.createdAt.toISOString(),
+      updatedAt: blog.updatedAt?.toISOString() ?? null,
+    }));
+
     return NextResponse.json({
-      data: blogs,
+      data: serializedBlogs,
       total,
       page,
       totalPages: Math.ceil(total / limit),

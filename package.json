@@ -9,6 +9,7 @@
     "lint": "eslint",
     "verify:sitemap": "node scripts/verify-sitemap-access.mjs",
     "verify:content": "node scripts/verify-content-fetch.mjs",
+    "verify:database": "node scripts/check-database.mjs",
     "verify:broken-links": "tsx scripts/verify-broken-link-repair.ts",
     "repair:broken-links": "tsx scripts/repair-broken-blog-links.ts",
     "postinstall": "prisma generate"

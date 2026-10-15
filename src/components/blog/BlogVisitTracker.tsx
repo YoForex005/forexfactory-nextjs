@@ -20,8 +20,8 @@ export function BlogVisitTracker({ blogId }: BlogVisitTrackerProps) {
                 Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ blogId: Number(blogId) }),
-        }).catch((error) => {
-            console.error("Failed to track blog visit:", error);
+        }).catch(() => {
+            // Recent-history tracking is optional and must not affect the article.
         });
     }, [blogId]);
 

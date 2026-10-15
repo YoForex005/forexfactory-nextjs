@@ -44,7 +44,6 @@ export function AdBanner() {
               href="/contact"
               className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-bold transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
             >
-              <span className="animate-bounce">🔥</span>
               Get Your Custom Trading Bot Today
               <MessageSquare className="h-4 w-4" />
             </Link>
@@ -55,7 +54,6 @@ export function AdBanner() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-6 py-2 rounded-full border border-white/10 bg-white/5 text-zinc-300 text-sm font-medium transition-all hover:bg-white/10 hover:text-white"
             >
-              <span className="text-brand">👉</span>
               Visit Our Official Website
               <ExternalLink className="h-4 w-4" />
             </Link>

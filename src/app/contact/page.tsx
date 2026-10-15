@@ -17,11 +17,15 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [deliveryStatus, setDeliveryStatus] = useState<"sent" | "saved" | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
     setErrorMessage("");
+    setSuccessMessage("");
+    setDeliveryStatus(null);
 
     try {
       const response = await fetch("/api/contact", {
@@ -30,15 +34,25 @@ export default function ContactPage() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error("Failed to send message");
+        throw new Error(
+          typeof result.error === "string" ? result.error : "Failed to send message"
+        );
       }
 
       setStatus("success");
+      setSuccessMessage(
+        typeof result.message === "string" ? result.message : "Message sent successfully."
+      );
+      setDeliveryStatus(result.delivery === "saved" ? "saved" : "sent");
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
       setStatus("error");
-      setErrorMessage("Failed to send message. Please try again.");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to send message. Please try again."
+      );
     }
   };
 
@@ -81,9 +95,11 @@ export default function ContactPage() {
                   {status === "success" ? (
                     <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-6 text-center">
                       <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />
-                      <h3 className="mb-2 text-xl font-bold text-white">Message Sent!</h3>
+                      <h3 className="mb-2 text-xl font-bold text-white">
+                        {deliveryStatus === "saved" ? "Message Received!" : "Message Sent!"}
+                      </h3>
                       <p className="text-zinc-300">
-                        Thank you for contacting us. We&apos;ll get back to you within 24 hours.
+                        {successMessage || "Thank you for contacting us. We&apos;ll get back to you within 24 hours."}
                       </p>
                     </div>
                   ) : (
@@ -99,6 +115,8 @@ export default function ContactPage() {
                           value={formData.name}
                           onChange={handleChange}
                           required
+                          maxLength={120}
+                          autoComplete="name"
                           className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="Your name"
                         />
@@ -115,6 +133,8 @@ export default function ContactPage() {
                           value={formData.email}
                           onChange={handleChange}
                           required
+                          maxLength={254}
+                          autoComplete="email"
                           className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="your@email.com"
                         />
@@ -131,6 +151,7 @@ export default function ContactPage() {
                           value={formData.subject}
                           onChange={handleChange}
                           required
+                          maxLength={200}
                           className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="How can we help?"
                         />
@@ -146,6 +167,7 @@ export default function ContactPage() {
                           value={formData.message}
                           onChange={handleChange}
                           required
+                          maxLength={10000}
                           rows={6}
                           className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
                           placeholder="Tell us more about your inquiry..."
@@ -187,7 +209,7 @@ export default function ContactPage() {
                   <p className="mb-4 text-zinc-400">
                     For general inquiries and support
                   </p>
-                  <a href="#contact-form" className="text-brand hover:underline">
+                  <a href="mailto:support@yoforex.net" className="text-brand hover:underline">
                     support@yoforex.net
                   </a>
                 </div>

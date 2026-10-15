@@ -40,7 +40,8 @@ npm install
 ### **2. Set Up Environment Variables**
 Create `.env.local`:
 ```env
-DATABASE_URL="mysql://user:password@localhost:3306/forexfactory"
+# PostgreSQL is required by prisma/schema.prisma.
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/forexfactory?sslmode=require"
 NEXTAUTH_SECRET="your-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
 ```

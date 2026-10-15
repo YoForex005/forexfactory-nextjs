@@ -118,7 +118,7 @@ const getCategoryPageData = unstable_cache(
     };
   },
   ["category-page-data"],
-  { revalidate: 300 }
+  { revalidate: 300, tags: ["blog-card-data"] }
 );
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
@@ -217,8 +217,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="container mx-auto px-4">
             {blogs.length > 0 ? (
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {blogs.map((blog) => (
-                  <BlogCard key={blog.id} blog={blog} />
+                {blogs.map((blog, index) => (
+                  <BlogCard key={blog.id} blog={blog} priority={index < 3} />
                 ))}
               </div>
             ) : (

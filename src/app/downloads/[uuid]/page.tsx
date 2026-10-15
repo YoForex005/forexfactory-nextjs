@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Signal } from "@prisma/client";
@@ -8,6 +7,7 @@ import { Download, Star, ShieldCheck, Gauge, Cpu, ArrowLeft } from "lucide-react
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { DownloadAction } from "@/components/downloads/DownloadAction";
 import {
   SITE_NAME,
   generateCanonicalUrl,
@@ -20,27 +20,19 @@ interface PageProps {
   params: Promise<{ uuid: string }>;
 }
 
-const getSignal = unstable_cache(
-  async (uuid: string) =>
-    prisma.signal.findFirst({
-      where: { uuid },
-    }),
-  ["download-detail"],
-  { revalidate: 900 }
-);
+const getSignal = (uuid: string) =>
+  prisma.signal.findFirst({
+    where: { uuid },
+  });
 
-const getSuggestedSignals = unstable_cache(
-  async (id: number) =>
-    prisma.signal.findMany({
-      where: {
-        id: { not: id },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-    }),
-  ["download-detail-suggestions"],
-  { revalidate: 900 }
-);
+const getSuggestedSignals = (id: number) =>
+  prisma.signal.findMany({
+    where: {
+      id: { not: id },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { uuid } = await params;
@@ -180,15 +172,21 @@ export default async function DownloadDetailPage({ params }: PageProps) {
                 <div className="mt-8 flex flex-wrap gap-6 rounded-2xl border border-white/5 bg-white/5 p-6">
                   <div>
                     <p className="text-sm text-zinc-500">Win Rate</p>
-                    <p className="text-3xl font-semibold text-white">{winRate ? `${winRate}%` : "—"}</p>
+                    <p className={winRate ? "text-3xl font-semibold text-white" : "pt-2 text-sm font-medium text-zinc-400"}>
+                      {winRate ? `${winRate}%` : "Not reported"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-zinc-500">Profit Factor</p>
-                    <p className="text-3xl font-semibold text-white">{profitFactor ?? "—"}</p>
+                    <p className={profitFactor ? "text-3xl font-semibold text-white" : "pt-2 text-sm font-medium text-zinc-400"}>
+                      {profitFactor ?? "Not reported"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-zinc-500">Max Drawdown</p>
-                    <p className="text-3xl font-semibold text-white">{drawdown ? `${drawdown}%` : "—"}</p>
+                    <p className={drawdown ? "text-3xl font-semibold text-white" : "pt-2 text-sm font-medium text-zinc-400"}>
+                      {drawdown ? `${drawdown}%` : "Not reported"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-zinc-500">Downloads</p>
@@ -207,12 +205,15 @@ export default async function DownloadDetailPage({ params }: PageProps) {
                 </div>
                 <p className="text-3xl font-bold text-white">{priceLabel}</p>
                 <p className="mt-1 text-sm text-zinc-400">Instant digital download. Includes lifetime updates.</p>
-                <Link
-                  href={signal.filePath}
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-brand px-6 py-3 font-semibold text-white hover:bg-brand-dark"
-                >
-                  <Download className="mr-2 h-5 w-5" /> Download Files
-                </Link>
+                <DownloadAction
+                  signalId={signal.id}
+                  uuid={signal.uuid}
+                  title={signal.title}
+                  type={signal.platform || "Expert Advisor"}
+                  fileSize={fileSizeMb}
+                  label="Download files"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-brand px-6 py-3 font-semibold text-white transition hover:bg-brand-dark disabled:cursor-wait disabled:opacity-75"
+                />
                 <div className="mt-6 space-y-3 text-sm text-zinc-400">
                   {fileSizeMb && <p>File Size: {fileSizeMb}</p>}
                   <p>Compatibility: {compatibility.length ? compatibility.join(" • ") : "MT4/MT5 Terminals"}</p>

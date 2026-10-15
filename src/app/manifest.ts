@@ -15,17 +15,9 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       {
         src: `${SITE_URL}/favicon.png`,
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        src: `${SITE_URL}/favicon.png`,
-        sizes: "512x512",
-        type: "image/png",
-      },
-      {
-        src: `${SITE_URL}/favicon.png`,
-        sizes: "any",
+        // public/favicon.png is a 48 × 48 image. Declaring it as 192 or 512
+        // causes Chrome to reject the manifest icon.
+        sizes: "48x48",
         type: "image/png",
       },
     ],

@@ -1,176 +1,128 @@
+import { Metadata } from "next";
+import { unstable_cache } from "next/cache";
+import Script from "next/script";
+import { Activity, ArrowDown, ChartNoAxesCombined, CircleCheckBig, ShieldAlert } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { unstable_cache } from "next/cache";
-import {
-  DEFAULT_OG_IMAGE,
-  SITE_NAME,
-  SITE_URL,
-  sanitizeText,
-} from "@/lib/seo";
-import { Metadata } from "next";
-import { Signal } from "@prisma/client";
-import { SignalCard } from "@/components/signals/SignalCard";
+import { CatalogSignal, DownloadCatalog } from "@/components/downloads/DownloadCatalog";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, generateCanonicalUrl, sanitizeText } from "@/lib/seo";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Free Forex Signals & Trading Alerts",
-  description: "Real-time forex trading signals with entry, stop-loss, and take-profit levels. Expert analysis for EUR/USD, GBP/USD, and major currency pairs.",
-  alternates: {
-    canonical: `${SITE_URL}/signals`,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  title: `Forex Signals & Automated Strategies | ${SITE_NAME}`,
+  description: "Explore Forex signal tools and automated strategies for MT4 and MT5, with transparent platform, file, strategy, and performance information.",
+  alternates: { canonical: generateCanonicalUrl("/signals") },
+  robots: { index: true, follow: true },
   openGraph: {
-    title: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
-    description: "Real-time forex trading signals with expert analysis and performance tracking.",
-    type: "website",
-    url: `${SITE_URL}/signals`,
-    images: [DEFAULT_OG_IMAGE],
+    title: `Forex Signals & Automated Strategies | ${SITE_NAME}`,
+    description: "Explore Forex signal tools and automated strategies with clear platform and strategy information.",
+    type: "website", url: generateCanonicalUrl("/signals"), images: [DEFAULT_OG_IMAGE],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
-    description: "Real-time forex trading signals with expert analysis and performance tracking.",
-    images: [DEFAULT_OG_IMAGE],
-  },
+  twitter: { card: "summary_large_image", title: `Forex Signals & Automated Strategies | ${SITE_NAME}`, description: "Explore Forex signal tools and automated strategies with clear platform and strategy information.", images: [DEFAULT_OG_IMAGE] },
+};
+
+type SignalsData = {
+  signals: CatalogSignal[];
+  stats: {
+    totalSignals: number;
+    averageWinRate: number | null;
+    platformCount: number;
+  };
 };
 
 const getSignalsData = unstable_cache(
-  async () => {
-    const signals = await prisma.signal.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    });
-
-    return { signals };
+  async (): Promise<SignalsData> => {
+    const [signals, totalSignals, signalStats, platforms] = await Promise.all([
+      prisma.signal.findMany({
+        orderBy: { createdAt: "desc" }, take: 100,
+        select: {
+          id: true, uuid: true, title: true, description: true, mime: true, sizeBytes: true,
+          createdAt: true, platform: true, strategy: true, version: true, winRate: true,
+          rating: true, downloadCount: true, isPremium: true,
+        },
+      }),
+      prisma.signal.count(),
+      prisma.signal.aggregate({ _avg: { winRate: true } }),
+      prisma.signal.findMany({ distinct: ["platform"], select: { platform: true } }),
+    ]);
+    const platformCount = platforms.filter((signal) => signal.platform !== null).length;
+    return {
+      signals: signals.map((signal): CatalogSignal => ({ ...signal, createdAt: signal.createdAt.toISOString() })),
+      stats: { totalSignals, averageWinRate: signalStats._avg.winRate, platformCount },
+    };
   },
-  ["signals-page-data"],
-  { revalidate: 300 }
+  ["signals-page-data-v5"],
+  { revalidate: 60 },
 );
 
-export default async function SignalsPage() {
-  let signals: Signal[] = [];
-
+async function loadSignalsData(): Promise<SignalsData & { catalogueUnavailable?: boolean }> {
   try {
-    ({ signals } = await getSignalsData());
-  } catch (error) {
-    console.error("Failed to fetch signals:", error);
+    return await getSignalsData();
+  } catch {
+    // Do not cache an outage as an empty strategy directory.
+    return {
+      signals: [],
+      stats: { totalSignals: 0, averageWinRate: null, platformCount: 0 },
+      catalogueUnavailable: true,
+    };
   }
+}
 
+export default async function SignalsPage() {
+  const data = await loadSignalsData();
+  const { signals, stats, catalogueUnavailable = false } = data;
   const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: `Free Forex Signals & Trading Alerts | ${SITE_NAME}`,
-    description: "Real-time forex trading signals with entry, stop-loss, and take-profit levels.",
+    "@context": "https://schema.org", "@type": "CollectionPage",
+    name: `Forex Signals & Automated Strategies | ${SITE_NAME}`,
+    description: "A directory of Forex signal tools and automated strategies with compatibility and performance information.",
     url: `${SITE_URL}/signals`,
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: signals.map((signal, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        url: `${SITE_URL}/signals/${signal.uuid}`,
-        name: signal.title,
-        description: sanitizeText(signal.description, 160),
-      })),
+      itemListElement: signals.map((signal, index) => ({ "@type": "ListItem", position: index + 1, url: `${SITE_URL}/signals/${signal.uuid}`, name: signal.title, description: sanitizeText(signal.description, 160) })),
     },
   };
+  const metrics = [
+    { label: "Strategies available", value: stats.totalSignals.toLocaleString(), icon: Activity },
+    { label: "Platform coverage", value: stats.platformCount ? `${stats.platformCount} platform${stats.platformCount === 1 ? "" : "s"}` : "MT4 & MT5", icon: ChartNoAxesCombined },
+    { label: "Reported win rate", value: stats.averageWinRate ? `${stats.averageWinRate.toFixed(1)}% avg.` : "See tool details", icon: CircleCheckBig },
+  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-100">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <Script id="signals-directory-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
-
       <main className="flex-1">
-        {/* Hero Section */}
-        <div className="relative border-b border-white/10 bg-surface-50 py-20">
-          <div className="container mx-auto px-4 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand"></span>
-              </span>
-              Live Trading Signals
-            </div>
-            <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-              Expert Forex <span className="gradient-text">Signals</span>
-            </h1>
-            <p className="mx-auto max-w-2xl text-lg text-zinc-400">
-              Professional trading signals with detailed analysis, risk management, and real-time updates. Download expert advisors and automated trading systems.
-            </p>
-          </div>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="border-b border-white/5 bg-surface-50/50 py-8">
+        <section className="relative isolate overflow-hidden border-b border-white/10 bg-surface-50 py-16 sm:py-20 lg:py-24">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_10%,rgba(10,132,255,0.25),transparent_32%),radial-gradient(circle_at_85%_15%,rgba(34,211,238,0.12),transparent_30%)]" />
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">{signals.length}</div>
-                <div className="text-sm text-zinc-500">Total Signals</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-brand">Live</div>
-                <div className="text-sm text-zinc-500">Market Status</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">24/7</div>
-                <div className="text-sm text-zinc-500">Monitoring</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">Free</div>
-                <div className="text-sm text-zinc-500">Access</div>
-              </div>
+            <div className="mx-auto max-w-4xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-light"><Activity className="h-4 w-4" /> Strategy signal directory</div>
+              <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">Better signal discovery, <span className="gradient-text">less guesswork</span></h1>
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg">Search the available strategies, inspect the information behind each tool, and choose the setup that matches your MetaTrader platform and risk process.</p>
+              <a href="#catalogue" className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand/30">Explore strategies <ArrowDown className="h-4 w-4" /></a>
+            </div>
+            <div className="mx-auto mt-12 grid max-w-4xl divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-2xl shadow-black/20 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              {metrics.map(({ label, value, icon: Icon }) => <div key={label} className="flex items-center gap-3 px-5 py-5 sm:block sm:px-7 sm:py-6"><Icon className="h-5 w-5 shrink-0 text-brand sm:mb-4" /><div><p className="text-xl font-bold text-white sm:text-2xl">{value}</p><p className="mt-0.5 text-xs text-zinc-500 sm:mt-1 sm:text-sm">{label}</p></div></div>)}
             </div>
           </div>
-        </div>
-
-        {/* Signals Grid */}
-        <div className="container mx-auto px-4 py-16">
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold text-white">Latest Signals & Expert Advisors</h2>
-            <p className="text-sm text-zinc-500">Download automated trading systems and get real-time market alerts</p>
+        </section>
+        <DownloadCatalog
+          signals={signals}
+          catalogueUnavailable={catalogueUnavailable}
+          detailBasePath="/signals"
+          sectionLabel="Strategy directory"
+          emptyLibraryTitle="Signals are being prepared"
+          emptyLibraryCopy="No strategies have been published yet. This directory will update automatically when a new signal is available."
+        />
+        <section className="border-t border-white/10 bg-surface-50/40">
+          <div className="container mx-auto grid gap-6 px-4 py-10 sm:grid-cols-[auto_1fr] sm:items-center">
+            <ShieldAlert className="mx-auto h-9 w-9 text-amber-300 sm:mx-0" />
+            <div><h2 className="text-lg font-semibold text-white">Trade with an independent risk plan</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">Performance figures and strategy descriptions are provided for evaluation, not as a guarantee of future results. Test any strategy on a demo account and define position sizing before live use.</p></div>
           </div>
-
-          {signals.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {signals.map((signal) => (
-                <SignalCard key={signal.id} signal={signal} />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="mb-4 rounded-full bg-white/5 p-4">
-                <svg className="h-8 w-8 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium text-white">No signals available</h3>
-              <p className="mt-2 text-zinc-400">Check back soon for new trading signals and expert advisors.</p>
-            </div>
-          )}
-        </div>
-
-        {/* CTA Section */}
-        <div className="border-t border-white/5 bg-surface-50 py-16">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-white">Want Premium Signals?</h2>
-            <p className="mx-auto mb-8 max-w-2xl text-zinc-400">
-              Get access to exclusive trading signals, advanced analytics, and priority support with our premium membership.
-            </p>
-            <button className="rounded-full bg-brand px-8 py-3 font-medium text-white transition-colors hover:bg-brand-dark">
-              Upgrade to Premium
-            </button>
-          </div>
-        </div>
+        </section>
       </main>
-
       <Footer />
     </div>
   );
