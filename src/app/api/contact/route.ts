@@ -1,125 +1,183 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
+
+export const runtime = "nodejs";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+
+    return entities[character];
+  });
+}
+
+function getText(value: unknown, maxLength: number) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function getErrorCode(error: unknown) {
+  return error instanceof Error && "code" in error && typeof error.code === "string"
+    ? error.code
+    : undefined;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, email, subject, message } = body;
+    const body: unknown = await request.json();
+    const fields = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+    const name = getText(fields.name, 120);
+    const email = getText(fields.email, 254).toLowerCase();
+    const subject = getText(fields.subject, 200);
+    const message = getText(fields.message, 10_000);
 
-    // Validate required fields
     if (!name || !email || !subject || !message) {
+      return NextResponse.json({ error: "Please complete every field." }, { status: 400 });
+    }
+
+    if (!EMAIL_PATTERN.test(email)) {
+      return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+    }
+
+    const smtpUser = process.env.SMTP_USER?.trim();
+    const smtpPassword = process.env.SMTP_PASS;
+    const smtpHost = process.env.SMTP_HOST?.trim() || "smtp.hostinger.com";
+    const smtpPort = Number(process.env.SMTP_PORT) || 465;
+
+    if (!smtpUser || !smtpPassword) {
+      console.error("Contact email is not configured: SMTP_USER or SMTP_PASS is missing.");
       return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
+        { error: "Email service is not configured. Please email support directly." },
+        { status: 503 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: "Invalid email format" },
-        { status: 400 }
-      );
-    }
-
-    // Configure Nodemailer transporter
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "smtp.hostinger.com",
-      port: Number(process.env.SMTP_PORT) || 465,
-      secure: true,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: { user: smtpUser, pass: smtpPassword },
+      connectionTimeout: 15_000,
+      greetingTimeout: 15_000,
+      socketTimeout: 20_000,
+    });
+
+    const siteUrl = (process.env.SITE_URL || "https://forexfactory.cc").replace(/\/$/, "");
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
+    const recipient = process.env.CONTACT_RECIPIENT_EMAIL?.trim() || smtpUser;
+    const logMetadata = JSON.stringify({
+      type: "contact-form",
+      name,
+      email,
+      subject,
+      message,
+    });
+
+    // Preserve every contact enquiry in PostgreSQL before attempting SMTP delivery.
+    // This is the reliable fallback when a mail provider is temporarily unavailable.
+    const deliveryLog = await prisma.emailLog.create({
+      data: {
+        recipient,
+        subject: `New contact form submission: ${subject}`,
+        templateKey: "contact-form",
+        status: "pending",
+        metadata: logMetadata,
       },
     });
 
-    const siteUrl = process.env.SITE_URL || "https://forexfactory.cc";
-    const logoUrl = `${siteUrl}/favicon.png`;
+    // A message is only considered sent once the support mailbox has accepted it.
+    let supportMessageId: string | undefined;
+    try {
+      const supportResult = await transporter.sendMail({
+        from: `"ForexFactory Contact" <${smtpUser}>`,
+        replyTo: { name, address: email },
+        to: recipient,
+        subject: `New contact form submission: ${subject}`,
+        text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\n${message}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;color:#172033">
+            <h1 style="margin:0 0 20px;color:#147df5">New contact form message</h1>
+            <p><strong>Name:</strong> ${safeName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+            <p><strong>Subject:</strong> ${safeSubject}</p>
+            <hr style="border:0;border-top:1px solid #d9e1ec;margin:24px 0" />
+            <p style="white-space:pre-wrap;line-height:1.6">${safeMessage}</p>
+            <p style="color:#64748b;font-size:12px;margin-top:24px">Submitted from ${siteUrl}/contact</p>
+          </div>
+        `,
+      });
+      supportMessageId = supportResult.messageId;
+      await prisma.emailLog.update({
+        where: { id: deliveryLog.id },
+        data: { status: "sent", messageId: supportMessageId, sentAt: new Date() },
+      });
+    } catch (deliveryError) {
+      const code = getErrorCode(deliveryError);
+      await prisma.emailLog.update({
+        where: { id: deliveryLog.id },
+        data: { status: "failed", error: code || "SMTP delivery failed" },
+      }).catch((logError) => console.error("Contact delivery log update failed.", { code: getErrorCode(logError) }));
 
-    // 1. Email to Support (from user via authenticated SMTP sender)
-    const supportMailOptions = {
-      from: `"${name}" <${process.env.SMTP_USER}>`,
-      replyTo: email,
-      to: process.env.SMTP_USER,
-      subject: `New Contact Form Submission: ${subject} - from Forex Factory`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #1a1a2e; border-radius: 10px; background-color: #f9f9f9;">
-          <div style="text-align: center; margin-bottom: 20px; background-color: #0d0d1a; padding: 25px; border-radius: 10px 10px 0 0;">
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-              <img src="${logoUrl}" alt="Forex Factory Logo" style="max-height: 40px; margin-right: 15px;" />
-              <h1 style="color: #4facfe; margin: 0; font-size: 26px;">Forex Factory</h1>
-            </div>
-            <h2 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: normal;">New Contact Form Message</h2>
-          </div>
-          <div style="padding: 20px; background-color: white; border-radius: 5px; margin-bottom: 20px; border: 1px solid #eee;">
-            <p style="margin: 5px 0;"><strong>Name:</strong> ${name}</p>
-            <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${email}" style="color: #4facfe;">${email}</a></p>
-            <p style="margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
-          </div>
-          <div style="padding: 20px; background-color: white; border-radius: 5px; border: 1px solid #eee;">
-            <h3 style="color: #333; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #eee;">Message</h3>
-            <p style="white-space: pre-wrap; color: #444; line-height: 1.6;">${message}</p>
-          </div>
-          <div style="text-align: center; margin-top: 20px;">
-            <small style="color: #888;">This message was submitted via the contact form on Forex Factory.</small>
-          </div>
-        </div>
-      `,
-    };
+      console.error("Contact form SMTP delivery failed.", { code });
+      return NextResponse.json({
+        success: true,
+        delivery: "saved",
+        message: "Your message was received and saved for our support team. Email delivery is temporarily unavailable.",
+      }, { status: 202 });
+    }
 
-    // 2. Automated Feedback Email to Sender
-    const feedbackMailOptions = {
-      from: `"Forex Factory Support" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: "Thank you for contacting us - Forex Factory",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #1a1a2e; border-radius: 10px; background-color: #0f0f1a; color: #ffffff;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-              <img src="${logoUrl}" alt="Forex Factory Logo" style="max-height: 50px; margin-right: 15px;" />
-              <h1 style="color: #4facfe; margin: 0; font-size: 32px;">Forex Factory</h1>
-            </div>
+    // A receipt is optional: an invalid visitor mailbox must not change a delivered
+    // support message into a failed form submission.
+    let acknowledgementSent = true;
+    try {
+      await transporter.sendMail({
+        from: `"ForexFactory Support" <${smtpUser}>`,
+        to: email,
+        subject: "We received your message — ForexFactory",
+        text: `Hi ${name},\n\nThanks for contacting ForexFactory. We have received your message and will reply as soon as possible.\n\nSubject: ${subject}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;color:#172033">
+            <h1 style="margin:0 0 20px;color:#147df5">Thanks for contacting us</h1>
+            <p>Hi ${safeName},</p>
+            <p>We have received your message and will reply as soon as possible.</p>
+            <p><strong>Your subject:</strong> ${safeSubject}</p>
+            <p style="color:#64748b;font-size:12px;margin-top:24px">ForexFactory Support</p>
           </div>
-          <div style="background-color: #1a1a2e; padding: 30px; border-radius: 8px;">
-            <h2 style="color: #ffffff; margin-top: 0; font-size: 20px;">Hi ${name},</h2>
-            <p style="color: #e0e0e0; line-height: 1.6; font-size: 16px;">
-              Thank you for contacting us! We have received your message and we will get back to you soon.
-            </p>
-            <p style="color: #e0e0e0; line-height: 1.6; font-size: 16px; margin-top: 20px;">
-              <strong>Your Subject:</strong> ${subject}
-            </p>
-          </div>
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #333; text-align: center;">
-            <p style="color: #888; font-size: 12px; line-height: 1.5;">
-              This is an automated response. Please do not reply directly to this email unless you are providing additional information.
-            </p>
-            <p style="color: #888; font-size: 12px; margin-top: 10px;">
-              Best regards,<br/><strong style="color: #aaa;">The Forex Factory Team</strong>
-            </p>
-            <p style="margin-top: 15px;">
-              <a href="${siteUrl}" style="color: #4facfe; text-decoration: none; font-size: 13px;">Visit Forex Factory</a>
-            </p>
-          </div>
-        </div>
-      `,
-    };
+        `,
+      });
+    } catch (acknowledgementError) {
+      acknowledgementSent = false;
+      const code = acknowledgementError instanceof Error && "code" in acknowledgementError
+        ? acknowledgementError.code
+        : undefined;
+      console.warn("Contact acknowledgement could not be sent.", { code });
+    }
 
-    // Send both emails in parallel
-    await Promise.all([
-      transporter.sendMail(supportMailOptions),
-      transporter.sendMail(feedbackMailOptions)
-    ]);
-
-    return NextResponse.json(
-      { success: true, message: "Message sent successfully" },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      success: true,
+      delivery: "sent",
+      message: "Message sent successfully.",
+      messageId: supportMessageId,
+      acknowledgementSent,
+    });
   } catch (error) {
-    console.error("Contact form error:", error);
+    const code = getErrorCode(error);
+    console.error("Contact form delivery failed.", { code });
+
     return NextResponse.json(
-      { error: "Failed to send message" },
-      { status: 500 }
+      { error: "Email service is unavailable right now. Please try again shortly or email support directly." },
+      { status: 502 }
     );
   }
 }

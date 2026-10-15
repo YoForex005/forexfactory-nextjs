@@ -36,53 +36,53 @@ export const metadata: Metadata = {
 
 const jsonLd = generateAboutPageSchema();
 
+const defaultStats = {
+  eaCount: 500,
+  userCount: 50,
+  userSuffix: "K+",
+  downloadCount: 1,
+  downloadSuffix: "M+",
+  winRate: 92,
+};
+
 const getStats = unstable_cache(
   async () => {
-    const [eaCount, userCount, signals] = await Promise.all([
-      prisma.signal.count(),
-      prisma.user.count(),
-      prisma.signal.findMany({
-        select: {
-          downloadCount: true,
-          winRate: true,
-        },
-      }),
-    ]);
+    try {
+      const [eaCount, userCount, signals] = await Promise.all([
+        prisma.signal.count(),
+        prisma.user.count(),
+        prisma.signal.findMany({
+          select: {
+            downloadCount: true,
+            winRate: true,
+          },
+        }),
+      ]);
 
-    const totalDownloads = signals.reduce((acc: number, curr: { downloadCount: number }) => acc + (curr.downloadCount || 0), 0);
-    const totalWinRate = signals.reduce((acc: number, curr: { winRate: number | null }) => acc + (curr.winRate || 0), 0);
-    const avgWinRate = signals.length > 0
-      ? totalWinRate / signals.length
-      : 92;
+      const totalDownloads = signals.reduce((acc: number, curr: { downloadCount: number }) => acc + (curr.downloadCount || 0), 0);
+      const totalWinRate = signals.reduce((acc: number, curr: { winRate: number | null }) => acc + (curr.winRate || 0), 0);
+      const avgWinRate = signals.length > 0
+        ? totalWinRate / signals.length
+        : 92;
 
-    return {
-      eaCount: 500 + eaCount,
-      userCount: 50 + Math.floor(userCount / 1000),
-      userSuffix: "K+",
-      downloadCount: 1 + Math.floor(totalDownloads / 1000000),
-      downloadSuffix: "M+",
-      winRate: Math.round(avgWinRate),
-    };
+      return {
+        eaCount: 500 + eaCount,
+        userCount: 50 + Math.floor(userCount / 1000),
+        userSuffix: "K+",
+        downloadCount: 1 + Math.floor(totalDownloads / 1000000),
+        downloadSuffix: "M+",
+        winRate: Math.round(avgWinRate),
+      };
+    } catch {
+      return defaultStats;
+    }
   },
-  ["about-page-stats"],
+  ["about-page-stats-v2"],
   { revalidate: 600 }
 );
 
 export default async function AboutPage() {
-  let stats = {
-    eaCount: 500,
-    userCount: 50,
-    userSuffix: "K+",
-    downloadCount: 1,
-    downloadSuffix: "M+",
-    winRate: 92,
-  };
-
-  try {
-    stats = await getStats();
-  } catch (error) {
-    console.error("Failed to fetch about stats:", error);
-  }
+  const stats = await getStats();
 
   return (
     <div className="flex min-h-screen flex-col">

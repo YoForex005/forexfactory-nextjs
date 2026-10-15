@@ -9,14 +9,16 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { ProgressBar } from "@/components/blog/ProgressBar";
 import { TableOfContents } from "@/components/blog/TableOfContents";
-import { ArrowLeft, Calendar, Clock, Eye, ChevronRight, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, ChevronRight, Share2 } from "lucide-react";
 import { DownloadBox } from "@/components/blog/DownloadBox";
 import { SaveButton } from "@/components/blog/SaveButton";
 import { BlogVisitTracker } from "@/components/blog/BlogVisitTracker";
+import { BlogViewCounter } from "@/components/blog/BlogViewCounter";
 import { BlogFaq } from "@/components/blog/BlogFaq";
 
 import { BlogHeroSlideshow } from "@/components/blog/BlogHeroSlideshow";
 import { AuthorPopover } from "@/components/blog/AuthorPopover";
+import { authorInitials, authorSlug, getAuthorProfile } from "@/lib/author-profile";
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
 import { normalizeBlogFaq, removeEmbeddedBlogFaq } from "@/lib/blog-faq";
 import { repairBlogFeaturedImageUrl, sanitizeBlogHtml } from "@/lib/content-links";
@@ -366,10 +368,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
                   {blog.views !== null && (
                     <>
                       <span className="text-zinc-700">•</span>
-                      <div className="flex items-center gap-1.5">
-                        <Eye className="h-3.5 w-3.5 text-zinc-500" />
-                        <span>{blog.views.toLocaleString()} views</span>
-                      </div>
+                      <BlogViewCounter blogId={blog.id} initialViews={blog.views.toString()} />
                     </>
                   )}
                 </div>
@@ -435,19 +434,20 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
               )}
 
               {/* Author Card */}
-              <div className="mt-12 p-6 bg-[#0d0d14] rounded-2xl border border-white/5">
+              <Link href={`/author/${authorSlug(blog.author)}`} className="group mt-12 block rounded-2xl border border-white/5 bg-[#0d0d14] p-6 transition hover:border-brand/40 hover:bg-white/[0.03]">
                 <div className="flex items-start gap-4">
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center text-white font-bold text-xl shrink-0">
-                    {blog.author.charAt(0).toUpperCase()}
+                    {authorInitials(blog.author)}
                   </div>
                   <div>
                     <p className="font-semibold text-white mb-1">Written by {blog.author}</p>
                     <p className="text-sm text-zinc-400 leading-relaxed">
-                      Forex trading expert sharing insights on algorithmic trading, Expert Advisors, and MetaTrader development.
+                      {getAuthorProfile(blog.author).bio}
                     </p>
+                    <p className="mt-3 text-sm font-semibold text-brand transition group-hover:text-brand-light">View author profile →</p>
                   </div>
                 </div>
-              </div>
+              </Link>
             </article>
 
             {/* Sidebar */}

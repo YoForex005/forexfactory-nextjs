@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Search, FileText, Download, Loader2 } from "lucide-react";
@@ -13,7 +13,7 @@ type SearchBlogResult = {
   title: string;
   content: string;
   createdAt: string;
-  views: bigint | null;
+  views: number | null;
 };
 
 type SearchSignalResult = {
@@ -38,13 +38,12 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "blog" | "signal">("all");
 
-  useEffect(() => {
-    if (query) {
-      performSearch(query);
-    }
-  }, [query]);
+  const formatBlogViews = (views: number | null) =>
+    typeof views === "number" && views > 0
+      ? `${new Intl.NumberFormat("en-US").format(views)} views`
+      : "New";
 
-  const performSearch = async (q: string) => {
+  const performSearch = useCallback(async (q: string) => {
     if (!q || q.length < 2) return;
 
     setLoading(true);
@@ -57,7 +56,13 @@ function SearchContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (query) {
+      void performSearch(query);
+    }
+  }, [performSearch, query]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,7 +195,7 @@ function SearchContent() {
                         <div className="flex items-center gap-4 text-sm text-zinc-500">
                           <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
                           <span>•</span>
-                          <span>{blog.views || 0} views</span>
+                          <span>{formatBlogViews(blog.views)}</span>
                         </div>
                       </Link>
                     ))}

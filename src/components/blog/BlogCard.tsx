@@ -2,9 +2,21 @@ import Link from "next/link";
 import { format } from "date-fns";
 import Image from "next/image";
 import { repairBlogFeaturedImageUrl } from "@/lib/content-links";
+import { BlogCardViewCount } from "@/components/blog/BlogCardViewCount";
+
+interface BlogCardData {
+  id: string | number | bigint;
+  title: string;
+  seoSlug?: string;
+  href?: string;
+  featuredImage?: string | null;
+  createdAt: string | Date;
+  author?: string | null;
+  views?: string | number | bigint | null;
+}
 
 interface BlogCardProps {
-  blog: any;
+  blog: BlogCardData;
   priority?: boolean;
 }
 
@@ -43,7 +55,7 @@ function getSafeImageUrl(image?: string | null): string | null {
 export function BlogCard({ blog, priority }: BlogCardProps) {
   // Ensure we have a valid slug - fallback to id if seoSlug is missing
   const slug = blog.seoSlug || blog.id.toString();
-  const articleUrl = `/blog/${slug}`;
+  const articleUrl = blog.href || `/blog/${slug}`;
   const imageUrl = getSafeImageUrl(blog.featuredImage);
 
   return (
@@ -53,13 +65,13 @@ export function BlogCard({ blog, priority }: BlogCardProps) {
     >
       <div className="aspect-video relative w-full overflow-hidden bg-gradient-to-br from-brand/20 to-purple-500/20">
         {imageUrl ? (
-          // Using standard img tag to support any domain without next.config.js restrictions
-          // eslint-disable-next-line @next/next/no-img-element
           <Image
             src={imageUrl}
             alt={blog.title}
             fill
             priority={priority}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
             className="object-contain transition-transform duration-700 group-hover:scale-110"
             sizes="(max-width: 640px) 95vw, (max-width: 1024px) 45vw, 30vw"
           />
@@ -89,7 +101,7 @@ export function BlogCard({ blog, priority }: BlogCardProps) {
           )}
           <span>{format(new Date(blog.createdAt), "MMM d, yyyy")}</span>
           <span>•</span>
-          <span>{blog.views || 0} views</span>
+          <BlogCardViewCount blogId={String(blog.id)} initialViews={String(blog.views ?? 0)} />
         </div>
 
         <h3 className="mb-2 text-xl font-bold leading-tight text-white transition-colors group-hover:text-brand">

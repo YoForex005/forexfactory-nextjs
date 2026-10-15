@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { unstable_cache } from "next/cache";
 import {
   DEFAULT_OG_IMAGE,
   SITE_NAME,
@@ -13,7 +12,8 @@ import {
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
-import { Download, FileCode, Calendar, HardDrive, ArrowLeft } from "lucide-react";
+import { FileCode, Calendar, HardDrive, ArrowLeft } from "lucide-react";
+import { DownloadAction } from "@/components/downloads/DownloadAction";
 
 interface SignalDetailProps {
   params: Promise<{
@@ -21,14 +21,10 @@ interface SignalDetailProps {
   }>;
 }
 
-const getSignal = unstable_cache(
-  async (uuid: string) =>
-    prisma.signal.findFirst({
-      where: { uuid },
-    }),
-  ["signal-detail"],
-  { revalidate: 900 }
-);
+const getSignal = (uuid: string) =>
+  prisma.signal.findFirst({
+    where: { uuid },
+  });
 
 export async function generateMetadata({ params }: SignalDetailProps): Promise<Metadata> {
   const { uuid } = await params;
@@ -187,13 +183,15 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
                     <div className="text-sm text-zinc-500">Download</div>
                   </div>
 
-                  <a
-                    href={`/api/download/${signal.uuid}`}
-                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 font-semibold text-white transition-all hover:bg-brand-dark hover:shadow-lg hover:shadow-brand/20"
-                  >
-                    <Download className="h-5 w-5" />
-                    Download Now
-                  </a>
+                  <DownloadAction
+                    signalId={signal.id}
+                    uuid={signal.uuid}
+                    title={signal.title}
+                    type={signal.platform || "Expert Advisor"}
+                    fileSize={`${fileSizeMB} MB`}
+                    label="Download now"
+                    className="mb-4 flex w-full items-center justify-center rounded-xl bg-brand px-6 py-3 font-semibold text-white transition-all hover:bg-brand-dark hover:shadow-lg hover:shadow-brand/20 disabled:cursor-wait disabled:opacity-75"
+                  />
 
                   <div className="space-y-2 border-t border-white/5 pt-4 text-sm">
                     <div className="flex justify-between text-zinc-400">

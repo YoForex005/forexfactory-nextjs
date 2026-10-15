@@ -90,7 +90,79 @@ type BlogPreview = {
   featuredImage: string;
   tags: string;
   author: string;
+  href?: string;
 };
+
+type PublicSearchBlog = {
+  id: string;
+  title: string;
+  seoSlug: string;
+  createdAt: string;
+  featuredImage: string;
+  views: number | null;
+  tags: string;
+  author: string;
+};
+
+const PUBLIC_SITE_ORIGIN = "https://forexfactory.cc";
+
+const offlineBlogFallback: BlogPreview[] = [
+  {
+    id: "offline-articles",
+    title: "Browse Forex Articles",
+    seoSlug: "articles",
+    status: "published",
+    views: null,
+    createdAt: "2025-01-01T00:00:00.000Z",
+    featuredImage: "",
+    tags: "Forex, Expert Advisors",
+    author: "ForexFactory",
+    href: `${PUBLIC_SITE_ORIGIN}/blog`,
+  },
+];
+
+function isPublicSearchBlog(value: unknown): value is PublicSearchBlog {
+  if (typeof value !== "object" || value === null) return false;
+
+  const blog = value as Record<string, unknown>;
+  return ["id", "title", "seoSlug", "createdAt", "featuredImage", "tags", "author"].every(
+    (key) => typeof blog[key] === "string"
+  ) && (typeof blog.views === "number" || blog.views === null);
+}
+
+const getPublicFallbackBlogs = unstable_cache(
+  async (query: string): Promise<BlogPreview[]> => {
+    try {
+      const response = await fetch(
+        `${PUBLIC_SITE_ORIGIN}/api/search?q=${encodeURIComponent(query)}&type=blog&limit=3`,
+        { next: { revalidate: 300 } }
+      );
+
+      if (!response.ok) return offlineBlogFallback;
+
+      const payload: unknown = await response.json();
+      if (typeof payload !== "object" || payload === null) return offlineBlogFallback;
+
+      const blogs = (payload as { blogs?: unknown }).blogs;
+      if (!Array.isArray(blogs)) return offlineBlogFallback;
+
+      const fallbackBlogs = blogs
+        .filter(isPublicSearchBlog)
+        .slice(0, 3)
+        .map((blog) => ({
+          ...blog,
+          status: "published",
+          href: `${PUBLIC_SITE_ORIGIN}/blog/${blog.seoSlug}`,
+        }));
+
+      return fallbackBlogs.length > 0 ? fallbackBlogs : offlineBlogFallback;
+    } catch {
+      return offlineBlogFallback;
+    }
+  },
+  ["public-home-page-fallback-v2"],
+  { revalidate: 300 }
+);
 
 function serializeBlogPreview(blog: {
   id: bigint;
@@ -111,79 +183,96 @@ function serializeBlogPreview(blog: {
   };
 }
 
-const getHomePageData = unstable_cache(
+const getCachedHomePageDatabaseData = unstable_cache(
   async () => {
-    const [latestBlogsRaw, popularBlogsRaw, allCategoryBlogsRaw] = await Promise.all([
-      prisma.blog.findMany({
-        where: { status: "published" },
-        orderBy: { createdAt: "desc" },
-        take: 3,
-        select: {
-          id: true,
-          title: true,
-          seoSlug: true,
-          status: true,
-          views: true,
-          createdAt: true,
-          featuredImage: true,
-          tags: true,
-          author: true,
-        },
-      }),
-      prisma.blog.findMany({
-        where: { status: "published" },
-        orderBy: { views: "desc" },
-        take: 3,
-        select: {
-          id: true,
-          title: true,
-          seoSlug: true,
-          status: true,
-          views: true,
-          createdAt: true,
-          featuredImage: true,
-          tags: true,
-          author: true,
-        },
-      }),
-      prisma.blog.findMany({
-        where: { status: "published" },
-        orderBy: { createdAt: "desc" },
-        take: 50,
-        select: {
-          id: true,
-          title: true,
-          seoSlug: true,
-          status: true,
-          views: true,
-          createdAt: true,
-          featuredImage: true,
-          tags: true,
-          author: true,
-        },
-      }),
-    ]);
+      const [latestBlogsRaw, popularBlogsRaw, allCategoryBlogsRaw] = await Promise.all([
+        prisma.blog.findMany({
+          where: { status: "published", views: { gt: BigInt(0) } },
+          orderBy: { createdAt: "desc" },
+          take: 3,
+          select: {
+            id: true,
+            title: true,
+            seoSlug: true,
+            status: true,
+            views: true,
+            createdAt: true,
+            featuredImage: true,
+            tags: true,
+            author: true,
+          },
+        }),
+        prisma.blog.findMany({
+          where: { status: "published", views: { gt: BigInt(0) } },
+          orderBy: { views: "desc" },
+          take: 3,
+          select: {
+            id: true,
+            title: true,
+            seoSlug: true,
+            status: true,
+            views: true,
+            createdAt: true,
+            featuredImage: true,
+            tags: true,
+            author: true,
+          },
+        }),
+        prisma.blog.findMany({
+          where: { status: "published", views: { gt: BigInt(0) } },
+          orderBy: { views: "desc" },
+          select: {
+            id: true,
+            title: true,
+            seoSlug: true,
+            status: true,
+            views: true,
+            createdAt: true,
+            featuredImage: true,
+            tags: true,
+            author: true,
+          },
+        }),
+      ]);
 
-    const latestBlogs = latestBlogsRaw.map(serializeBlogPreview);
-    const popularBlogs = popularBlogsRaw.map(serializeBlogPreview);
-    const allCategoryBlogs = allCategoryBlogsRaw.map(serializeBlogPreview);
+      const latestBlogs = latestBlogsRaw.map(serializeBlogPreview);
+      const popularBlogs = popularBlogsRaw.map(serializeBlogPreview);
+      const allCategoryBlogs = allCategoryBlogsRaw.map(serializeBlogPreview);
 
-    return { latestBlogs, popularBlogs, allCategoryBlogs };
+      return { latestBlogs, popularBlogs, allCategoryBlogs, usingFallback: false };
   },
-  ["home-page-data"],
-  { revalidate: 300 }
+  ["home-page-database-data-v4"],
+  { revalidate: 300, tags: ["blog-card-data"] }
 );
 
-export default async function Home() {
-  let latestBlogs: BlogPreview[] = [];
-  let popularBlogs: BlogPreview[] = [];
-  let allCategoryBlogs: BlogPreview[] = [];
-
+async function getHomePageData() {
   try {
-    ({ latestBlogs, popularBlogs, allCategoryBlogs } = await getHomePageData());
-  } catch (error) {
-    console.error("Failed to fetch home page data:", error);
+    return await getCachedHomePageDatabaseData();
+  } catch {
+
+      const [generalBlogs, mt4FallbackBlogs, mt5FallbackBlogs] = await Promise.all([
+        getPublicFallbackBlogs("EA"),
+        getPublicFallbackBlogs("MT4"),
+        getPublicFallbackBlogs("MT5"),
+      ]);
+
+      const allCategoryBlogs = Array.from(
+        new Map(
+          [...mt4FallbackBlogs, ...mt5FallbackBlogs].map((blog) => [blog.id, blog])
+        ).values()
+      );
+
+    return {
+      latestBlogs: generalBlogs,
+      popularBlogs: generalBlogs,
+      allCategoryBlogs,
+      usingFallback: true,
+    };
   }
+}
+
+export default async function Home() {
+  const { latestBlogs, popularBlogs, allCategoryBlogs, usingFallback } = await getHomePageData();
 
   // Optimized helper function with memoization
   function filterByKeywords(blogs: BlogPreview[], keywords: string[], limit = 3): BlogPreview[] {
@@ -200,6 +289,18 @@ export default async function Home() {
         title.includes(keyword) || tags.includes(keyword)
       )) {
         results.push(blog);
+      }
+    }
+
+    // The local fallback contains a compact MT4/MT5 article set. When the
+    // private database is offline, fill any remaining slots from that set so
+    // every homepage category keeps the same three-card layout.
+    if (usingFallback && results.length < limit) {
+      for (const fallbackBlog of allCategoryBlogs) {
+        if (results.length >= limit) break;
+        if (!results.some((blog) => blog.id === fallbackBlog.id)) {
+          results.push(fallbackBlog);
+        }
       }
     }
 
