@@ -9,7 +9,6 @@ import {
   SITE_TWITTER_HANDLE,
   SITE_URL,
 } from "@/lib/seo";
-import { Providers } from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +22,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   display: "swap",
+  // The mono face is only used in long-form/code content, never in the
+  // homepage's initial viewport. Keep it available without competing with the
+  // primary display font during first paint.
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -109,52 +112,39 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isProduction = process.env.NODE_ENV === "production";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-surface-100 text-white min-h-screen`}
       >
-        {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-PRQRZ948"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
-        {/* End Google Tag Manager (noscript) */}
-        {/* Google Tag Manager */}
-        <Script id="google-tag-manager" strategy="afterInteractive">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-PRQRZ948');`}
-        </Script>
-        {/* End Google Tag Manager */}
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-W7H5FJT0YT"
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-W7H5FJT0YT');
-          `}
-        </Script>
+        {isProduction && (
+          <>
+            <noscript>
+              <iframe
+                src="https://www.googletagmanager.com/ns.html?id=GTM-PRQRZ948"
+                height="0"
+                width="0"
+                style={{ display: "none", visibility: "hidden" }}
+              />
+            </noscript>
+            <Script id="google-tag-manager" strategy="lazyOnload">
+              {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','GTM-PRQRZ948');`}
+            </Script>
+          </>
+        )}
 
-        <Providers>
-          <div className="relative min-h-screen bg-gradient-to-b from-surface-50 via-surface-100 to-black">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(10,132,255,0.15),_transparent_55%)]" />
-            <div className="relative z-10 flex min-h-screen flex-col">
-              {children}
-            </div>
+        <div className="relative min-h-screen bg-gradient-to-b from-surface-50 via-surface-100 to-black">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(10,132,255,0.15),_transparent_55%)]" />
+          <div className="relative z-10 flex min-h-screen flex-col">
+            {children}
           </div>
-        </Providers>
+        </div>
       </body>
     </html>
   );

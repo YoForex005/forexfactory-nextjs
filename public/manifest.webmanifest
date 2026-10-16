@@ -1,0 +1,17 @@
+{
+  "name": "ForexFactory",
+  "short_name": "ForexFactory",
+  "description": "Forex Expert Advisors, trading signals, and educational resources.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#0a84ff",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }
+  ]
+}

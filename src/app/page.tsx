@@ -8,11 +8,10 @@ import { prisma } from "@/lib/prisma";
 import { BlogSection } from "@/components/blog/BlogSection";
 import { AdBanner } from "@/components/layout/AdBanner";
 
-// Cache this page for 3 minutes (180 seconds) with static generation
-// export const revalidate = 180;
-
-// Generate static page at build time
-export const dynamic = 'force-dynamic';
+// Serve a cached, static homepage and refresh it in the background every five
+// minutes. The homepage already uses cached database queries, so forcing a new
+// server render for every visitor only adds avoidable TTFB.
+export const revalidate = 300;
 
 
 import { Metadata } from 'next';
@@ -221,6 +220,9 @@ const getCachedHomePageDatabaseData = unstable_cache(
         prisma.blog.findMany({
           where: { status: "published", views: { gt: BigInt(0) } },
           orderBy: { views: "desc" },
+          // The homepage needs a small, diverse candidate pool—not every
+          // published record—to create its three-card topic sections.
+          take: 150,
           select: {
             id: true,
             title: true,
@@ -307,34 +309,13 @@ export default async function Home() {
     return results;
   }
 
-  // Create filtered lists efficiently
-  const mt4Blogs = filterByKeywords(allCategoryBlogs, ['MT4']);
-  const mt5Blogs = filterByKeywords(allCategoryBlogs, ['MT5']);
-
-  const indicatorBlogs = filterByKeywords(allCategoryBlogs, ['Indicator'], 10);
-  const indicatorMT4Blogs = indicatorBlogs.filter(b =>
-    b.title.toLowerCase().includes('mt4') || b.tags.toLowerCase().includes('mt4')
-  ).slice(0, 3);
-  const indicatorMT5Blogs = indicatorBlogs.filter(b =>
-    b.title.toLowerCase().includes('mt5') || b.tags.toLowerCase().includes('mt5')
-  ).slice(0, 3);
-
-  const beginnerGuideBlogs = filterByKeywords(allCategoryBlogs, ['Beginner', 'Guide']);
-  const indicatorMT4OnlyBlogs = indicatorMT4Blogs;
-  const sourceCodeMQ4Blogs = filterByKeywords(allCategoryBlogs, ['Source Code', 'Source', 'MQ4']);
-  const sourceCodeMQ5Blogs = filterByKeywords(allCategoryBlogs, ['Source Code', 'Source', 'MQ5']);
-  const flexyMarketsBlogs = filterByKeywords(allCategoryBlogs, ['Flexy']);
-  const eaMT4MT5Blogs = filterByKeywords(allCategoryBlogs, ['EA', 'Expert Advisor']);
-  const courseBlogs = filterByKeywords(allCategoryBlogs, ['Course', 'Training']);
-  const indicatorMT4MT5Blogs = indicatorBlogs.slice(0, 3);
-  const copyTradingBlogs = filterByKeywords(allCategoryBlogs, ['Copy Trading', 'Copy']);
-  const indicatorMQ4Blogs = filterByKeywords(allCategoryBlogs, ['Indicator', 'MQ4']);
-  const propFirmPassingBlogs = filterByKeywords(allCategoryBlogs, ['PropFirm', 'Prop Firm', 'Passing']);
-
+  // Keep the homepage focused on the most useful starting points. The full
+  // catalogue is available from /blog, so it does not need to be parsed and
+  // hydrated before the visitor can see the first screen.
+  const platformBlogs = filterByKeywords(allCategoryBlogs, ['MT4', 'MT5']);
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <AdBanner />
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -393,13 +374,14 @@ export default async function Home() {
           </div>
         </section>
 
+        <AdBanner />
+
         {/* Blog Sections */}
         <div className="space-y-0 divide-y divide-white/5 bg-surface-50/50">
           <BlogSection
             title="Popular Forex Articles"
             subtitle="Most read insights and strategies"
             blogs={popularBlogs}
-            priorityStartIndex={2}
           />
 
           <BlogSection
@@ -409,95 +391,21 @@ export default async function Home() {
           />
 
           <BlogSection
-            title="EA-MT4 Articles"
-            subtitle="Expert Advisors for MetaTrader 4"
-            blogs={mt4Blogs}
-          />
-
-          <BlogSection
-            title="EA-MT5 Articles"
-            subtitle="Expert Advisors for MetaTrader 5"
-            blogs={mt5Blogs}
-          />
-
-          <BlogSection
-            title="Indicator - MT4 Articles"
-            subtitle="Technical indicators for MetaTrader 4"
-            blogs={indicatorMT4Blogs}
-          />
-
-          <BlogSection
-            title="Indicator - MT5 Articles"
-            subtitle="Technical indicators for MetaTrader 5"
-            blogs={indicatorMT5Blogs}
-          />
-
-          <BlogSection
-            title="Beginner Guides Articles"
-            subtitle="Start your trading journey with step-by-step guides"
-            blogs={beginnerGuideBlogs}
-          />
-
-          <BlogSection
-            title="Indicator MT4 Articles"
-            subtitle="MT4 technical indicators and analysis tools"
-            blogs={indicatorMT4OnlyBlogs}
-          />
-
-          <BlogSection
-            title="Source Code MQ4 Articles"
-            subtitle="MQ4 source code and programming guides"
-            blogs={sourceCodeMQ4Blogs}
-          />
-
-          <BlogSection
-            title="Source Code MQ5 Articles"
-            subtitle="MQ5 source code and programming guides"
-            blogs={sourceCodeMQ5Blogs}
-          />
-
-          <BlogSection
-            title="Flexy Markets Articles"
-            subtitle="Market analysis and Flexy trading strategies"
-            blogs={flexyMarketsBlogs}
-          />
-
-          <BlogSection
-            title="EA - MT4/MT5 Articles"
-            subtitle="Expert Advisors for both MetaTrader platforms"
-            blogs={eaMT4MT5Blogs}
-          />
-
-          <BlogSection
-            title="Course Articles"
-            subtitle="Educational courses and training materials"
-            blogs={courseBlogs}
-          />
-
-          <BlogSection
-            title="Indicator - MT4/MT5 Articles"
-            subtitle="Indicators compatible with both platforms"
-            blogs={indicatorMT4MT5Blogs}
-          />
-
-          <BlogSection
-            title="Copy Trading Articles"
-            subtitle="Social and copy trading strategies"
-            blogs={copyTradingBlogs}
-          />
-
-          <BlogSection
-            title="Indicator - MQ4 Articles"
-            subtitle="MQ4 indicator development and customization"
-            blogs={indicatorMQ4Blogs}
-          />
-
-          <BlogSection
-            title="PropFirm Passing Articles"
-            subtitle="Tips and strategies for passing prop firm challenges"
-            blogs={propFirmPassingBlogs}
+            title="MetaTrader Tools & Guides"
+            subtitle="MT4 and MT5 tools, indicators, and practical setup guides"
+            blogs={platformBlogs}
           />
         </div>
+
+        <section className="border-t border-white/5 bg-surface-50/50 py-16 sm:py-20">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-sm text-zinc-400">Looking for a specific platform, strategy, or trading topic?</p>
+            <h2 className="mt-3 text-3xl font-bold text-white">Explore the complete trading library</h2>
+            <Link href="/blog" className="mt-7 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand">
+              Browse all articles <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
       </main>
 
       <Footer />

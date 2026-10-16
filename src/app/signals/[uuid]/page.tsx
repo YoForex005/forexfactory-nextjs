@@ -14,6 +14,9 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { FileCode, Calendar, HardDrive, ArrowLeft } from "lucide-react";
 import { DownloadAction } from "@/components/downloads/DownloadAction";
+import articleContent from "@/components/blog/ArticleContent.module.css";
+
+const proseClass = (articleContent as unknown as Record<string, string>).prose;
 
 interface SignalDetailProps {
   params: Promise<{
@@ -170,7 +173,7 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
                 </div>
 
                 <div
-                  className="text-lg text-zinc-300 prose prose-invert max-w-none"
+                  className={`max-w-none text-lg text-zinc-300 ${proseClass}`}
                   dangerouslySetInnerHTML={decodeHtml(signal.description)}
                 />
               </div>
@@ -227,7 +230,7 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
                 <div>
                   <h3 className="mb-2 font-semibold text-white">Description</h3>
                   <div
-                    className="leading-relaxed prose prose-invert max-w-none"
+                    className={`max-w-none leading-relaxed ${proseClass}`}
                     dangerouslySetInnerHTML={decodeHtml(signal.description)}
                   />
                 </div>

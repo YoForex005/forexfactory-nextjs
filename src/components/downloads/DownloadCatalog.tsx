@@ -121,22 +121,26 @@ export function DownloadCatalog({
       </div>
 
       <div className="mb-8 grid gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-3 shadow-2xl shadow-black/10 lg:grid-cols-[1fr_auto_auto]">
-        <label className="relative block">
+        <label className="relative block" htmlFor="catalogue-query">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
           <span className="sr-only">Search downloads</span>
           <input
+            id="catalogue-query"
+            name="catalogue-query"
+            type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search by robot, indicator, strategy..."
             className="h-12 w-full rounded-xl border border-white/10 bg-surface-50/80 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-brand focus:ring-4 focus:ring-brand/10"
           />
         </label>
-        <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-white/10 bg-surface-50/60 p-1" aria-label="Filter downloads">
+        <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-white/10 bg-surface-50/60 p-1" role="group" aria-label="Filter downloads">
           {filters.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setFilter(key)}
+              aria-pressed={filter === key}
               className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition ${filter === key ? "bg-brand text-white shadow-lg shadow-brand/20" : "text-zinc-400 hover:bg-white/5 hover:text-white"}`}
             >
               {label}

@@ -8,6 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DownloadAction } from "@/components/downloads/DownloadAction";
+import articleContent from "@/components/blog/ArticleContent.module.css";
+
+const proseClass = (articleContent as unknown as Record<string, string>).prose;
 import {
   SITE_NAME,
   generateCanonicalUrl,
@@ -149,7 +152,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
                 <p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand/70">Expert Advisor</p>
                 <h1 className="text-4xl font-bold text-white md:text-5xl">{signal.title}</h1>
                 <div
-                  className="mt-4 text-lg text-zinc-400 prose prose-invert max-w-none"
+                  className={`mt-4 max-w-none text-lg text-zinc-400 ${proseClass}`}
                   dangerouslySetInnerHTML={decodeHtml(signal.description)}
                 />
                 <div className="mt-6 flex flex-wrap gap-3">

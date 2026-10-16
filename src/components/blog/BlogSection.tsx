@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { BlogCard } from "./BlogCard";
-import { Blog } from "@prisma/client";
+import { BlogCard, type BlogCardData } from "./BlogCard";
 
 interface BlogSectionProps {
     title: string;
     subtitle?: string;
-    blogs: any[]; // Changed from Blog[] to accept partial blog objects
+    blogs: BlogCardData[];
     viewMoreLink?: string;
     id?: string;
     priorityStartIndex?: number;
@@ -16,7 +15,10 @@ export function BlogSection({ title, subtitle, blogs, viewMoreLink = "/blog", id
     if (blogs.length === 0) return null;
 
     return (
-        <section className="py-20" id={id}>
+        <section
+            className="py-20 [content-visibility:auto] [contain-intrinsic-size:auto_760px]"
+            id={id}
+        >
             <div className="container mx-auto px-4">
                 <div className="mb-12 flex flex-col items-center justify-center text-center">
                     <div>

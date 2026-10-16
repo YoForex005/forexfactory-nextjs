@@ -42,7 +42,14 @@ export function DownloadAction({ signalId, uuid, title, type, fileSize, classNam
   }
 
   return (
-    <button type="button" onClick={handleDownload} disabled={isPreparing} className={className}>
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={isPreparing}
+      aria-label={`${label}: ${title}`}
+      aria-busy={isPreparing}
+      className={className}
+    >
       {isPreparing ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Download className="mr-2 h-5 w-5" />}
       {isPreparing ? "Preparing download..." : label}
     </button>

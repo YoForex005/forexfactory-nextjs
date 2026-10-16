@@ -22,6 +22,9 @@ import { authorInitials, authorSlug, getAuthorProfile } from "@/lib/author-profi
 import { mapRobotsDirective, sanitizeText } from "@/lib/seo";
 import { normalizeBlogFaq, removeEmbeddedBlogFaq } from "@/lib/blog-faq";
 import { repairBlogFeaturedImageUrl, sanitizeBlogHtml } from "@/lib/content-links";
+import articleContent from "@/components/blog/ArticleContent.module.css";
+
+const proseClass = (articleContent as unknown as Record<string, string>).prose;
 
 function resolveUrl(value: string): string | null {
   const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, "");
@@ -392,19 +395,7 @@ export default async function BlogDetailPage({ params }: BlogDetailProps) {
             {/* Article Content */}
             <article className="min-w-0">
               <div
-                className="prose prose-lg prose-invert max-w-none
-                  prose-headings:font-bold prose-headings:text-white prose-headings:scroll-mt-24
-                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                  prose-p:text-zinc-300 prose-p:leading-7
-                  prose-a:text-brand prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-white prose-strong:font-semibold
-                  prose-blockquote:border-l-2 prose-blockquote:border-brand prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-zinc-400
-                  prose-ul:text-zinc-300 prose-ol:text-zinc-300
-                  prose-li:marker:text-brand
-                  prose-code:text-brand prose-code:bg-brand/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
-                  prose-pre:bg-[#0d0d14] prose-pre:border prose-pre:border-white/5 prose-pre:rounded-xl
-                  prose-img:rounded-xl prose-img:shadow-xl"
+                className={`${proseClass} max-w-none`}
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
 

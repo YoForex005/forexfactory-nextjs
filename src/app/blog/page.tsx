@@ -17,7 +17,10 @@ const BLOG_TITLE = `Trading Blog & Insights | ${SITE_NAME}`;
 const BLOG_DESCRIPTION =
   "Expert guides, trading strategies, and market analysis for Forex traders. Master algorithmic trading with our in-depth tutorials.";
 
-export const dynamic = 'force-dynamic';
+// Cache the public listing response and regenerate it in the background. The
+// article data itself is independently cached below, so forced SSR only adds
+// document latency for visitors.
+export const revalidate = 300;
 
 const BLOGS_PER_PAGE = 12; // Show 12 blogs per page
 const VIEWED_PUBLISHED_BLOGS = {
@@ -61,7 +64,6 @@ function serializeBlogListItem(blog: {
   createdAt: Date;
   views: bigint | null;
   author: string;
-  content: string;
   seoMeta: Array<{
     seoDescription: string | null;
   }>;
@@ -71,10 +73,12 @@ function serializeBlogListItem(blog: {
     seoSlug: blog.seoSlug,
     featuredImage: blog.featuredImage,
     author: blog.author,
-    content: blog.content,
     seoMeta: blog.seoMeta.map((meta) => ({
       seoDescription: meta.seoDescription,
     })),
+    // Listing schema needs a summary, not the full article body. Fetching full
+    // HTML for every card increases database work and response latency.
+    content: blog.seoMeta[0]?.seoDescription ?? "",
     id: blog.id.toString(),
     createdAt: blog.createdAt.toISOString(),
     views: blog.views === null ? null : Number(blog.views),
@@ -135,7 +139,6 @@ const getBlogListingData = unstable_cache(
           createdAt: true,
           views: true,
           author: true,
-          content: true,
           seoMeta: {
             select: {
               seoDescription: true,
@@ -159,34 +162,22 @@ const getBlogListingData = unstable_cache(
   { revalidate: 300, tags: ["blog-card-data"] }
 );
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}): Promise<Metadata> {
-  const params = await searchParams;
-  const currentPage = Math.max(1, Number(params.page) || 1);
-  const canonical =
-    currentPage > 1 ? `${SITE_URL}/blog?page=${currentPage}` : `${SITE_URL}/blog`;
-  const title =
-    currentPage > 1 ? `Trading Blog Page ${currentPage} | ${SITE_NAME}` : BLOG_TITLE;
-
-  return {
-    title,
+export const metadata: Metadata = {
+    title: BLOG_TITLE,
     description: BLOG_DESCRIPTION,
     alternates: {
-      canonical,
+      canonical: `${SITE_URL}/blog`,
     },
     openGraph: {
-      title,
+      title: BLOG_TITLE,
       description: BLOG_DESCRIPTION,
       type: "website",
-      url: canonical,
+      url: `${SITE_URL}/blog`,
       images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: BLOG_TITLE,
       description: BLOG_DESCRIPTION,
       images: [DEFAULT_OG_IMAGE],
     },
@@ -202,15 +193,12 @@ export async function generateMetadata({
       },
     },
   };
+
+export default function BlogPage() {
+  return <BlogListingPage currentPage={1} />;
 }
 
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const params = await searchParams;
-  const currentPage = Math.max(1, Number(params.page) || 1);
+export async function BlogListingPage({ currentPage }: { currentPage: number }) {
   const skip = (currentPage - 1) * BLOGS_PER_PAGE;
 
   const { blogs: allContent, count: totalBlogs } = await getBlogListingData(currentPage);
@@ -222,13 +210,14 @@ export default async function BlogPage({
   const jsonLd = generateBlogSchema({
     title: BLOG_TITLE,
     description: BLOG_DESCRIPTION,
-    url: currentPage > 1 ? `${SITE_URL}/blog?page=${currentPage}` : `${SITE_URL}/blog`,
+    url: currentPage > 1 ? `${SITE_URL}/blog/page/${currentPage}` : `${SITE_URL}/blog`,
     blogs: allContent.map((blog) => ({
       ...blog,
       content: sanitizeText(blog.content, 160),
       createdAt: blog.createdAt,
     })),
   });
+  const pageHref = (page: number) => page === 1 ? "/blog" : `/blog/page/${page}`;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -260,7 +249,7 @@ export default async function BlogPage({
             <>
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {allContent.map((item, index) => (
-                  <BlogCard key={item.id} blog={item} priority={index < 3} />
+                  <BlogCard key={item.id} blog={item} priority={index === 0} />
                 ))}
               </div>
 
@@ -270,7 +259,7 @@ export default async function BlogPage({
                   {/* Previous Button */}
                   {hasPrevPage ? (
                     <Link
-                      href={`/blog?page=${currentPage - 1}`}
+                      href={pageHref(currentPage - 1)}
                       className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
                     >
                       ← Previous
@@ -299,7 +288,7 @@ export default async function BlogPage({
                       return (
                         <Link
                           key={pageNum}
-                          href={`/blog?page=${pageNum}`}
+                          href={pageHref(pageNum)}
                           className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${isActive
                             ? "bg-brand text-white"
                             : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
@@ -314,7 +303,7 @@ export default async function BlogPage({
                   {/* Next Button */}
                   {hasNextPage ? (
                     <Link
-                      href={`/blog?page=${currentPage + 1}`}
+                      href={pageHref(currentPage + 1)}
                       className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
                     >
                       Next →

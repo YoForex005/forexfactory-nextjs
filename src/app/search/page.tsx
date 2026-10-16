@@ -30,6 +30,11 @@ type SearchResults = {
   total: number;
 };
 
+type AgentSubmitEvent = SubmitEvent & {
+  agentInvoked?: boolean;
+  respondWith?: (result: Promise<unknown>) => void;
+};
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -43,16 +48,24 @@ function SearchContent() {
       ? `${new Intl.NumberFormat("en-US").format(views)} views`
       : "New";
 
-  const performSearch = useCallback(async (q: string) => {
-    if (!q || q.length < 2) return;
+  const performSearch = useCallback(async (
+    q: string,
+    resultType = activeTab
+  ): Promise<SearchResults | null> => {
+    if (!q || q.trim().length < 2) return null;
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(q)}&type=${activeTab}`);
-      const data = await response.json();
+      const response = await fetch(`/api/search?q=${encodeURIComponent(q)}&type=${resultType}`);
+      if (!response.ok) {
+        throw new Error("Search request failed");
+      }
+      const data = await response.json() as SearchResults;
       setResults(data);
+      return data;
     } catch (error) {
       console.error("Search error:", error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -68,14 +81,25 @@ function SearchContent() {
     e.preventDefault();
     if (searchQuery.length >= 2) {
       window.history.pushState({}, "", `/search?q=${encodeURIComponent(searchQuery)}`);
-      performSearch(searchQuery);
+      const searchPromise = performSearch(searchQuery);
+      const agentEvent = e.nativeEvent as AgentSubmitEvent;
+
+      if (agentEvent.agentInvoked) {
+        agentEvent.respondWith?.(
+          searchPromise.then((data) =>
+            data
+              ? `Found ${data.total} public ForexFactory results for "${searchQuery}".`
+              : "The search could not be completed."
+          )
+        );
+      }
     }
   };
 
   const handleTabChange = (tab: "all" | "blog" | "signal") => {
     setActiveTab(tab);
-    if (query) {
-      performSearch(query);
+    if (searchQuery.trim().length >= 2) {
+      void performSearch(searchQuery, tab);
     }
   };
 
@@ -89,7 +113,7 @@ function SearchContent() {
   });
 
   return (
-    <main className="flex-1 bg-surface-100">
+    <main className="flex-1 bg-surface-100" aria-busy={loading}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -100,10 +124,19 @@ function SearchContent() {
           <h1 className="mb-6 text-4xl font-bold text-white">Search</h1>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="relative max-w-2xl">
+          <form
+            onSubmit={handleSearch}
+            className="relative max-w-2xl"
+            toolname="search_forexfactory"
+            tooldescription="Searches public ForexFactory articles, trading signals, and Expert Advisor resources."
+          >
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+            <label htmlFor="search-results-query" className="sr-only">Search ForexFactory content</label>
             <input
-              type="text"
+              type="search"
+              id="search-results-query"
+              name="q"
+              toolparamdescription="Keywords to search for in public ForexFactory content."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for blog posts, signals, EAs..."
@@ -123,8 +156,13 @@ function SearchContent() {
       {/* Tabs */}
       <section className="border-b border-white/10 bg-surface-50">
         <div className="container mx-auto px-4">
-          <div className="flex gap-6">
+          <div className="flex gap-6" role="tablist" aria-label="Search result type">
             <button
+              id="search-tab-all"
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "all"}
+              aria-controls="search-results"
               onClick={() => handleTabChange("all")}
               className={`border-b-2 px-4 py-4 font-medium transition-colors ${activeTab === "all"
                 ? "border-brand text-brand"
@@ -134,6 +172,11 @@ function SearchContent() {
               All ({results.total})
             </button>
             <button
+              id="search-tab-blog"
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "blog"}
+              aria-controls="search-results"
               onClick={() => handleTabChange("blog")}
               className={`border-b-2 px-4 py-4 font-medium transition-colors ${activeTab === "blog"
                 ? "border-brand text-brand"
@@ -143,6 +186,11 @@ function SearchContent() {
               Blog Posts ({results.blogs?.length || 0})
             </button>
             <button
+              id="search-tab-signal"
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "signal"}
+              aria-controls="search-results"
               onClick={() => handleTabChange("signal")}
               className={`border-b-2 px-4 py-4 font-medium transition-colors ${activeTab === "signal"
                 ? "border-brand text-brand"
@@ -157,7 +205,7 @@ function SearchContent() {
 
       {/* Results */}
       <section className="py-12">
-        <div className="container mx-auto px-4">
+        <div id="search-results" className="container mx-auto px-4" role="tabpanel" aria-labelledby={`search-tab-${activeTab}`}>
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-brand" />

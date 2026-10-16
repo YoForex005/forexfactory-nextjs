@@ -1,10 +1,15 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, X, Home, BookOpen, Download, BarChart2, Info, Mail, ArrowRight, User, LogOut } from "lucide-react";
-import { isLoggedIn, getUser, logout } from "@/lib/auth-client";
+import {
+  BarChart2,
+  BookOpen,
+  Download,
+  Home,
+  Info,
+  Mail,
+  Menu,
+  Search,
+} from "lucide-react";
+import { NavbarAccount } from "@/components/layout/NavbarAccount";
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
@@ -15,245 +20,79 @@ const navLinks = [
   { href: "/contact", label: "Contact", icon: Mail },
 ];
 
-export function Navbar() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
-
-  // Check auth status on mount and route change
-  useEffect(() => {
-    const checkAuth = () => {
-      const loggedIn = isLoggedIn();
-      setIsAuthenticated(loggedIn);
-      if (loggedIn) {
-        const user = getUser();
-        setUserName(user?.name || user?.email || null);
-      } else {
-        setUserName(null);
-      }
-    };
-    checkAuth();
-
-    // Re-check on route change
-    setIsSidebarOpen(false);
-  }, [pathname]);
-
-  // Prevent body scroll when sidebar is open
-  useEffect(() => {
-    if (isSidebarOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isSidebarOpen]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setShowSearch(false);
-      setSearchQuery("");
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    setIsAuthenticated(false);
-    setUserName(null);
-    router.refresh();
-  };
-
+function SearchPanel() {
   return (
-    <>
-      <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-surface-50/80 backdrop-blur-xl">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="md:hidden rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5" suppressHydrationWarning />
-          </button>
+    <details className="group relative">
+      <summary className="flex cursor-pointer list-none items-center rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white [&::-webkit-details-marker]:hidden">
+        <Search className="h-5 w-5" />
+        <span className="sr-only">Open site search</span>
+      </summary>
+      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(24rem,calc(100vw-2rem))] rounded-xl border border-white/10 bg-surface-50 p-3 shadow-2xl shadow-black/40">
+        <form
+          action="/search"
+          className="relative"
+          toolname="search_forexfactory"
+          tooldescription="Searches public ForexFactory articles, trading signals, and Expert Advisor resources."
+        >
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+          <label htmlFor="site-search" className="sr-only">Search ForexFactory content</label>
+          <input
+            type="search"
+            id="site-search"
+            name="q"
+            required
+            autoComplete="off"
+            toolparamdescription="Keywords to search for in public ForexFactory content."
+            placeholder="Search blog posts, signals, EAs..."
+            className="w-full rounded-lg border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white placeholder-zinc-500 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+          />
+        </form>
+      </div>
+    </details>
+  );
+}
 
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white">
-            <span className="text-brand">Forex</span>Factory
-          </Link>
-
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`hover:text-brand transition-colors ${pathname === link.href ? "text-brand" : ""}`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search Button */}
-            <button
-              onClick={() => setShowSearch(!showSearch)}
-              className="rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
-              title="Search"
-            >
-              <Search className="h-5 w-5" suppressHydrationWarning />
-            </button>
-
-            {/* Auth Buttons - Desktop */}
-            {isAuthenticated ? (
-              <div className="hidden sm:flex items-center gap-3">
-                <Link
-                  href="/dashboard"
-                  className="text-sm font-medium text-brand hover:underline"
-                >
-                  Dashboard
+export function Navbar() {
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-surface-50/80 backdrop-blur-xl">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <details className="relative md:hidden">
+          <summary className="flex cursor-pointer list-none items-center rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white [&::-webkit-details-marker]:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Open navigation menu</span>
+          </summary>
+          <aside className="absolute left-0 top-[calc(100%+0.75rem)] z-50 w-72 rounded-xl border border-white/10 bg-surface-50 p-3 shadow-2xl shadow-black/40">
+            <div className="space-y-1">
+              {navLinks.map(({ href, label, icon: Icon }) => (
+                <Link key={href} href={href} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">
+                  <Icon className="h-5 w-5 text-zinc-400" />
+                  {label}
                 </Link>
-                <div className="flex items-center gap-2 text-sm text-zinc-300">
-                  <User className="h-4 w-4" suppressHydrationWarning />
-                  <span className="max-w-[100px] truncate">{userName?.split(" ")[0] || "User"}</span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-                >
-                  <LogOut className="h-4 w-4" suppressHydrationWarning />
-                </button>
-              </div>
-            ) : (
-              <div className="hidden sm:flex items-center gap-3">
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/signup"
-                  className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90 transition-colors"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Search Dropdown */}
-        {showSearch && (
-          <div className="border-t border-white/10 bg-surface-50">
-            <div className="container mx-auto px-4 py-4">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" suppressHydrationWarning />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search blog posts, signals, EAs..."
-                  autoFocus
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-                />
-              </form>
+              ))}
             </div>
-          </div>
-        )}
-      </nav>
+            <div className="mt-3 border-t border-white/10 pt-3">
+              <NavbarAccount mobile />
+            </div>
+          </aside>
+        </details>
 
-      {/* Mobile Sidebar Overlay */}
-      <div
-        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-        onClick={() => setIsSidebarOpen(false)}
-      />
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+          <span className="text-brand">Forex</span>Factory
+        </Link>
 
-      {/* Mobile Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 z-50 h-[100dvh] w-72 bg-surface-50 border-r border-white/10 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white">
-            <span className="text-brand">Forex</span>Factory
-          </Link>
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5" suppressHydrationWarning />
-          </button>
+        <div className="hidden items-center gap-6 text-sm font-medium text-zinc-400 md:flex">
+          {navLinks.map(({ href, label }) => (
+            <Link key={href} href={href} className="transition-colors hover:text-brand">
+              {label}
+            </Link>
+          ))}
         </div>
 
-        {/* Sidebar Navigation */}
-        <nav className="flex-1 flex flex-col p-4 space-y-1 overflow-y-auto">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive
-                  ? "bg-brand/10 text-brand border border-brand/20"
-                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                  }`}
-              >
-                <Icon className="h-5 w-5" suppressHydrationWarning />
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Sidebar Footer */}
-        <div className="flex-none p-4 pb-10 border-t border-white/10 space-y-3">
-          {isAuthenticated ? (
-            <>
-              <Link
-                href="/dashboard"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <div className="flex items-center gap-2 px-2 py-2 text-sm text-zinc-300">
-                <User className="h-4 w-4" suppressHydrationWarning />
-                <span className="truncate">{userName || "User"}</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-              >
-                <LogOut className="h-4 w-4" suppressHydrationWarning />
-                Log out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full border border-white/10 bg-white/5 text-sm font-medium text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 !rounded-full bg-brand text-sm font-medium text-white hover:bg-brand/90 transition-colors"
-              >
-                Sign Up
-                <ArrowRight className="h-4 w-4" suppressHydrationWarning />
-              </Link>
-            </>
-          )}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <SearchPanel />
+          <NavbarAccount />
         </div>
-      </aside>
-    </>
+      </div>
+    </nav>
   );
 }

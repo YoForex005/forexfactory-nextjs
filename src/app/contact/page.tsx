@@ -1,65 +1,12 @@
-"use client";
-
-import { useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
+import { Mail, MessageSquare } from "lucide-react";
+import { ContactForm } from "@/components/contact/ContactForm";
 import { Footer } from "@/components/layout/Footer";
-import { Mail, MessageSquare, Send, CheckCircle2 } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
 import { generateContactPageSchema } from "@/lib/seo";
 
 const jsonLd = generateContactPageSchema();
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [deliveryStatus, setDeliveryStatus] = useState<"sent" | "saved" | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("loading");
-    setErrorMessage("");
-    setSuccessMessage("");
-    setDeliveryStatus(null);
-
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(
-          typeof result.error === "string" ? result.error : "Failed to send message"
-        );
-      }
-
-      setStatus("success");
-      setSuccessMessage(
-        typeof result.message === "string" ? result.message : "Message sent successfully."
-      );
-      setDeliveryStatus(result.delivery === "saved" ? "saved" : "sent");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch (error) {
-      setStatus("error");
-      setErrorMessage(
-        error instanceof Error ? error.message : "Failed to send message. Please try again."
-      );
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
   return (
     <div className="flex min-h-screen flex-col">
       <script
@@ -69,186 +16,45 @@ export default function ContactPage() {
       <Navbar />
 
       <main className="flex-1 bg-surface-100">
-        {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand/20 via-purple-500/20 to-surface-100 py-20">
           <div className="container mx-auto px-4 text-center md:text-left">
-            <div className="max-w-3xl mx-auto md:mx-0">
-              <h1 className="mb-6 text-4xl md:text-5xl font-bold leading-tight text-white">
-                Get in Touch
-              </h1>
-              <p className="text-lg md:text-xl text-zinc-300">
-                Have questions about our Expert Advisors or need support? We&apos;re here to help!
-              </p>
+            <div className="mx-auto max-w-3xl md:mx-0">
+              <h1 className="mb-6 text-4xl font-bold leading-tight text-white md:text-5xl">Get in Touch</h1>
+              <p className="text-lg text-zinc-300 md:text-xl">Have questions about our Expert Advisors or need support? We&apos;re here to help!</p>
             </div>
           </div>
         </section>
 
-        {/* Contact Form & Info */}
         <section id="contact-form" className="py-20">
           <div className="container mx-auto px-4">
             <div className="grid gap-12 lg:grid-cols-2">
-              {/* Contact Form */}
-              <div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left">
-                  <h2 className="mb-6 text-2xl font-bold text-white">Send us a Message</h2>
+              <ContactForm />
 
-                  {status === "success" ? (
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-6 text-center">
-                      <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />
-                      <h3 className="mb-2 text-xl font-bold text-white">
-                        {deliveryStatus === "saved" ? "Message Received!" : "Message Sent!"}
-                      </h3>
-                      <p className="text-zinc-300">
-                        {successMessage || "Thank you for contacting us. We&apos;ll get back to you within 24 hours."}
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div>
-                        <label htmlFor="name" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
-                          Name *
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                          maxLength={120}
-                          autoComplete="name"
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
-                          placeholder="Your name"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="email" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
-                          Email *
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          maxLength={254}
-                          autoComplete="email"
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
-                          placeholder="your@email.com"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="subject" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
-                          Subject *
-                        </label>
-                        <input
-                          type="text"
-                          id="subject"
-                          name="subject"
-                          value={formData.subject}
-                          onChange={handleChange}
-                          required
-                          maxLength={200}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
-                          placeholder="How can we help?"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="message" className="mb-2 block text-sm font-medium text-zinc-300 text-left">
-                          Message *
-                        </label>
-                        <textarea
-                          id="message"
-                          name="message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          required
-                          maxLength={10000}
-                          rows={6}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 text-center md:text-left"
-                          placeholder="Tell us more about your inquiry..."
-                        />
-                      </div>
-
-                      {status === "error" && (
-                        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-red-400">
-                          {errorMessage}
-                        </div>
-                      )}
-
-                      <button
-                        type="submit"
-                        disabled={status === "loading"}
-                        className="flex w-full items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
-                      >
-                        {status === "loading" ? (
-                          "Sending..."
-                        ) : (
-                          <>
-                            <Send className="h-5 w-5" />
-                            Send Message
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              </div>
-
-              {/* Contact Info */}
               <div className="space-y-8">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left flex flex-col items-center md:items-start">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 mx-auto md:mx-0">
+                <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:items-start md:text-left">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 md:mx-0">
                     <Mail className="h-6 w-6 text-brand" />
                   </div>
-                  <h3 className="mb-2 text-xl font-bold text-white">Email Us</h3>
-                  <p className="mb-4 text-zinc-400">
-                    For general inquiries and support
-                  </p>
-                  <a href="mailto:support@yoforex.net" className="text-brand hover:underline">
-                    support@yoforex.net
-                  </a>
+                  <h2 className="mb-2 text-xl font-bold text-white">Email Us</h2>
+                  <p className="mb-4 text-zinc-400">For general inquiries and support</p>
+                  <a href="mailto:support@yoforex.net" className="text-brand hover:underline">support@yoforex.net</a>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left flex flex-col items-center md:items-start">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 mx-auto md:mx-0">
+                <div className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:items-start md:text-left">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 md:mx-0">
                     <MessageSquare className="h-6 w-6 text-purple-400" />
                   </div>
-                  <h3 className="mb-2 text-xl font-bold text-white">Live Chat</h3>
-                  <p className="mb-4 text-zinc-400">
-                    Get instant help from our support team
-                  </p>
-                  <button className="text-brand hover:underline">
-                    Start Chat (Coming Soon)
-                  </button>
+                  <h2 className="mb-2 text-xl font-bold text-white">Live Chat</h2>
+                  <p className="mb-4 text-zinc-400">Get instant help from our support team</p>
+                  <span className="text-brand">Live chat is coming soon</span>
                 </div>
 
-                {/* FAQ */}
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center md:text-left">
-                  <h3 className="mb-4 text-xl font-bold text-white">Frequently Asked Questions</h3>
+                  <h2 className="mb-4 text-xl font-bold text-white">Frequently Asked Questions</h2>
                   <div className="space-y-4">
-                    <div>
-                      <h4 className="mb-1 font-medium text-white">Are all Expert Advisors really free?</h4>
-                      <p className="text-sm text-zinc-400">
-                        Yes! All our Expert Advisors are 100% free to download and use.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 font-medium text-white">Do I need coding knowledge?</h4>
-                      <p className="text-sm text-zinc-400">
-                        No, our EAs are ready to use. Just download and install on MT4/MT5.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 font-medium text-white">How often are EAs updated?</h4>
-                      <p className="text-sm text-zinc-400">
-                        We continuously test and update our EAs to ensure optimal performance.
-                      </p>
-                    </div>
+                    <div><h3 className="mb-1 font-medium text-white">Are all Expert Advisors really free?</h3><p className="text-sm text-zinc-400">Yes. All Expert Advisors are free to download and use.</p></div>
+                    <div><h3 className="mb-1 font-medium text-white">Do I need coding knowledge?</h3><p className="text-sm text-zinc-400">No. Our EAs are ready to use on MT4 and MT5.</p></div>
+                    <div><h3 className="mb-1 font-medium text-white">How often are EAs updated?</h3><p className="text-sm text-zinc-400">We continuously test and update our tools for the best experience.</p></div>
                   </div>
                 </div>
               </div>

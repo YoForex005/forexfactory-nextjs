@@ -4,7 +4,7 @@ import Image from "next/image";
 import { repairBlogFeaturedImageUrl } from "@/lib/content-links";
 import { BlogCardViewCount } from "@/components/blog/BlogCardViewCount";
 
-interface BlogCardData {
+export interface BlogCardData {
   id: string | number | bigint;
   title: string;
   seoSlug?: string;
@@ -101,7 +101,7 @@ export function BlogCard({ blog, priority }: BlogCardProps) {
           )}
           <span>{format(new Date(blog.createdAt), "MMM d, yyyy")}</span>
           <span>•</span>
-          <BlogCardViewCount blogId={String(blog.id)} initialViews={String(blog.views ?? 0)} />
+          <BlogCardViewCount initialViews={String(blog.views ?? 0)} />
         </div>
 
         <h3 className="mb-2 text-xl font-bold leading-tight text-white transition-colors group-hover:text-brand">

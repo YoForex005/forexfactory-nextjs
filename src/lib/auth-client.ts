@@ -47,9 +47,8 @@ export function isLoggedIn(): boolean {
     if (!token) return false;
 
     try {
-        const decoded: AuthToken = JSON.parse(
-            Buffer.from(token, "base64").toString("utf-8")
-        );
+        const bytes = Uint8Array.from(atob(token), (character) => character.charCodeAt(0));
+        const decoded: AuthToken = JSON.parse(new TextDecoder().decode(bytes));
         return decoded.exp > Date.now();
     } catch {
         return false;
