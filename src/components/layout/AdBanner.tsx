@@ -39,7 +39,7 @@ export function AdBanner() {
           {/* Action Links */}
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/contact"
+              href="https://t.me/yoforexrobot"
               className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-bold transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20"
             >
               Get Your Custom Trading Bot Today
