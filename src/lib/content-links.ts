@@ -1,4 +1,5 @@
 const R2_IMAGE_BASE = "https://pub-9fc60e9b8d334d298b6a4a22f06229c0.r2.dev/images";
+const TELEGRAM_BOT_URL = "https://t.me/yoforexrobot";
 
 // This is a locally-served route, so it remains available even when an old
 // post's featured image has been deleted from the legacy media host.
@@ -53,14 +54,11 @@ function isKnownBrokenHref(url: string) {
     || normalizedUrl.includes("support & disclaimer");
 }
 
-function isLegacyWhatsAppHref(url: string) {
-  const normalizedUrl = decodeHtmlUrl(url);
-  return normalizedUrl.includes("wa.me/+443300272265")
-    || normalizedUrl.includes("wa.me/443300272265")
-    || normalizedUrl.includes("wa.me/917449454349")
-    || normalizedUrl.includes("api.whatsapp.com/send/?phone=%2B443300272265")
-    || normalizedUrl.includes("api.whatsapp.com/send/?phone=443300272265")
-    || normalizedUrl.includes("api.whatsapp.com/send/?phone=917449454349");
+function isWhatsAppHref(url: string) {
+  const normalizedUrl = decodeHtmlUrl(url).toLowerCase();
+  return normalizedUrl.includes("wa.me/")
+    || normalizedUrl.includes("api.whatsapp.com/")
+    || normalizedUrl.includes("web.whatsapp.com/");
 }
 
 /**
@@ -85,8 +83,8 @@ export function sanitizeBlogHtml(content: string): string {
     if (!hrefMatch) return tag;
 
     const href = hrefMatch[2];
-    if (isLegacyWhatsAppHref(href)) {
-      return `<a href="/contact">${children}</a>`;
+    if (isWhatsAppHref(href)) {
+      return `<a href="${TELEGRAM_BOT_URL}" target="_blank" rel="noopener noreferrer">${children}</a>`;
     }
 
     // Retain the editorial text but remove destinations that are confirmed

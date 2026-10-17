@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Mail, Phone, MapPin, Save, Loader2 } from "lucide-react";
+import { User, Mail, MapPin, Save, Loader2 } from "lucide-react";
 import { getUser, getToken, saveAuth } from "@/lib/auth-client";
 
 export default function ProfilePage() {
@@ -13,7 +13,6 @@ export default function ProfilePage() {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
-        phone: "",
         country: "India",
     });
 
@@ -49,7 +48,6 @@ export default function ProfilePage() {
                 setFormData({
                     name: data.user.name || "",
                     email: data.user.email || "",
-                    phone: data.user.phone || "",
                     country: data.user.country || "India",
                 });
             }
@@ -81,7 +79,6 @@ export default function ProfilePage() {
                 },
                 body: JSON.stringify({
                     name: formData.name,
-                    phone: formData.phone,
                     country: formData.country,
                 }),
             });
@@ -99,7 +96,7 @@ export default function ProfilePage() {
                 const data = await res.json();
                 setError(data.error || "Failed to update profile");
             }
-        } catch (err) {
+        } catch {
             setError("Something went wrong");
         } finally {
             setIsSaving(false);
@@ -176,23 +173,6 @@ export default function ProfilePage() {
                             />
                         </div>
                         <p className="mt-1 text-xs text-zinc-500">Email cannot be changed</p>
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-2">
-                            Phone Number (Optional)
-                        </label>
-                        <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
-                            <input
-                                type="tel"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                placeholder="+91 98765 43210"
-                                className="w-full rounded-lg border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white placeholder-zinc-500 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-                            />
-                        </div>
                     </div>
 
                     {/* Country */}

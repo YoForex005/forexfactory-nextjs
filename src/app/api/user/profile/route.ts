@@ -39,7 +39,6 @@ export async function GET(req: Request) {
                 id: true,
                 email: true,
                 name: true,
-                phone: true,
                 country: true,
                 createdAt: true,
             }
@@ -85,14 +84,12 @@ Saved Count (via findMany): ${savedArticlesList.length}
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                phone: user.phone,
                 country: user.country,
                 createdAt: user.createdAt,
             } : {
                 id: userId,
                 email: "unknown",
                 name: "User",
-                phone: null,
                 country: null,
                 createdAt: new Date(),
             },
@@ -118,11 +115,11 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { name, phone, country } = await req.json();
+        const { name, country } = await req.json();
 
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { name, phone, country },
+            data: { name, country },
         });
 
         return NextResponse.json({ success: true, user: updatedUser });

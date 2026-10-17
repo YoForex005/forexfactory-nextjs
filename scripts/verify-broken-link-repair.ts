@@ -29,9 +29,9 @@ const reportedImageUrls = [
 ];
 
 const reportedHrefUrls = [
-  "https://wa.me/+443300272265",
-  "https://api.whatsapp.com/send/?phone=917449454349&text&type=phone_number&app_absent=0",
-  "https://api.whatsapp.com/send/?phone=443300272265&text&type=phone_number&app_absent=0",
+  "https://wa.me/support",
+  "https://api.whatsapp.com/send",
+  "https://web.whatsapp.com/",
   "https://singaporeforexclub.com/how-to-stay-updated-with-forex-news-effectively",
   "https://www.mql5.com/en/signals/2389923",
   "https://www.mql5.com/en/market/product/186917?utm_source=chatgpt.com",
@@ -59,7 +59,7 @@ if (stillPresent.length > 0) {
 
 if (!repaired.includes("img_683edd1784dd66.47870870.webp")
   || !repaired.includes("img_68270ce94d3fe0.94564354.webp")
-  || !repaired.includes('href="/contact"')) {
+  || !repaired.includes('href="https://t.me/yoforexrobot"')) {
   throw new Error("Expected replacements were not applied.");
 }
 
