@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { BlogStatus } from '@prisma/client';
 import { sanitizeBlogHtml } from '@/lib/content-links';
@@ -126,9 +127,13 @@ export async function POST(request: Request) {
             }
         });
 
+        if (blog.status === BlogStatus.published) {
+            revalidateTag("blog-card-data", { expire: 0 });
+        }
+
         console.log("Successfully injected blog with SEO meta:", blog.id);
 
-        return NextResponse.json({ success: true, blogId: blog.id, slug: blog.seoSlug });
+        return NextResponse.json({ success: true, blogId: blog.id.toString(), slug: blog.seoSlug });
     } catch (error) {
         console.error("Injection Error:", error);
         return NextResponse.json({ success: false, error: String(error) }, { status: 500 });

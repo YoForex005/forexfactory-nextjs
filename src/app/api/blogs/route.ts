@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { submitSingleUrl } from "@/lib/indexnow";
@@ -102,7 +103,8 @@ export async function POST(req: Request) {
     });
 
     // Trigger IndexNow if published
-    if (validatedData.status === 'published') {
+    if (blog.status === 'published') {
+      revalidateTag("blog-card-data", { expire: 0 });
       const blogUrl = `${SITE_URL}/blog/${validatedData.seoSlug}`;
       try {
         const indexResult = await submitSingleUrl(blogUrl);
@@ -131,7 +133,12 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json(blog, { status: 201 });
+    return NextResponse.json({
+      ...blog,
+      id: blog.id.toString(),
+      categoryId: blog.categoryId.toString(),
+      views: (blog.views ?? BigInt(0)).toString(),
+    }, { status: 201 });
   } catch (error) {
     console.error("Error creating blog:", error);
     if (error instanceof z.ZodError) {
