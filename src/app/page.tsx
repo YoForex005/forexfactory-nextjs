@@ -186,7 +186,7 @@ const getCachedHomePageDatabaseData = unstable_cache(
   async () => {
       const [latestBlogsRaw, popularBlogsRaw, allCategoryBlogsRaw] = await Promise.all([
         prisma.blog.findMany({
-          where: { status: "published", views: { gt: BigInt(0) } },
+          where: { status: "published" },
           orderBy: { createdAt: "desc" },
           take: 3,
           select: {
@@ -243,7 +243,7 @@ const getCachedHomePageDatabaseData = unstable_cache(
 
       return { latestBlogs, popularBlogs, allCategoryBlogs, usingFallback: false };
   },
-  ["home-page-database-data-v4"],
+  ["home-page-database-data-v5"],
   { revalidate: 300, tags: ["blog-card-data"] }
 );
 

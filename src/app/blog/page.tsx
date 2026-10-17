@@ -23,9 +23,8 @@ const BLOG_DESCRIPTION =
 export const revalidate = 300;
 
 const BLOGS_PER_PAGE = 12; // Show 12 blogs per page
-const VIEWED_PUBLISHED_BLOGS = {
+const PUBLISHED_BLOGS = {
   status: "published" as const,
-  views: { gt: BigInt(0) },
 };
 
 type BlogListItem = {
@@ -127,7 +126,7 @@ const getBlogListingData = unstable_cache(
   try {
     const [blogsRaw, count] = await Promise.all([
       prisma.blog.findMany({
-        where: VIEWED_PUBLISHED_BLOGS,
+        where: PUBLISHED_BLOGS,
         orderBy: { createdAt: "desc" },
         skip,
         take: BLOGS_PER_PAGE,
@@ -147,7 +146,7 @@ const getBlogListingData = unstable_cache(
         },
       }),
       prisma.blog.count({
-        where: VIEWED_PUBLISHED_BLOGS,
+        where: PUBLISHED_BLOGS,
       }),
     ]);
 
@@ -158,7 +157,7 @@ const getBlogListingData = unstable_cache(
     return { blogs, count: blogs.length };
   }
   },
-  ["blog-listing-data-v2"],
+  ["blog-listing-data-v3"],
   { revalidate: 300, tags: ["blog-card-data"] }
 );
 
