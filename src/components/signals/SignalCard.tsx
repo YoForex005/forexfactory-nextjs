@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Signal } from "@prisma/client";
 import { Download, FileCode, Calendar } from "lucide-react";
+import { sanitizeBlogHtml } from "@/lib/content-links";
 
 interface SignalCardProps {
   signal: Signal;
@@ -14,7 +15,7 @@ export function SignalCard({ signal }: SignalCardProps) {
     year: 'numeric'
   });
 
-  // Helper to handle multiple levels of escaped HTML from database
+  // Helper to handle multiple levels of escaped HTML from database and sanitize broken links
   const createMarkup = (htmlContent: string) => {
     let decoded = htmlContent;
     for (let i = 0; i < 3; i++) {
@@ -28,7 +29,7 @@ export function SignalCard({ signal }: SignalCardProps) {
       if (current === decoded) break;
       decoded = current;
     }
-    return { __html: decoded };
+    return { __html: sanitizeBlogHtml(decoded) };
   };
 
   return (

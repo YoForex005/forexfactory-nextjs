@@ -9,6 +9,7 @@ import {
   generateSoftwareApplicationSchema,
   sanitizeText,
 } from "@/lib/seo";
+import { sanitizeBlogHtml } from "@/lib/content-links";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -91,7 +92,7 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
     return html.replace(/<[^>]*>?/gm, "");
   }
 
-  // Helper to handle multiple levels of escaped HTML
+  // Helper to handle multiple levels of escaped HTML and sanitize broken links
   const decodeHtml = (html: string) => {
     let decoded = html;
     for (let i = 0; i < 3; i++) {
@@ -104,7 +105,7 @@ export default async function SignalDetailPage({ params }: SignalDetailProps) {
       if (current === decoded) break;
       decoded = current;
     }
-    return { __html: decoded };
+    return { __html: sanitizeBlogHtml(decoded) };
   };
 
   const jsonLd = generateSoftwareApplicationSchema({

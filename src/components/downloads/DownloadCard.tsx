@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Signal } from "@prisma/client";
 import { Download, FileCode } from "lucide-react";
+import { sanitizeBlogHtml } from "@/lib/content-links";
 
 interface DownloadCardProps {
   signal: Signal;
@@ -9,7 +10,7 @@ interface DownloadCardProps {
 export function DownloadCard({ signal }: DownloadCardProps) {
   const fileSizeMB = (signal.sizeBytes / (1024 * 1024)).toFixed(2);
 
-  // Helper to handle multiple levels of escaped HTML from database
+  // Helper to handle multiple levels of escaped HTML from database and sanitize broken links
   const createMarkup = (htmlContent: string) => {
     let decoded = htmlContent;
     // Decode up to 3 times to handle triple-escaped content
@@ -24,7 +25,7 @@ export function DownloadCard({ signal }: DownloadCardProps) {
       if (current === decoded) break; // Stop if no changes
       decoded = current;
     }
-    return { __html: decoded };
+    return { __html: sanitizeBlogHtml(decoded) };
   };
 
   return (

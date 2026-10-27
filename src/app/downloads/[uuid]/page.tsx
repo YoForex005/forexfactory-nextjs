@@ -18,6 +18,7 @@ import {
   DEFAULT_OG_IMAGE,
   sanitizeText,
 } from "@/lib/seo";
+import { sanitizeBlogHtml } from "@/lib/content-links";
 
 interface PageProps {
   params: Promise<{ uuid: string }>;
@@ -88,6 +89,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
     getSuggestedSignals(signal.id),
   ]);
 
+  const fileSizeMB = (signal.sizeBytes / (1024 * 1024)).toFixed(2);
   const winRate = signal.winRate ? Number(signal.winRate).toFixed(1) : null;
   const rating = signal.rating ? Number(signal.rating).toFixed(1) : null;
   const profitFactor = signal.profitFactor ? Number(signal.profitFactor).toFixed(2) : null;
@@ -121,7 +123,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
       : undefined,
   });
 
-  // Helper to handle multiple levels of escaped HTML
+  // Helper to handle multiple levels of escaped HTML and sanitize broken links
   const decodeHtml = (html: string) => {
     let decoded = html;
     for (let i = 0; i < 3; i++) {
@@ -134,7 +136,7 @@ export default async function DownloadDetailPage({ params }: PageProps) {
       if (current === decoded) break;
       decoded = current;
     }
-    return { __html: decoded };
+    return { __html: sanitizeBlogHtml(decoded) };
   };
 
   return (

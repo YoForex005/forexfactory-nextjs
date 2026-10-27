@@ -21,7 +21,9 @@ function decodeHtmlUrl(url: string) {
 function isLegacyBrokenImage(url: string) {
   const normalizedUrl = decodeHtmlUrl(url);
   return normalizedUrl.startsWith("https://forexfactory.cc/uploads/")
-    || normalizedUrl.startsWith("http://forexfactory.cc/uploads/");
+    || normalizedUrl.startsWith("http://forexfactory.cc/uploads/")
+    || normalizedUrl.includes("yoforex.org/wp-content/uploads/")
+    || normalizedUrl.includes("forexfactory.cc/uploads/");
 }
 
 export function repairBlogImageUrl(url?: string | null): string | null {
@@ -48,6 +50,15 @@ function isKnownBrokenHref(url: string) {
   const normalizedUrl = decodeHtmlUrl(url).toLowerCase();
 
   return normalizedUrl.includes("mql5.com/")
+    || normalizedUrl.includes("mql5.software")
+    || normalizedUrl.includes("forexroboteasy.com")
+    || normalizedUrl.includes("goldendeltaea.com")
+    || normalizedUrl.includes("papers.ssrn.com")
+    || normalizedUrl.includes("thetradelovers.com")
+    || normalizedUrl.includes("protradingdesk.com")
+    || normalizedUrl.includes("yoforex.net")
+    || normalizedUrl.includes("yoforex.co.in")
+    || normalizedUrl.includes("yoforex.org/wp-content/uploads/")
     || normalizedUrl.includes("singaporeforexclub.com/how-to-stay-updated-with-forex-news-effectively")
     || normalizedUrl.includes("/aicon-ea-v8-18-mt5")
     || normalizedUrl.includes("/trendcandleea")
@@ -67,6 +78,9 @@ function isWhatsAppHref(url: string) {
  * migration. The matching database migration uses this same function.
  */
 export function sanitizeBlogHtml(content: string): string {
+  if (!content) return "";
+
+  // 1. Process HTML image tags
   let sanitized = content.replace(/<img\b[^>]*\bsrc\s*=\s*(["'])(.*?)\1[^>]*>/gi, (tag, quote, src) => {
     const replacement = replacementForImage(src);
     if (replacement) {
@@ -78,6 +92,16 @@ export function sanitizeBlogHtml(content: string): string {
     return replacement === null ? "" : tag;
   });
 
+  // 2. Process Markdown image syntax: ![alt](url)
+  sanitized = sanitized.replace(/!\[(.*?)\]\((https?:\/\/[^\s\)]+)\)/gi, (tag, alt, src) => {
+    const replacement = replacementForImage(src);
+    if (replacement) {
+      return `![${alt}](${replacement})`;
+    }
+    return replacement === null ? "" : tag;
+  });
+
+  // 3. Process HTML anchor tags
   sanitized = sanitized.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (tag, attributes, children) => {
     const hrefMatch = attributes.match(/\bhref\s*=\s*(["'])(.*?)\1/i);
     if (!hrefMatch) return tag;
@@ -90,9 +114,29 @@ export function sanitizeBlogHtml(content: string): string {
     // Retain the editorial text but remove destinations that are confirmed
     // unavailable or malformed. This is safer than silently redirecting to an
     // unrelated page.
-    return isKnownBrokenHref(href) ? children : tag;
+    if (isKnownBrokenHref(href)) {
+      return children.trim() ? children : "";
+    }
+
+    return tag;
   });
+
+  // 4. Process Markdown links: [text](url)
+  sanitized = sanitized.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/gi, (tag, text, href) => {
+    if (isWhatsAppHref(href)) {
+      return `[${text}](${TELEGRAM_BOT_URL})`;
+    }
+    if (isKnownBrokenHref(href)) {
+      return text;
+    }
+    return tag;
+  });
+
+  // 5. Clean up any empty anchors left behind
+  sanitized = sanitized.replace(/<a\b[^>]*>\s*<\/a>/gi, "");
+
+  // 6. Clean up empty paragraphs or figures left behind after image/anchor stripping
+  sanitized = sanitized.replace(/<(p|figure)\b[^>]*>\s*<\/\1>/gi, "");
 
   return sanitized;
 }
-
