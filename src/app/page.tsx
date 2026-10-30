@@ -1,40 +1,38 @@
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import Script from "next/script";
 import { ArrowRight, Download, BarChart2, BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { BlogSection } from "@/components/blog/BlogSection";
 import { AdBanner } from "@/components/layout/AdBanner";
-
-// Serve a cached, static homepage and refresh it in the background every five
-// minutes. The homepage already uses cached database queries, so forcing a new
-// server render for every visitor only adds avoidable TTFB.
-export const revalidate = 300;
-
-
-import { Metadata } from 'next';
 import {
   DEFAULT_OG_IMAGE,
-  SITE_DESCRIPTION,
   SITE_NAME,
-  SITE_TAGLINE,
   SITE_URL,
   generateOrganizationSchema,
   generateWebPageSchema,
   generateWebsiteSchema,
 } from "@/lib/seo";
 
+// Serve a cached, static homepage and refresh it in the background every five
+// minutes. The homepage already uses cached database queries, so forcing a new
+// server render for every visitor only adds avoidable TTFB.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
-  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-  description: SITE_DESCRIPTION,
+  title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+  description:
+    "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
   verification: {
     google: "zaVCeEONH2MBblcEN1wrlJhwNvknYX-5JcCcpvJWChk",
   },
   openGraph: {
-    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
+    title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+    description:
+      "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
     url: SITE_URL,
     siteName: SITE_NAME,
     images: [
@@ -50,8 +48,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
+    title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+    description:
+      "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
     images: [DEFAULT_OG_IMAGE],
   },
   alternates: {
@@ -73,8 +72,9 @@ export const metadata: Metadata = {
 const jsonLdOrganization = generateOrganizationSchema();
 const jsonLdWebsite = generateWebsiteSchema();
 const jsonLdWebPage = generateWebPageSchema({
-  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
-  description: SITE_DESCRIPTION,
+  title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+  description:
+    "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
   url: SITE_URL
 });
 
@@ -326,8 +326,8 @@ export default async function Home() {
               New EAs Added Daily
             </div>
 
-            <h1 className="mx-auto max-w-4xl text-5xl font-bold tracking-tight text-white sm:text-7xl mb-6">
-              Master the Markets with <span className="gradient-text">Algorithmic Precision</span>
+            <h1 className="mx-auto max-w-5xl text-4xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl mb-6">
+              Find the Right <span className="gradient-text">Forex Robot or Expert Advisor</span> for MT4 and MT5
             </h1>
 
             <p className="mx-auto max-w-2xl text-lg text-zinc-400 mb-10">
