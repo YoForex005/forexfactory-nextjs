@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import Script from "next/script";
-import { ArrowRight, Download, BarChart2, BookOpen } from "lucide-react";
+import { ArrowRight, Download, BarChart2, BookOpen, ChevronDown, HelpCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -12,6 +12,7 @@ import {
   DEFAULT_OG_IMAGE,
   SITE_NAME,
   SITE_URL,
+  generateFAQPageSchema,
   generateOrganizationSchema,
   generateWebPageSchema,
   generateWebsiteSchema,
@@ -23,14 +24,26 @@ import {
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+  title: "Free Forex Robots & EAs Marketplace for MT4/MT5",
   description:
     "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
+  keywords: [
+    "Free Forex Robots",
+    "Forex Expert Advisors",
+    "Forex Trading Robots",
+    "MT4 Expert Advisors",
+    "MT5 Expert Advisors",
+    "Forex Indicators",
+    "MT4 Indicators",
+    "MT5 Indicators",
+    "Forex Trading Signals",
+    "Automated Forex Trading Systems",
+  ],
   verification: {
     google: "zaVCeEONH2MBblcEN1wrlJhwNvknYX-5JcCcpvJWChk",
   },
   openGraph: {
-    title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+    title: "Free Forex Robots & EAs Marketplace for MT4/MT5",
     description:
       "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
     url: SITE_URL,
@@ -48,7 +61,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+    title: "Free Forex Robots & EAs Marketplace for MT4/MT5",
     description:
       "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
     images: [DEFAULT_OG_IMAGE],
@@ -72,11 +85,69 @@ export const metadata: Metadata = {
 const jsonLdOrganization = generateOrganizationSchema();
 const jsonLdWebsite = generateWebsiteSchema();
 const jsonLdWebPage = generateWebPageSchema({
-  title: "Free Forex Robots & EAs Marketplace for MT4/MT",
+  title: "Free Forex Robots & EAs Marketplace for MT4/MT5",
   description:
     "A marketplace for MT4 and MT5 trading bots and Expert Advisors. Buy or sell forex robots with clear compatibility details and support information.",
   url: SITE_URL
 });
+
+interface HomepageFaqItem {
+  question: string;
+  answer: string;
+  internalLink?: {
+    href: string;
+    text: string;
+  };
+}
+
+const homepageFaqs: HomepageFaqItem[] = [
+  {
+    question: "What Is ForexFactory.cc and How Does Its Forex Trading Platform Work?",
+    answer:
+      "ForexFactory.cc is an online platform for exploring Forex Expert Advisors, automated trading robots, Forex indicators, trading signals, and algorithmic trading resources.",
+  },
+  {
+    question: "Where Can I Download Forex Robots for MT4 and MT5?",
+    answer:
+      "ForexFactory.cc provides Forex robot and Expert Advisor resources for MetaTrader 4 and MetaTrader 5. Users can explore available trading tools and check their platform compatibility.",
+    internalLink: {
+      href: "/downloads",
+      text: "Browse Forex robots & EAs",
+    },
+  },
+  {
+    question: "What Are the Different Types of Forex Expert Advisors Available?",
+    answer:
+      "ForexFactory.cc features different Forex Expert Advisors, including Gold Trading EAs, Scalping Robots, Trend Following EAs, and automated Forex trading systems.",
+  },
+  {
+    question: "How Can I Find Forex Trading Signals and Market Analysis?",
+    answer:
+      "Users can explore Forex trading signals and market-related resources on ForexFactory.cc to understand different trading opportunities and market movements.",
+  },
+  {
+    question: "Where Can I Find Forex EA Installation Guides and Automated Trading Strategies?",
+    answer:
+      "ForexFactory.cc provides access to educational resources related to Forex EA installation, MT4 and MT5 trading tools, backtesting, EA optimization, and automated trading strategies.",
+    internalLink: {
+      href: "/blog",
+      text: "Read installation guides & strategies",
+    },
+  },
+  {
+    question: "How Can I Get Custom Forex EA Development for My Trading Strategy?",
+    answer:
+      "Traders can explore custom Forex EA development options for Smart Money Concept strategies, Gold Trading Bots, Scalping EAs, and customized automated trading systems.",
+    internalLink: {
+      href: "/contact",
+      text: "Contact for custom EA development",
+    },
+  },
+];
+
+const jsonLdFaq = generateFAQPageSchema(
+  homepageFaqs.map(({ question, answer }) => ({ question, answer }))
+);
 
 // Blog selection type
 type BlogPreview = {
@@ -397,6 +468,65 @@ export default async function Home() {
           />
         </div>
 
+        {/* FAQ Section */}
+        <section
+          id="faq"
+          aria-labelledby="homepage-faq-heading"
+          className="border-t border-white/5 bg-surface-50/30 py-20"
+        >
+          <div className="container mx-auto max-w-4xl px-4">
+            <div className="mb-12 text-center">
+              <div className="mb-4 inline-flex items-center rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-sm font-medium text-brand">
+                <HelpCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+                Frequently Asked Questions
+              </div>
+              <h2
+                id="homepage-faq-heading"
+                className="text-3xl font-bold tracking-tight text-white sm:text-4xl"
+              >
+                Frequently Asked <span className="gradient-text">Questions</span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base text-zinc-400">
+                Explore answers to common questions about ForexFactory.cc, downloading Forex robots for MT4 and MT5, trading signals, and automated expert advisors.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {homepageFaqs.map((faq, index) => (
+                <details
+                  key={index}
+                  className="group rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:border-brand/30 open:border-brand/40 open:bg-white/[0.05]"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6 font-semibold text-white transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-100 rounded-2xl [&::-webkit-details-marker]:hidden">
+                    <h3 className="text-left text-base sm:text-lg font-medium text-white transition-colors group-hover:text-brand">
+                      {faq.question}
+                    </h3>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-colors group-hover:border-brand/30 group-open:border-brand/40 group-open:bg-brand/10">
+                      <ChevronDown
+                        className="h-4 w-4 text-zinc-400 transition-transform duration-200 group-open:rotate-180 group-open:text-brand"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </summary>
+                  <div className="border-t border-white/5 px-5 pb-5 pt-4 sm:px-6 sm:pb-6 text-sm sm:text-base leading-relaxed text-zinc-400">
+                    <p>{faq.answer}</p>
+                    {faq.internalLink && (
+                      <div className="mt-3">
+                        <Link
+                          href={faq.internalLink.href}
+                          className="inline-flex items-center text-sm font-medium text-brand hover:underline"
+                        >
+                          {faq.internalLink.text} &rarr;
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="border-t border-white/5 bg-surface-50/50 py-16 sm:py-20">
           <div className="container mx-auto px-4 text-center">
             <p className="text-sm text-zinc-400">Looking for a specific platform, strategy, or trading topic?</p>
@@ -413,7 +543,7 @@ export default async function Home() {
       <Script
         id="json-ld-structured-data"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite, jsonLdWebPage]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLdOrganization, jsonLdWebsite, jsonLdWebPage, jsonLdFaq]) }}
       />
     </div>
   );
