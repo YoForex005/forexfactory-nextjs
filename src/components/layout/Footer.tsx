@@ -4,7 +4,7 @@ import { SITE_NAME } from "@/lib/seo";
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-surface-50 py-12">
-      <div className="container mx-auto px-4 grid gap-8 grid-cols-3 md:grid-cols-4">
+      <div className="container mx-auto px-4 grid grid-cols-3 gap-x-6 gap-y-8 md:grid-cols-[18rem_auto_auto_auto] md:justify-center md:gap-x-12 lg:gap-x-16">
         <div className="col-span-3 md:col-span-1 text-center md:text-left">
           <div className="font-bold text-xl text-white mb-4">
             <span className="text-brand">Forex</span>Factory
